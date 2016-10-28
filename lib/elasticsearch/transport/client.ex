@@ -1,5 +1,5 @@
 defmodule Elasticsearch.Transport.Client do
-  import Elasticsearch.Blank, only: [blank?: 1]
+  import Elasticsearch.Funcs, only: [blank?: 1]
 
   defstruct [
     method: "GET",
