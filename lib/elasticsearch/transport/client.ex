@@ -7,11 +7,11 @@ defmodule Elasticsearch.Transport.Client do
     debug: false,
   ]
 
-  def transport(args \\ []) do
+  def transport(args \\ %{}) do
     struct %__MODULE__{}, args
   end
 
-  def perform_request(%__MODULE__{} = ts, method, path, params \\ [], body \\ nil) do
+  def perform_request(%__MODULE__{} = ts, method, path, params \\ %{}, body \\ nil) do
     if "GET" == method && body, do: method = ts.method
 
     uri = "http://localhost:9200" <> "/" <> path
@@ -33,7 +33,7 @@ defmodule Elasticsearch.Transport.Client do
       _        -> {:error, %ArgumentError{message: "Method #{method} not supported"}}
     end
   end
-  def perform_request!(%__MODULE__{} = ts, method, path, params \\ [], body \\ nil) do
+  def perform_request!(%__MODULE__{} = ts, method, path, params \\ %{}, body \\ nil) do
     case perform_request(ts, method, path, params, body) do
       {:ok, rs} -> rs
       {:error, err} -> raise err

@@ -1,5 +1,10 @@
 defmodule Elasticsearch.API.Utils do
 
+  def escape(string) when string == "*", do: string
+  def escape(string) do
+    "#{:edoc_lib.escape_uri '#{string}'}"
+  end
+
   # TODO: More
   def listify(nil),do: nil
   def listify(list) when is_bitstring(list), do: list
