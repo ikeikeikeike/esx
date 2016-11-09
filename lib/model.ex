@@ -6,7 +6,7 @@ defmodule Model do
     indexes "field2", type: "boolean"
 
     Enum.each 3..10, fn num ->
-      indexes "field#{num}", type: "string#{num}"
+      indexes "field#{num}", type: "string"
     end
   end
 
