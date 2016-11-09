@@ -1,11 +1,13 @@
 defmodule Elasticsearch.Transport.Client do
-  import Elasticsearch.Funcs, only: [blank?: 1]
+  import Elasticsearch.Blank, only: [blank?: 1]
 
   defstruct [
     method: "GET",
     transport: HTTPoison, # TODO: More
-    debug: false,
+    trace: false,
   ]
+
+  # @type t :: %__MODULE__{method: String.t, transport: HTTPoison.t, trace: String.t}
 
   def transport(args \\ %{}) do
     struct %__MODULE__{}, args
@@ -18,7 +20,7 @@ defmodule Elasticsearch.Transport.Client do
     body = if body, do: Poison.encode!(body), else: ""
     headers = [{"content-type", "application/json"}]
 
-    if ts.debug do
+    if ts.trace do
       out = "curl -X #{method} '#{uri}'"
       unless blank?(body), do: out = "#{out} -d '#{JSX.prettify! body}'"
       IO.puts "#{out}\n"

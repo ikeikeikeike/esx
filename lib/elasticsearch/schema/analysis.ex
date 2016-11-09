@@ -1,5 +1,6 @@
 defmodule Elasticsearch.Schema.Analysis do
   alias Elasticsearch.Schema.Analysis, as: Analysis
+  alias Elasticsearch.Funcs
 
   @doc false
   defmacro __using__(_) do
@@ -66,9 +67,9 @@ defmodule Elasticsearch.Schema.Analysis do
   @doc false
   def __es_analyses__(analyses) do
     types =
-      Enum.reduce analyses, %{}, fn {type, name, opts}, acc ->
-        m = Map.new([{name, opts}])
-        Map.update(acc, type, m, & Map.merge(&1, m))
+      Enum.reduce analyses, [], fn {type, name, opts}, acc ->
+        m = Keyword.new([{name, opts}])
+        Keyword.update(acc, type, m, & Keyword.merge(&1, m))
       end
 
     quoted =
@@ -86,6 +87,8 @@ defmodule Elasticsearch.Schema.Analysis do
     escaped = Macro.escape(types)
 
     quote do
+      def __es_analysis__(:to_map), do: %{analysis: Funcs.to_map(unquote(escaped))}
+      def __es_analysis__(:as_json), do: __es_analysis__ :to_map
       def __es_analysis__(:types), do: unquote(escaped)
       unquote(quoted)
       def __es_analysis__(:type, _), do: nil

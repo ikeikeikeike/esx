@@ -24,13 +24,4 @@ defmodule Elasticsearch.API.R do
     end
   end
 
-  def required(_mod, _func, %Client{} = ts, %{} = args) when map_size(args) < 2,
-   do: {:error, "Required argument 'index or type' missing"}
-  def required(_mod, _func, %Client{} = ts, %{type: type}) when not is_bitstring(type),
-   do: {:error, "Required argument 'index' missing"}
-  def required(_mod, _func, %Client{} = ts, %{index: index}) when not is_bitstring(index),
-   do: {:error, "Required argument 'type' missing"}
-  def required(mod, func, %Client{} = ts, %{} = args),
-   do: apply mod, func, [ts, Map.merge(args, %{required: true})]
-
 end

@@ -2,8 +2,7 @@ defmodule Elasticsearch.Schema do
   @doc false
   defmacro __using__(_opts) do
     quote do
-      use Elasticsearch.Schema.Mapping
-      use Elasticsearch.Schema.Analysis
+      use Elasticsearch.Schema.{Mapping, Analysis}
     end
   end
 

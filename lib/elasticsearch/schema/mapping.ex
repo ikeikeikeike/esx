@@ -1,5 +1,6 @@
 defmodule Elasticsearch.Schema.Mapping do
   alias Elasticsearch.Schema.Mapping, as: Mapping
+  alias Elasticsearch.Funcs
 
   @doc false
   defmacro __using__(_) do
@@ -42,6 +43,7 @@ defmodule Elasticsearch.Schema.Mapping do
 
   @doc false
   def __es_indexes__(mod, name, opts) do
+    # opts = Keyword.update opts, :type, "string", & &1
     Module.put_attribute(mod, :es_mappings, {:"#{name}", opts})
   end
 
@@ -59,9 +61,11 @@ defmodule Elasticsearch.Schema.Mapping do
         end
       end)
 
-    types = Macro.escape(Map.new(mappings))
+    types = Macro.escape(mappings)
 
     quote do
+      def __es_mapping__(:to_map), do: %{properties: Funcs.to_map(unquote(types))}
+      def __es_mapping__(:as_json), do: __es_mapping__ :to_map
       def __es_mapping__(:types), do: unquote(types)
       unquote(quoted)
       def __es_mapping__(:type, _), do: nil

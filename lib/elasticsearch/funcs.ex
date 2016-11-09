@@ -1,49 +1,17 @@
-defprotocol Elasticsearch.Funcs do
-  @fallback_to_any true
-  def blank?(data)
-end
+defmodule Elasticsearch.Funcs do
 
-defimpl Elasticsearch.Funcs, for: Integer do
-  def blank?(_), do: false
-end
+  def to_map(any) when is_map(any), do: to_map Enum.into(any, [])
+  def to_map(any) when is_list(any) do
+    Enum.reduce any, %{}, fn {key, value}, acc ->
+      map =
+        if Keyword.keyword?(value) do
+          Map.new [{:"#{key}", to_map(value)}]
+        else
+          Map.new [{:"#{key}", value}]
+        end
 
-defimpl Elasticsearch.Funcs, for: String do
-  def blank?(''),    do: true
-  def blank?(_),     do: false
-end
+      Map.merge acc, map
+    end
+  end
 
-defimpl Elasticsearch.Funcs, for: BitString do
-  def blank?(""),    do: true
-  def blank?(_),     do: false
-end
-
-defimpl Elasticsearch.Funcs, for: List do
-  def blank?([]), do: true
-  def blank?(_),  do: false
-end
-
-defimpl Elasticsearch.Funcs, for: Tuple do
-  def blank?({}), do: true
-  def blank?(_),  do: false
-end
-
-defimpl Elasticsearch.Funcs, for: Map do
-  def blank?(%{}), do: true
-  def blank?(_),  do: false
-end
-
-defimpl Elasticsearch.Funcs, for: Atom do
-  def blank?(false), do: true
-  def blank?(nil),   do: true
-  def blank?(_),     do: false
-end
-
-# defimpl Elasticsearch.Funcs, for: Ecto.Date do
-  # def blank?(%Ecto.Date{year: 0, month: 0, day: 0}), do: true
-  # def blank?(%Ecto.Date{year: 1, month: 1, day: 1}), do: true
-  # def blank?(_),  do: false
-# end
-
-defimpl Elasticsearch.Funcs, for: Any do
-  def blank?(_), do: false
 end

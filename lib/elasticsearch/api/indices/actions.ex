@@ -14,17 +14,15 @@ defmodule Elasticsearch.API.Indices.Actions do
     |> response
   end
 
-  def delete_alias(%Client{} = ts, %{required: true} = args) do
+  def delete_alias(%Client{} = ts, %{index: index, name: name}) do
     method = "DELETE"
-    path   = Utils.pathify [Utils.listify(args[:index]), '_alias', Utils.escape(args[:name])]
+    path   = Utils.pathify [Utils.listify(index), '_alias', Utils.escape(name)]
     params = %{}
     body   = nil
 
     Client.perform_request(ts, method, path, params, body)
     |> response
   end
-  def delete_alias(%Client{} = ts, args),
-    do: required __MODULE__, :delete_alias, %Client{} = ts, args
 
   def exists(%Client{} = ts, args \\ %{}) do
     method = "HEAD"
@@ -48,5 +46,14 @@ defmodule Elasticsearch.API.Indices.Actions do
 
   defdelegate exists_alias?(ts, args \\ %{}), to: __MODULE__, as: :exists_alias
 
+  def create(ts, %{index: index, body: body}) when is_map(body) do
+    method = "PUT"
+    path   = Utils.pathify [Utils.escape(index)]
+    params = %{}
+    body   = body
+
+    Client.perform_request(ts, method, path, params, body)
+    |> response
+  end
 
 end

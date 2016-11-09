@@ -30,17 +30,15 @@ defmodule Elasticsearch.API.Actions do
     end
   end
 
-  def index(%Client{} = ts, %{required: true} = args) do
+  def index(%Client{} = ts, %{index: index, type: type} = args) do
     method = if args[:id], do: "PUT", else: "POST"
-    path   = Utils.pathify [Utils.escape(args[:index]), Utils.escape(args[:type]), Utils.escape(args[:id])]
+    path   = Utils.pathify [Utils.escape(index), Utils.escape(type), Utils.escape(args[:id])]
     params = %{}
     body   = args[:body]
 
     Client.perform_request(ts, method, path, params, body)
     |> response
   end
-  def index(%Client{} = ts, args),
-    do: required __MODULE__, :index, %Client{} = ts, args
 
   def search(%Client{} = ts, args \\ %{}) do
     if ! args[:index] && args[:type], do: args = Keyword.put :index, "_all"
