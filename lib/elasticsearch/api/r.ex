@@ -1,5 +1,5 @@
-defmodule Elasticsearch.API.R do
-  alias Elasticsearch.Transport.Client
+defmodule ESx.API.R do
+  alias ESx.Transport.Client
 
   @blank_args {"GET", "", %{}, nil}
   def blank_args, do: @blank_args

@@ -1,8 +1,8 @@
-defmodule Elasticsearch.Mixfile do
+defmodule ESx.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :elasticsearch,
+    [app: :esx,
      version: "0.1.0",
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
@@ -15,7 +15,7 @@ defmodule Elasticsearch.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [applications: [:logger, :httpoison],
-     mod: {Elasticsearch, []}]
+     mod: {ESx, []}]
   end
 
   # Dependencies can be Hex packages:

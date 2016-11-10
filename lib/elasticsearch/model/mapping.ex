@@ -1,6 +1,6 @@
-defmodule Elasticsearch.Model.Mapping do
-  alias Elasticsearch.Model.Mapping, as: Mapping
-  alias Elasticsearch.Funcs
+defmodule ESx.Model.Mapping do
+  alias ESx.Model.Mapping, as: Mapping
+  alias ESx.Funcs
 
   @doc false
   defmacro __using__(_) do

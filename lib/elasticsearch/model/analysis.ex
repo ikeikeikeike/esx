@@ -1,6 +1,6 @@
-defmodule Elasticsearch.Model.Analysis do
-  alias Elasticsearch.Model.Analysis, as: Analysis
-  alias Elasticsearch.Funcs
+defmodule ESx.Model.Analysis do
+  alias ESx.Model.Analysis, as: Analysis
+  alias ESx.Funcs
 
   @doc false
   defmacro __using__(_) do

@@ -1,4 +1,4 @@
-# Elasticsearch
+# ESx
 
 **TODO: Add description**
 
@@ -6,26 +6,26 @@
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
 
-  1. Add `elasticsearch` to your list of dependencies in `mix.exs`:
+  1. Add `esx` to your list of dependencies in `mix.exs`:
 
     ```elixir
     def deps do
-      [{:elasticsearch, "~> 0.1.0"}]
+      [{:esx, github: "ikeikeikeike/esx"}]
     end
     ```
 
-  2. Ensure `elasticsearch` is started before your application:
+  2. Ensure `esx` is started before your application:
 
     ```elixir
     def application do
-      [applications: [:elasticsearch]]
+      [applications: [:esx]]
     end
     ```
 
 
 ```elixir
 defmodule YourApp.Model do
-  use Elasticsearch.Schema
+  use ESx.Schema
 
   mapping do
     indexes "field1", type: "string"
@@ -77,17 +77,17 @@ end
 
 st = %YourApp.Model{}
 
-ES.Schema.create_index, st
+ESx.Schema.create_index, st
 
-ES.Schema.search, st, query: %{}
+ESx.Schema.search, st, query: %{}
 ```
 
 ```elixir
-ts = ES.Transport.transport trace: true
+ts = ESx.Transport.transport trace: true
 
-ES.API.search ts, %{index: "your_app", body: %{query: %{}}}
+ESx.API.search ts, %{index: "your_app", body: %{query: %{}}}
 
-ES.API.Indices.delete ts, %{index: "your_app"}
+ESx.API.Indices.delete ts, %{index: "your_app"}
 ```
 
 ### TODO

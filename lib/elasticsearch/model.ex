@@ -1,22 +1,22 @@
-defmodule Elasticsearch.Model do
+defmodule ESx.Model do
   @doc false
   defmacro __using__(opts) do
-    opts = Keyword.update opts, :otp_app, :elasticsearch, & &1
+    opts = Keyword.update opts, :otp_app, :esx, & &1
 
     quote bind_quoted: [opts: opts] do
-      use Elasticsearch.Model.{Mapping, Analysis}
+      use ESx.Model.{Mapping, Analysis}
 
-      {otp_app, config} = Elasticsearch.Model.Supervisor.parse_config(__MODULE__, opts)
+      {otp_app, config} = ESx.Model.Supervisor.parse_config(__MODULE__, opts)
       @es_otp_app otp_app
       @es_config  config
 
       def __es_transport__ do
-        Elasticsearch.Model.Supervisor.transport(__MODULE__, @es_otp_app, [])
+        ESx.Model.Supervisor.transport(__MODULE__, @es_otp_app, [])
       end
     end
   end
 
-  alias Elasticsearch.API.Indices.Actions
+  alias ESx.API.Indices.Actions
 
   def create_index(st, opts \\ [])
   def create_index(%{} = st, opts), do: create_index st.__struct__, opts

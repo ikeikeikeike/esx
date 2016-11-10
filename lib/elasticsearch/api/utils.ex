@@ -1,4 +1,4 @@
-defmodule Elasticsearch.API.Utils do
+defmodule ESx.API.Utils do
 
   def escape(string) when string == "*", do: string
   def escape(string) do

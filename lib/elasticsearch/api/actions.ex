@@ -1,8 +1,8 @@
-defmodule Elasticsearch.API.Actions do
-  import Elasticsearch.API.R
+defmodule ESx.API.Actions do
+  import ESx.API.R
 
-  alias Elasticsearch.API.Utils
-  alias Elasticsearch.Transport.Client
+  alias ESx.API.Utils
+  alias ESx.Transport.Client
 
   def info(%Client{} = ts, _args \\ %{}) do
     {method, path, params, body} = blank_args

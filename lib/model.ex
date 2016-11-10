@@ -1,6 +1,6 @@
 defmodule MyApp do
-  use Elasticsearch.Model
-  # use Elasticsearch.Model, otp_app: :my_app
+  use ESx.Model
+  # use ESx.Model, otp_app: :my_app
 
   mapping do
     indexes "field1", type: "string"

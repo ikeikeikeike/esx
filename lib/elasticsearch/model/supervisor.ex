@@ -1,4 +1,4 @@
-defmodule Elasticsearch.Model.Supervisor do
+defmodule ESx.Model.Supervisor do
   @moduledoc false
   use Supervisor
 
@@ -16,7 +16,7 @@ defmodule Elasticsearch.Model.Supervisor do
     config =
       case Application.get_env(otp_app, mod) do
         nil ->
-          Application.get_env(otp_app, Elasticsearch.Model)
+          Application.get_env(otp_app, ESx.Model)
         config ->
           config
       end

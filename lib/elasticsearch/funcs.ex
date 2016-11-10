@@ -1,4 +1,4 @@
-defmodule Elasticsearch.Funcs do
+defmodule ESx.Funcs do
 
   def to_map(any) when is_map(any), do: to_map Enum.into(any, [])
   def to_map(any) when is_list(any) do

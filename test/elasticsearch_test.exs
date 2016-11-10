@@ -1,6 +1,6 @@
-defmodule ElasticsearchTest do
+defmodule ESxTest do
   use ExUnit.Case
-  doctest Elasticsearch
+  doctest ESx
 
   test "the truth" do
     assert 1 + 1 == 2

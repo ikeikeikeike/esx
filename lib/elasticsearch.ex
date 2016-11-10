@@ -1,4 +1,4 @@
-defmodule Elasticsearch do
+defmodule ESx do
   use Application
 
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
@@ -8,13 +8,13 @@ defmodule Elasticsearch do
 
     # Define workers and child supervisors to be supervised
     children = [
-      # Starts a worker by calling: Elasticsearch.Worker.start_link(arg1, arg2, arg3)
-      # worker(Elasticsearch.Worker, [arg1, arg2, arg3]),
+      # Starts a worker by calling: ESx.Worker.start_link(arg1, arg2, arg3)
+      # worker(ESx.Worker, [arg1, arg2, arg3]),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: Elasticsearch.Supervisor]
+    opts = [strategy: :one_for_one, name: ESx.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end

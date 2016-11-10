@@ -10,11 +10,11 @@ use Mix.Config
 
 # You can configure for your application as:
 #
-#     config :elasticsearch, key: :value
+#     config :esx, key: :value
 #
 # And access this configuration in your application as:
 #
-#     Application.get_env(:elasticsearch, :key)
+#     Application.get_env(:esx, :key)
 #
 # Or configure a 3rd-party app:
 #
@@ -28,7 +28,7 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 #     import_config "#{Mix.env}.exs"
-config :elasticsearch, Elasticsearch.Model,
+config :esx, ESx.Model,
   path: "",
   username: "postgres",
   password: "postgres",
