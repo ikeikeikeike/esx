@@ -1,8 +1,18 @@
-defmodule Elasticsearch.Schema do
+defmodule Elasticsearch.Model do
   @doc false
-  defmacro __using__(_opts) do
-    quote do
-      use Elasticsearch.Schema.{Mapping, Analysis}
+  defmacro __using__(opts) do
+    opts = Keyword.update opts, :otp_app, :elasticsearch, & &1
+
+    quote bind_quoted: [opts: opts] do
+      use Elasticsearch.Model.{Mapping, Analysis}
+
+      {otp_app, config} = Elasticsearch.Model.Supervisor.parse_config(__MODULE__, opts)
+      @es_otp_app otp_app
+      @es_config  config
+
+      def __es_transport__ do
+        Elasticsearch.Model.Supervisor.transport(__MODULE__, @es_otp_app, [])
+      end
     end
   end
 

@@ -1,5 +1,5 @@
-defmodule Elasticsearch.Schema.Analysis do
-  alias Elasticsearch.Schema.Analysis, as: Analysis
+defmodule Elasticsearch.Model.Analysis do
+  alias Elasticsearch.Model.Analysis, as: Analysis
   alias Elasticsearch.Funcs
 
   @doc false

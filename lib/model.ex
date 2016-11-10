@@ -1,5 +1,6 @@
-defmodule Model do
-  use Elasticsearch.Schema
+defmodule MyApp do
+  use Elasticsearch.Model
+  # use Elasticsearch.Model, otp_app: :my_app
 
   mapping do
     indexes "field1", type: "string"
@@ -44,6 +45,19 @@ defmodule Model do
     Enum.each 0..2, fn num ->
       analyzer "ngram_analyzer#{num}",
         tokenizer: "ngram_tokenizer"
+    end
+  end
+
+  def meaningless(enumable) do
+    Enum.map enumable, fn
+      {left, right} ->
+        "#{[left, right]}"
+      elm when is_atom(elm) ->
+        "#{elm}"
+      elm when is_number(elm) ->
+        "#{elm}"
+      num ->
+        num
     end
   end
 

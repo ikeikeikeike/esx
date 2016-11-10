@@ -89,3 +89,9 @@ ES.API.search ts, %{index: "your_app", body: %{query: %{}}}
 
 ES.API.Indices.delete ts, %{index: "your_app"}
 ```
+
+### TODO
+
+- Http Connection Pool
+- Some of APIs
+- Everything for me which uses own project.

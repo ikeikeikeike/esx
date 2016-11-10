@@ -1,5 +1,5 @@
-defmodule Elasticsearch.Schema.Mapping do
-  alias Elasticsearch.Schema.Mapping, as: Mapping
+defmodule Elasticsearch.Model.Mapping do
+  alias Elasticsearch.Model.Mapping, as: Mapping
   alias Elasticsearch.Funcs
 
   @doc false
