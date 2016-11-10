@@ -11,7 +11,7 @@ defmodule Elasticsearch.Schema do
   def create_index(st, opts \\ [])
   def create_index(%{} = st, opts), do: create_index st.__struct__, opts
   def create_index(model, opts) do
-    target_index = opts.delete(:index) || self.index_name
+    # target_index = opts.delete(:index) || self.index_name
 
     # delete_index!(opts.merge index: target_index) if opts[:force]
 
@@ -23,20 +23,21 @@ defmodule Elasticsearch.Schema do
                                  # }
     # end
 
-    body = %{
-      mappings: %{something: model.__es_mapping__(:to_map)}
-    }
-    body = Map.merge body, (if model.module_info(:functions)[:__es_analysis__] do
-      %{settings: model.__es_analysis__(:to_map),}
-    else
-      %{}
-    end)
+    # properties = model.__es_mapping__(:to_map)
+    # analysis =
+      # if function_exported?(model, :__es_analysis__, 1) do
+         # %{settings: model.__es_analysis__(:to_map)}
+      # else
+        # %{}
+      # end
 
-    ts = nil
-    Actions.create ts, %{
-      index: "unko",
-      body: body
-    }
+    # body = Map.merge %{mappings: %{something: properties}}, analysis
+
+    # ts = nil
+    # Actions.create ts, %{
+      # index: "unko",
+      # body: body
+    # }
   end
 
 end
