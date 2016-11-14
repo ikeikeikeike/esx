@@ -22,10 +22,28 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
     end
     ```
 
+```elixir
+config :esx, ESx.Model,
+  path: "",
+  username: "postgres",
+  password: "postgres",
+  hostname: "localhost"
+```
+
+or
+
+```elixir
+config :my_app, YourApp.Model,
+  path: "",
+  username: "my_app",
+  password: "my_app",
+  hostname: "127.0.0.1"
+```
+
 
 ```elixir
 defmodule YourApp.Model do
-  use ESx.Schema
+  use ESx.Model
 
   mapping do
     indexes "field1", type: "string"
@@ -77,9 +95,9 @@ end
 
 st = %YourApp.Model{}
 
-ESx.Schema.create_index, st
+ESx.Model.create_index, st
 
-ESx.Schema.search, st, query: %{}
+ESx.Model.search, st, query: %{}
 ```
 
 ```elixir
@@ -92,6 +110,7 @@ ESx.API.Indices.delete ts, %{index: "your_app"}
 
 ### TODO
 
-- Http Connection Pool
+- Http conn collection
+- Consider to change Client proxy for multiple configuration
 - Some of APIs
 - Everything for me which uses own project.

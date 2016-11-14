@@ -2,29 +2,29 @@ defmodule ESx.API.Indices.Actions do
   import ESx.API.R
 
   alias ESx.API.Utils
-  alias ESx.Transport.Client
+  alias ESx.Transport
 
-  def delete(%Client{} = ts, args \\ %{}) do
+  def delete(%Transport{} = ts, args \\ %{}) do
     method = "DELETE"
     path   = Utils.pathify Utils.listify(args[:index])
     params = %{}
     body   = nil
 
-    Client.perform_request(ts, method, path, params, body)
+    Transport.perform_request(ts, method, path, params, body)
     |> response
   end
 
-  def delete_alias(%Client{} = ts, %{index: index, name: name}) do
+  def delete_alias(%Transport{} = ts, %{index: index, name: name}) do
     method = "DELETE"
     path   = Utils.pathify [Utils.listify(index), '_alias', Utils.escape(name)]
     params = %{}
     body   = nil
 
-    Client.perform_request(ts, method, path, params, body)
+    Transport.perform_request(ts, method, path, params, body)
     |> response
   end
 
-  def exists(%Client{} = ts, args \\ %{}) do
+  def exists(%Transport{} = ts, args \\ %{}) do
     method = "HEAD"
     path   = Utils.listify(args[:index])
     params = %{}
@@ -35,7 +35,7 @@ defmodule ESx.API.Indices.Actions do
 
   defdelegate exists?(ts, args \\ %{}), to: __MODULE__, as: :exists
 
-  def exists_alias(%Client{} = ts, args \\ %{}) do
+  def exists_alias(%Transport{} = ts, args \\ %{}) do
     method = "HEAD"
     path   = Utils.pathify [Utils.listify(args[:index]), '_alias', Utils.escape(args[:name])]
     params = %{}
@@ -52,7 +52,7 @@ defmodule ESx.API.Indices.Actions do
     params = %{}
     body   = body
 
-    Client.perform_request(ts, method, path, params, body)
+    Transport.perform_request(ts, method, path, params, body)
     |> response
   end
 

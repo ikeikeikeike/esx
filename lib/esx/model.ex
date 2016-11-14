@@ -6,12 +6,16 @@ defmodule ESx.Model do
     quote bind_quoted: [opts: opts] do
       use ESx.Model.{Mapping, Analysis}
 
-      {otp_app, config} = ESx.Model.Supervisor.parse_config(__MODULE__, opts)
-      @es_otp_app otp_app
-      @es_config  config
+      {otp_app, transport, config} = ESx.Model.Supervisor.parse_config(__MODULE__, opts)
+      @es_otp_app   otp_app
+      @es_config    config
+      @ex_transport transport
 
+      def __es_config__ do
+        ESx.Model.Supervisor.config(__MODULE__, @es_otp_app, [])
+      end
       def __es_transport__ do
-        ESx.Model.Supervisor.transport(__MODULE__, @es_otp_app, [])
+        @ex_transport
       end
     end
   end
@@ -21,33 +25,20 @@ defmodule ESx.Model do
   def create_index(st, opts \\ [])
   def create_index(%{} = st, opts), do: create_index st.__struct__, opts
   def create_index(model, opts) do
-    # target_index = opts.delete(:index) || self.index_name
+    properties = model.__es_mapping__(:to_map)
+    analysis =
+      if function_exported?(model, :__es_analysis__, 1) do
+         %{settings: model.__es_analysis__(:to_map)}
+      else
+        %{}
+      end
 
-    # delete_index!(opts.merge index: target_index) if opts[:force]
+    body = Map.merge %{mappings: %{something: properties}}, analysis
 
-    # unless index_exists?(index: target_index) do
-      # self.client.indices.create index: target_index,
-                                 # body: %{
-                                   # settings: self.settings.to_hash,
-                                   # mappings: self.mappings.to_hash,
-                                 # }
-    # end
-
-    # properties = model.__es_mapping__(:to_map)
-    # analysis =
-      # if function_exported?(model, :__es_analysis__, 1) do
-         # %{settings: model.__es_analysis__(:to_map)}
-      # else
-        # %{}
-      # end
-
-    # body = Map.merge %{mappings: %{something: properties}}, analysis
-
-    # ts = nil
-    # Actions.create ts, %{
-      # index: "unko",
-      # body: body
-    # }
+    Actions.create model.__es_transport__, %{
+      index: "unko",
+      body: body
+    }
   end
 
 end

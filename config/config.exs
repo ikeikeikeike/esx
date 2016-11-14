@@ -32,7 +32,8 @@ config :esx, ESx.Model,
   path: "",
   username: "postgres",
   password: "postgres",
-  hostname: "localhost"
+  hostname: "localhost",
+  trace: true
 
 config :my_app, MyApp,
   path: "",

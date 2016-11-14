@@ -1,10 +1,10 @@
-defmodule ESx.Transport.Client do
+defmodule ESx.Transport do
   import ESx.Checks, only: [blank?: 1]
 
   defstruct [
     method: "GET",
     transport: HTTPoison, # TODO: More
-    trace: false,
+    trace: true,
   ]
 
   # @type t :: %__MODULE__{method: String.t, transport: HTTPoison.t, trace: String.t}

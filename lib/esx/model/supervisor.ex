@@ -5,14 +5,14 @@ defmodule ESx.Model.Supervisor do
   @doc """
   """
   def start_link(mod, otp_app, opts) do
-    opts = transport(mod, otp_app, opts)
+    opts = config(mod, otp_app, opts)
     name = opts[:name] || Application.get_env(otp_app, mod)[:name] || mod
     Supervisor.start_link(__MODULE__, {mod, otp_app, opts}, [name: name])
   end
 
   @doc """
   """
-  def transport(mod, otp_app, opts) do
+  def config(mod, otp_app, opts) do
     config =
       case Application.get_env(otp_app, mod) do
         nil ->
@@ -31,8 +31,14 @@ defmodule ESx.Model.Supervisor do
   def parse_config(mod, opts) do
     otp_app = Keyword.fetch!(opts, :otp_app)
     config  = Application.get_env(otp_app, mod, [])
+    transport = ESx.Transport.transport Enum.into(config, %{})
 
-    {otp_app, config}
+    unless transport do
+      raise ArgumentError, "missing :transport configuration in " <>
+                           "config #{inspect otp_app}, #{inspect mod}"
+    end
+
+    {otp_app, transport, config}
   end
 
   @doc """

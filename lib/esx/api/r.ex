@@ -1,5 +1,5 @@
 defmodule ESx.API.R do
-  alias ESx.Transport.Client
+  alias ESx.Transport
 
   @blank_args {"GET", "", %{}, nil}
   def blank_args, do: @blank_args
@@ -10,8 +10,8 @@ defmodule ESx.API.R do
   def response!({:ok, rs}), do: rs
   def response!({:error, err}), do: raise err
 
-  def status200?(%Client{} = ts, method, path, params \\ %{}, body \\ nil) do
-    case Client.perform_request(ts, method, path, params, body) do
+  def status200?(%Transport{} = ts, method, path, params \\ %{}, body \\ nil) do
+    case Transport.perform_request(ts, method, path, params, body) do
       {:ok, rs} ->
         rs.status_code == 200
       {:error, err} ->
