@@ -1,26 +1,27 @@
 defmodule ESx.Model.Response do
 
-  def records do
+  defstruct [:took, :timed_out, :shards, :hits, :total, :max_score, :response]
+
+  def parse({:ok, %{} = rsp}) do
+    %__MODULE__{
+      took: rsp["took"],
+      timed_out: rsp["timed_out"],
+      shards: rsp["shards"],
+      hits: rsp["hits"]["hits"],
+      total: rsp["hits"]["total"],
+      max_score: rsp["hits"]["max_score"],
+      response: rsp,
+    }
   end
 
-  def took do
-    # response['took']
+  def records(st) do
   end
 
-  def timed_out do
-    # response['timed_out']
-  end
-
-  def shards do
-    # Hashie::Mash.new(response['_shards'])
-    # response['_shards']
-  end
-
-  def aggregations do
+  def aggregations(st) do
     # Aggregations.new(response['aggregations'])
   end
 
-  def suggestions do
+  def suggestions(st) do
     # Suggestions.new(response['suggest'])
   end
 end
