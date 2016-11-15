@@ -16,12 +16,32 @@ defmodule ESx.Model.Base do
         @transport
       end
 
-      alias ESx.Funcs
-      alias ESx.API.Indices.Actions
+      alias ESx.{API, Funcs}
+      alias ESx.API.Indices
 
-      def create_index(model, opts \\ []) do
-        mod = Funcs.to_mod model
-        index = Keyword.get opts, :index, mod.__es_index_name__
+      def search(schema, query_or_payload, opts \\ %{}) do
+        index_name = opts[:index] || schema.__es_index_name__
+        doc_type   = opts[:type]  || schema.__es_document_type__
+        body       = query_or_payload
+
+        rsp =
+          cond do
+            is_map(body) ->
+              API.search @transport, %{index: index_name, type: doc_type, body: body}
+
+            is_binary(body) && body =~ ~r/^\s*{/ ->
+              API.search @transport, %{index: index_name, type: doc_type, body: body}
+
+            true ->
+              API.search @transport, %{index: index_name, type: doc_type, q: body}
+          end
+
+        rsp  # Map.merge rsp, opts
+      end
+
+      def create_index(schema, opts \\ %{}) do
+        mod = Funcs.to_mod schema
+        index = Map.get opts, :index, mod.__es_index_name__
 
         properties = mod.__es_mapping__(:to_map)
         analysis =
@@ -32,14 +52,21 @@ defmodule ESx.Model.Base do
           end
 
         body = Map.merge %{mappings: %{something: properties}}, analysis
-        Actions.create @transport, %{index: index, body: body}
+        Indices.create @transport, %{index: index, body: body}
       end
 
-      def delete_index(model, opts \\ []) do
-        mod = Funcs.to_mod model
-        index = Keyword.get opts, :index, mod.__es_index_name__
+      def index_exists?(schema, opts \\ %{}) do
+        mod = Funcs.to_mod schema
+        index = Map.get opts, :index, mod.__es_index_name__
 
-        Actions.delete @transport, %{index: index}
+        Indices.exists? @transport, %{index: index}
+      end
+
+      def delete_index(schema, opts \\ %{}) do
+        mod = Funcs.to_mod schema
+        index = Map.get opts, :index, mod.__es_index_name__
+
+        Indices.delete @transport, %{index: index}
       end
 
     end

@@ -1,4 +1,4 @@
-defmodule ESx.API.Indices.Actions do
+defmodule ESx.API.Indices do
   import ESx.API.R
 
   alias ESx.API.Utils

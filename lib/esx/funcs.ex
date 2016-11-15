@@ -12,6 +12,8 @@ defmodule ESx.Funcs do
     |> String.downcase
   end
 
+  def to_document_type(mod), do: to_index_name mod
+
   def to_map(any) when is_map(any), do: to_map Enum.into(any, [])
   def to_map(any) when is_list(any) do
     Enum.reduce any, %{}, fn {key, value}, acc ->
