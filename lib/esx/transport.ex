@@ -2,8 +2,9 @@ defmodule ESx.Transport do
   import ESx.Checks, only: [blank?: 1]
 
   defstruct [
-    method: "GET",
+    url: "http://127.0.0.1:9200",
     transport: HTTPoison, # TODO: More
+    method: "GET",
     trace: true,
   ]
 
@@ -16,7 +17,7 @@ defmodule ESx.Transport do
   def perform_request(%__MODULE__{} = ts, method, path, params \\ %{}, body \\ nil) do
     if "GET" == method && body, do: method = ts.method
 
-    uri = "http://localhost:9200" <> "/" <> path
+    uri = URI.merge(ts.url, path) |> URI.to_string
     body = if body, do: Poison.encode!(body), else: ""
     headers = [{"content-type", "application/json"}]
 

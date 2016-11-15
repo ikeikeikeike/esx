@@ -1,19 +1,16 @@
 defmodule ESx.Model.Base do
   @doc false
   defmacro __using__(opts) do
-    opts = Keyword.update opts, :otp_app, :esx, & &1
+    opts = Keyword.update opts, :app, :esx, & &1
 
     quote bind_quoted: [opts: opts] do
-      {otp_app, transport, config} = ESx.Model.Supervisor.parse_config(__MODULE__, opts)
-      @otp_app   otp_app
+      {app, transport, config} = ESx.Model.Config.resource(__MODULE__, opts)
+      @app       app
       @config    config
       @transport transport
 
       def config do
-        ESx.Model.Supervisor.config(__MODULE__, @otp_app, [])
-      end
-      def start_link(opts \\ []) do
-        ESx.Model.Supervisor.start_link(__MODULE__, @otp_app, opts)
+        @config
       end
       def transport do
         @transport
@@ -35,14 +32,14 @@ defmodule ESx.Model.Base do
           end
 
         body = Map.merge %{mappings: %{something: properties}}, analysis
-        Actions.create mod.__es_transport__, %{index: index, body: body}
+        Actions.create @transport, %{index: index, body: body}
       end
 
       def delete_index(model, opts \\ []) do
         mod = Funcs.to_mod model
         index = Keyword.get opts, :index, mod.__es_index_name__
 
-        Actions.delete mod.__es_transport__, %{index: index}
+        Actions.delete @transport, %{index: index}
       end
 
     end
