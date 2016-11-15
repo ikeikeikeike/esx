@@ -1,5 +1,5 @@
-defmodule ESx.Model.Analysis do
-  alias ESx.Model.Analysis, as: Analysis
+defmodule ESx.Schema.Analysis do
+  alias ESx.Schema.Analysis, as: Analysis
   alias ESx.Funcs
 
   @doc false

@@ -10,6 +10,7 @@ defmodule ESx do
     children = [
       # Starts a worker by calling: ESx.Worker.start_link(arg1, arg2, arg3)
       # worker(ESx.Worker, [arg1, arg2, arg3]),
+      supervisor(ESx.Model, []),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

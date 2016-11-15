@@ -1,5 +1,5 @@
-defmodule ESx.Model.Naming do
-  alias ESx.Model.Naming, as: Naming
+defmodule ESx.Schema.Naming do
+  alias ESx.Schema.Naming, as: Naming
   alias ESx.Funcs
 
   @doc false

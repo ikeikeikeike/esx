@@ -1,5 +1,5 @@
-defmodule ESx.Model.Mapping do
-  alias ESx.Model.Mapping, as: Mapping
+defmodule ESx.Schema.Mapping do
+  alias ESx.Schema.Mapping, as: Mapping
   alias ESx.Funcs
 
   @doc false

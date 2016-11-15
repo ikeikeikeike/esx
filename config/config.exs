@@ -28,15 +28,16 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 #     import_config "#{Mix.env}.exs"
-config :esx, ESx.Model,
-  path: "",
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  trace: true
+# config :esx, ESx.Model,
+  # path: "",
+  # username: "postgres",
+  # password: "postgres",
+  # hostname: "localhost",
+  # trace: true
 
-config :my_app, MyApp,
-  path: "",
-  username: "my_app",
-  password: "my_app",
-  hostname: "127.0.0.1"
+# config :something, Something,
+  # path: "",
+  # username: "postgres",
+  # password: "postgres",
+  # hostname: "localhost",
+  # trace: true

@@ -21,6 +21,11 @@ defmodule ESx.Model.Supervisor do
           config
       end
 
+    unless config do
+      raise ArgumentError,
+        "configuration for #{inspect mod} not specified in #{inspect otp_app} environment"
+    end
+
     config = Keyword.merge(config, opts)
     {url, config} = Keyword.pop(config, :url)
     [otp_app: otp_app, mod: mod] ++ Keyword.merge(config, parse_url(url || ""))
@@ -68,6 +73,11 @@ defmodule ESx.Model.Supervisor do
             port:     info.port]
 
     Enum.reject(opts, fn {_k, v} -> is_nil(v) end)
+  end
+
+  def init({mod, _otp_app, opts}) do
+    children = [supervisor(mod, [opts])]
+    supervise(children, strategy: :one_for_one)
   end
 
 end
