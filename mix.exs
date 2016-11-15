@@ -30,7 +30,7 @@ defmodule ESx.Mixfile do
   defp deps do
     [
       {:httpoison, "~> 0.9"},
-      {:poison, "~> 3.0"},
+      {:poison, "~> 3.0", override: true},
       {:exjsx, "~> 3.2"},
     ]
   end
