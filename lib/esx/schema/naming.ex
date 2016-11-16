@@ -5,7 +5,7 @@ defmodule ESx.Schema.Naming do
   @doc false
   defmacro __using__(_) do
     quote do
-      import Naming, only: [index_name: 1]
+      import Naming, only: [index_name: 1, document_type: 1]
 
       Module.register_attribute(__MODULE__, :es_document_type, accumulate: false)
       Module.register_attribute(__MODULE__, :es_index_name, accumulate: false)
