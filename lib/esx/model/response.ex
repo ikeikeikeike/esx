@@ -27,12 +27,14 @@ defmodule ESx.Model.Response do
 
   if Code.ensure_loaded?(Ecto) do
     def records(st, queryable) do
+      require Ecto.Query
+
       repo = st.__model__.repo
 
-      ids = Enum.map hits, & &1["_id"]
+      ids = Enum.map st.hits, & &1["_id"]
       records = repo.all(Ecto.Query.from q in queryable, where: q.id in ^ids)
 
-      Enum.map hits, fn hit ->
+      Enum.map st.hits, fn hit ->
         [record] = Enum.filter records, & "#{hit["_id"]}" == "#{&1.id}"
         List.delete records, record
         record
