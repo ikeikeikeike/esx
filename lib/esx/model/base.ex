@@ -40,7 +40,7 @@ defmodule ESx.Model.Base do
               API.search @transport, %{index: index, type: type, q: body}
           end
 
-        ESx.Model.Response.parse __MODULE__, rsp
+        ESx.Model.Response.parse __MODULE__, mod, rsp
       end
 
       def create_index(schema, opts \\ %{}) do

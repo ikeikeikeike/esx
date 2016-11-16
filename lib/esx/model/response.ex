@@ -3,11 +3,11 @@ defmodule ESx.Model.Response do
 
   defstruct [
     :took, :timed_out, :shards, :hits, :total, :max_score,
-    :records, :aggregations, :suggestions, :__model__
+    :records, :aggregations, :suggestions, :__schema__, :__model__
   ]
 
-  def parse(model, {:ok, %{"error" => _} = rsp}), do: rsp
-  def parse(model, {:ok, %{} = rsp}) do
+  def parse(model, schema, {:ok, %{"error" => _} = rsp}), do: rsp
+  def parse(model, schema, {:ok, %{} = rsp}) do
     %__MODULE__{
       hits: rsp["hits"]["hits"],
       total: rsp["hits"]["total"],
@@ -15,6 +15,7 @@ defmodule ESx.Model.Response do
       took: rsp["took"],
       timed_out: rsp["timed_out"],
       shards: rsp["_shards"],
+      __schema__: schema,
       __model__: model,
     }
   end
