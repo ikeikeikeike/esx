@@ -27,11 +27,11 @@ defmodule ESx.Schema.Naming do
   end
 
   @doc false
-  def __es_index_name__(mod, name, opts) do
+  def __es_index_name__(mod, name, _opts \\ []) do
     Module.put_attribute(mod, :es_index_name, :"#{name}")
   end
   @doc false
-  def __es_document_type__(mod, name, opts) do
+  def __es_document_type__(mod, name, _opts \\ []) do
     Module.put_attribute(mod, :es_document_type, :"#{name}")
   end
 

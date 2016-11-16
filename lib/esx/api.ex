@@ -41,7 +41,12 @@ defmodule ESx.API do
   end
 
   def search(%Transport{} = ts, args \\ %{}) do
-    if ! args[:index] && args[:type], do: args = Map.put args, :index, "_all"
+    args =
+      if !args[:index] && args[:type] do
+        Map.put args, :index, "_all"
+      else
+        args
+      end
 
     method = "GET"
     path   = Utils.pathify([Utils.listify(args[:index]), Utils.listify(args[:type]), "_search"])

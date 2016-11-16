@@ -62,8 +62,8 @@ defmodule ESx.Model.Config do
 
   def build_url(cfg) when is_list(cfg) do
     u = struct URI, cfg
-    if cfg[:protocol], do: u = Map.put u, :scheme, cfg[:protocol]
-    if cfg[:user], do: u = Map.put u, :userinfo, "#{cfg[:user]}:#{cfg[:password]}"
+    u = if cfg[:protocol], do: Map.put(u, :scheme, cfg[:protocol]), else: u
+    u = if cfg[:user], do: Map.put(u, :userinfo, "#{cfg[:user]}:#{cfg[:password]}"), else: u
 
     build_url [url: URI.to_string u]
   end
