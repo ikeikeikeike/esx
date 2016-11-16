@@ -34,9 +34,9 @@ defmodule ESx.Model.Config do
 
   def extract_repo(app, nil), do: possibly_load app
   def extract_repo(app, repo) do
-    case Code.ensure_loaded(repo) do
-      {:module, repo} -> [repo: repo]
-      _               -> possibly_load app
+    case repo do
+      nil  -> possibly_load app
+      repo -> [repo: repo]
     end
   end
 
