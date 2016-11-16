@@ -9,6 +9,9 @@ defmodule ESx.Model.Base do
       @config    config
       @transport transport
 
+      def repo do
+        @config[:repo]
+      end
       def config do
         @config
       end
@@ -37,7 +40,7 @@ defmodule ESx.Model.Base do
               API.search @transport, %{index: index, type: type, q: body}
           end
 
-        rsp  # Map.merge rsp, opts
+        ESx.Model.Response.parse __MODULE__, rsp
       end
 
       def create_index(schema, opts \\ %{}) do
@@ -53,7 +56,7 @@ defmodule ESx.Model.Base do
             %{}
           end
 
-        body = Map.merge %{mappings: %{something: properties}}, analysis
+        body = Map.merge %{mappings: Map.new([{type, properties}])}, analysis
         Indices.create @transport, %{index: index, body: body}
       end
 

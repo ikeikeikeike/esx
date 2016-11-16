@@ -29,12 +29,26 @@ defmodule ESx.Model.Config do
         "configuration. There's not it in Mix.Config."
     end
 
-    [app: app, mod: mod] ++ parse_config(cfg)
+    [app: app, mod: mod] ++ extract_repo(app, cfg[:repo]) ++ build_url(cfg)
   end
 
-  def parse_config(""), do: []
+  def extract_repo(app, nil), do: possibly_load app
+  def extract_repo(app, repo) do
+    case Code.ensure_loaded(repo) do
+      {:module, repo} -> [repo: repo]
+      _               -> possibly_load app
+    end
+  end
 
-  def parse_config([url: url]) do
+  # XXX: Gotta remove this.
+  def possibly_load(app) do
+    case Code.ensure_loaded(:"Elixir.#{Macro.camelize "#{app}"}.Repo") do
+      {:module, repo} -> [repo: repo]
+      _               -> []
+    end
+  end
+
+  def build_url([url: url]) do
     case URI.parse(url) do
       %URI{scheme: nil} -> raise ArgumentError, "Missing scheme in Mix.Config"
       %URI{host: nil}   -> raise ArgumentError, "Missing host in Mix.Config"
@@ -42,15 +56,15 @@ defmodule ESx.Model.Config do
     end
   end
 
-  def parse_config({:system, env}) when is_binary(env) do
-    parse_config [url: System.get_env(env)]
+  def build_url({:system, env}) when is_binary(env) do
+    build_url [url: System.get_env(env)]
   end
 
-  def parse_config(cfg) when is_list(cfg) do
+  def build_url(cfg) when is_list(cfg) do
     u = struct URI, cfg
     if cfg[:protocol], do: u = Map.put u, :scheme, cfg[:protocol]
     if cfg[:user], do: u = Map.put u, :userinfo, "#{cfg[:user]}:#{cfg[:password]}"
 
-    parse_config [url: URI.to_string u]
+    build_url [url: URI.to_string u]
   end
 end
