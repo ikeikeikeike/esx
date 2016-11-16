@@ -24,8 +24,8 @@ defmodule ESx.Model.Base do
 
       def search(schema, query_or_payload, opts \\ %{}) do
         mod   = Funcs.to_mod schema
-        index = opts[:index] || mod.__es_index_name__
-        type  = opts[:type]  || mod.__es_document_type__
+        index = opts[:index] || mod.__es_naming__(:index_name)
+        type  = opts[:type]  || mod.__es_naming__(:document_type)
         body  = query_or_payload
 
         rsp =
@@ -45,8 +45,8 @@ defmodule ESx.Model.Base do
 
       def create_index(schema, opts \\ %{}) do
         mod   = Funcs.to_mod schema
-        index = opts[:index] || mod.__es_index_name__
-        type  = opts[:type]  || mod.__es_document_type__
+        index = opts[:index] || mod.__es_naming__(:index_name)
+        type  = opts[:type]  || mod.__es_naming__(:document_type)
 
         properties = mod.__es_mapping__(:to_map)
         analysis =
@@ -62,14 +62,14 @@ defmodule ESx.Model.Base do
 
       def index_exists?(schema, opts \\ %{}) do
         mod   = Funcs.to_mod schema
-        index = opts[:index] || mod.__es_index_name__
+        index = opts[:index] || mod.__es_naming__(:index_name)
 
         Indices.exists? @transport, %{index: index}
       end
 
       def delete_index(schema, opts \\ %{}) do
         mod   = Funcs.to_mod schema
-        index = opts[:index] || mod.__es_index_name__
+        index = opts[:index] || mod.__es_naming__(:index_name)
 
         Indices.delete @transport, %{index: index}
       end

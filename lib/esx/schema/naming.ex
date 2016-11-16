@@ -10,8 +10,8 @@ defmodule ESx.Schema.Naming do
       Module.register_attribute(__MODULE__, :es_document_type, accumulate: false)
       Module.register_attribute(__MODULE__, :es_index_name, accumulate: false)
 
-      def __es_index_name__, do: @es_index_name || Funcs.to_index_name(__MODULE__)
-      def __es_document_type__, do: @es_document_type || Funcs.to_document_type(__MODULE__)
+      def __es_naming__(:index_name), do: @es_index_name || Funcs.to_index_name(__MODULE__)
+      def __es_naming__(:document_type), do: @es_document_type || Funcs.to_document_type(__MODULE__)
     end
   end
 
