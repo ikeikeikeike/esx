@@ -21,4 +21,17 @@ defmodule ESx.API.Utils do
     |> Enum.join("/")
   end
 
+  def bulkify(payload) do
+    p = payload
+    f = List.first(p)
+    ops = ~w(index create delete update)
+
+    cond do
+      is_list(p) and is_map(f) && "#{List.first(Map.keys(f))}" in ops && (Map.values(f)[:data] || Map.values(f)["data"]) ->
+        nil
+      true ->
+        nil
+    end
+  end
+
 end

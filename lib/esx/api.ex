@@ -4,24 +4,24 @@ defmodule ESx.API do
   alias ESx.API.Utils
   alias ESx.Transport
 
-  def info(%Transport{} = ts, _args \\ %{}) do
+  def info(ts, _args \\ %{}) do
     {method, path, params, body} = blank_args
 
     Transport.perform_request(ts, method, path, params, body)
     |> response
   end
-  def info!(%Transport{} = ts, _args \\ %{}) do
+  def info!(ts, _args \\ %{}) do
     info(ts)
     |> response!
   end
 
-  def ping(%Transport{} = ts, _args \\ %{}) do
+  def ping(ts, _args \\ %{}) do
     {method, path, params, body} = blank_args
 
     status200? ts, method, path, params, body
   end
 
-  def ping!(%Transport{} = ts, _args \\ %{}) do
+  def ping!(ts, _args \\ %{}) do
     case ping(ts) do
       rs when is_boolean(rs) ->
         rs
@@ -30,7 +30,7 @@ defmodule ESx.API do
     end
   end
 
-  def index(%Transport{} = ts, %{index: index, type: type} = args) do
+  def index(ts, %{index: index, type: type} = args) do
     method = if args[:id], do: "PUT", else: "POST"
     path   = Utils.pathify [Utils.escape(index), Utils.escape(type), Utils.escape(args[:id])]
     params = %{}
@@ -40,7 +40,53 @@ defmodule ESx.API do
     |> response
   end
 
-  def search(%Transport{} = ts, args \\ %{}) do
+  @doc """
+  # http://elasticsearch.org/guide/reference/api/index_/
+  """
+  def create(ts, args \\ %{}) do
+    # TODO: The arguments will become querystring in Transport.perform_request
+    index ts, Map.put(args, :op_type, "create")
+  end
+
+  def update(ts, %{index: index, type: type, id: id} = args) do
+    method = "POST"
+    path   = Utils.pathify [Utils.escape(index), Utils.escape(type), Utils.escape(id), "_update"]
+    params = %{}  # TODO:
+    body   = args[:body]
+
+    # TODO: The arguments will become querystring in Transport.perform_request
+    params =
+      Map.merge params, (if fields = params[:fields] do
+        %{fields: Utils.listify(fields)}
+      else
+        %{}
+      end)
+
+    Transport.perform_request(ts, method, path, params, body)
+    |> response
+  end
+
+  def bulk(ts, args \\ %{}) do
+    {type, args} = Map.pop(args, :type)
+
+    method = "POST"
+    path   = Utils.pathify [Utils.escape(args[:index]), Utils.escape(type), '_bulk']
+    params = %{}
+    body   = args[:body]
+
+    payload =
+      case body do
+        body when is_map(body) ->
+          Utils.bulkify(body)
+        body ->
+          body
+      end
+
+    Transport.perform_request(ts, method, path, params, body)
+    |> response
+  end
+
+  def search(ts, args \\ %{}) do
     args =
       if !args[:index] && args[:type] do
         Map.put args, :index, "_all"
@@ -57,7 +103,7 @@ defmodule ESx.API do
     |> response
   end
 
-  def search!(%Transport{} = ts, args \\ %{}) do
+  def search!(ts, args \\ %{}) do
     search(ts, args)
     |> response!
   end

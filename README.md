@@ -107,14 +107,42 @@ end
 
 ## Usage
 
-### A search and indexing
+### Indexing
+
+```elixir
+ESx.Model.create_index, YourApp
+```
+
+### A search and response
 
 ```elixir
 ESx.Model.search, YourApp, %{query: %{match: %{title: "foo"}}}
 ```
 
+#### then a response
+
 ```elixir
-ESx.Model.create_index, YourApp
+%ESx.Model.Response{__model__: ESx.Model, __schema__: Extoon.Entry,
+ aggregations: nil, hits: [], max_score: nil, records: nil,
+ shards: %{"failed" => 0, "successful" => 5, "total" => 5}, suggestions: nil,
+ timed_out: false, took: 3, total: 0}
+```
+
+##### With Phoenix's Ecto
+
+```elixir
+YourApp
+|> ESx.Model.search(%{query: %{match: %{title: "foo"}}})
+|> ESx.Model.Response.records
+```
+
+#### then a response
+
+```elixir
+%ESx.Model.Response{__model__: ESx.Model, __schema__: Extoon.Entry,
+ aggregations: nil, hits: [], max_score: nil, records: [%YourApp{id: 1}, %YourApp{id: 2}, %YourApp{id: 3}],
+ shards: %{"failed" => 0, "successful" => 5, "total" => 5}, suggestions: nil,
+ timed_out: false, took: 3, total: 0}
 ```
 
 ## Low-level APIs
