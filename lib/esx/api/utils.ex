@@ -57,11 +57,7 @@ defmodule ESx.API.Utils do
               {data, meta} = Map.pop meta, :data
 
               acc = acc ++ Map.new([{op, meta}])
-              if data do
-                acc ++ data
-              else
-                acc
-              end
+              acc ++ if data, do: data, else: []
             end)
             |> Enum.map(& Poison.encode!/1)
 
