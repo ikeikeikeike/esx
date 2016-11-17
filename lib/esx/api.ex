@@ -40,6 +40,16 @@ defmodule ESx.API do
     |> response
   end
 
+  def reindex(ts, %{body: body} = args) do
+    method = 'POST'
+    path   = "_reindex"
+    params = Utils.extract_params args
+    body   = body
+
+    Transport.perform_request(ts, method, path, params, body)
+    |> response
+  end
+
   @doc """
   # http://elasticsearch.org/guide/reference/api/index_/
   """
