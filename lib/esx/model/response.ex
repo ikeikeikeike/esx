@@ -6,7 +6,7 @@ defmodule ESx.Model.Response do
     :records, :aggregations, :suggestions, :__schema__, :__model__
   ]
 
-  def parse(model, schema, {:ok, %{"error" => _} = rsp}), do: rsp
+  def parse(_model, _schema, {:ok, %{"error" => _} = rsp}), do: rsp
   def parse(model, schema, {:ok, %{} = rsp}) do
     %__MODULE__{
       hits: rsp["hits"]["hits"],
@@ -20,11 +20,11 @@ defmodule ESx.Model.Response do
     }
   end
 
-  def aggregations(st) do
+  def aggregations(_st) do
     # Aggregations.new(response['aggregations'])
   end
 
-  def suggestions(st) do
+  def suggestions(_st) do
     # Suggestions.new(response['suggest'])
   end
 

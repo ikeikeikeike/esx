@@ -16,8 +16,7 @@ defmodule ESx.Model.Ecto do
           elems =
             Enum.map st.hits, fn hit ->
               [elm] = Enum.filter elems, & "#{hit["_id"]}" == "#{&1.id}"
-              List.delete elems, elm
-              elm
+               elm
             end
 
           %{st | records: elems}

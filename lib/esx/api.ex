@@ -76,13 +76,13 @@ defmodule ESx.API do
 
     payload =
       case body do
-        body when is_map(body) ->
+        body when is_list(body) ->
           Utils.bulkify(body)
         body ->
           body
       end
 
-    Transport.perform_request(ts, method, path, params, body)
+    Transport.perform_request(ts, method, path, params, payload)
     |> response
   end
 

@@ -1,4 +1,5 @@
 defmodule ESx.API.Utils do
+  import ESx.Checks, only: [present?: 1]
 
   def escape(string) when string == "*", do: string
   def escape(string) do
@@ -21,17 +22,54 @@ defmodule ESx.API.Utils do
     |> Enum.join("/")
   end
 
-  def bulkify(payload) do
-    p = payload
-    f = List.first(p)
+  def bulkify(payload) when is_list(payload) do
     ops = ~w(index create delete update)
 
-    cond do
-      is_list(p) and is_map(f) && "#{List.first(Map.keys(f))}" in ops && (Map.values(f)[:data] || Map.values(f)["data"]) ->
-        nil
-      true ->
-        nil
+    any? = fn item ->
+      values = List.first(Map.values(item))
+
+      r = is_map(item)
+      r = r and is_map(values)
+      r = r and "#{List.first(Map.keys(item))}" in ops
+      r and !!values[:data]
     end
+
+    payload =
+      cond do
+        # Hashes with `:data`
+        Enum.any? payload, any? ->
+          payload =
+            List.foldl(payload, [], fn item, acc ->
+              {op, meta}   = Map.to_list(item) |> List.first
+              {data, meta} = Map.pop meta, :data
+
+              acc = acc ++ Map.new([{op, meta}])
+              if data do
+                acc ++ data
+              else
+                acc
+              end
+            end)
+            |> Enum.map(& Poison.encode!/1)
+
+          if present?(payload) do
+            payload ++ [""]
+          else
+            payload
+          end
+
+        # Array of strings
+        Enum.all? payload, & is_binary/1 ->
+          payload ++ [""]
+
+        # Header/Data pairs
+        true ->
+          payload = Enum.map payload, & Poison.encode!/1
+          payload ++ [""]
+
+      end
+
+    Enum.join payload, "\n"
   end
 
 end
