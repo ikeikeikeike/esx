@@ -68,8 +68,9 @@ config :esx, ESx.Model,
 defmodule YourApp.Blog do
   use ESx.Schema
 
-  index_name "yourapp"
+  defstruct [:title, :content, :publish]
 
+  index_name "yourapp"
   document_type "doctype"
 
   mapping do
@@ -112,6 +113,9 @@ end
 defmodule YourApp.Blog do
   use YourApp.Web, :model
   use ESx.Schema
+
+  index_name "yourapp"     # as required
+  document_type "doctype"  # as required
 
   schema "blogs" do
     belongs_to :user, YourApp.User
@@ -163,7 +167,7 @@ When Ecto's Schema and ESx's mapping have defferent fields or for customization 
 
 ```elixir
 defmodule YourApp.Blog do
-  def as_indexed_json(struct, opts \\ %{}) do
+  def as_indexed_json(struct, opts) do
     ...
     ...
 

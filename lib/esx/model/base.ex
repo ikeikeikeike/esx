@@ -87,7 +87,7 @@ defmodule ESx.Model.Base do
             index: mod.__es_naming__(:index_name),
             type:  mod.__es_naming__(:document_type),
             id:    schema.id,
-            body:  mod.as_indexed_json(schema),
+            body:  mod.as_indexed_json(schema, opts),
         }, opts
 
         API.index @transport, args
