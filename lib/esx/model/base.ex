@@ -74,6 +74,25 @@ defmodule ESx.Model.Base do
         Indices.delete @transport, %{index: index}
       end
 
+      def refresh_index(schema, opts \\ %{}) do
+        mod   = Funcs.to_mod schema
+        index = opts[:index] || mod.__es_naming__(:index_name)
+
+        Indices.refresh @transport, %{index: index}
+      end
+
+      def index_document(%{} = schema, opts \\ %{}) do
+        mod  = Funcs.to_mod schema
+        args = Map.merge %{
+            index: mod.__es_naming__(:index_name),
+            type:  mod.__es_naming__(:document_type),
+            id:    schema.id,
+            body:  mod.as_indexed_json(schema),
+        }, opts
+
+        API.index @transport, args
+      end
+
     end
   end
 end

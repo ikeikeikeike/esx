@@ -65,7 +65,7 @@ config :esx, ESx.Model,
 
 
 ```elixir
-defmodule YourApp do
+defmodule YourApp.Blog do
   use ESx.Schema
 
   index_name "yourapp"
@@ -105,24 +105,94 @@ end
 
 ```
 
+#### With Ecto
+
+```elixir
+
+defmodule YourApp.Blog do
+  use YourApp.Web, :model
+  use ESx.Schema
+
+  schema "blogs" do
+    belongs_to :user, YourApp.User
+
+    field :title, :string
+    field :content, :string
+    field :publish, :boolean
+
+    timestamps
+  end
+
+  mapping do
+    indexes :title, type: "string"
+    indexes :content, type: "string"
+    indexes :publish, type: "boolean"
+  end
+
+  analysis do
+    filter "edge_ngram",
+      type: "edgeNGram", min_gram: 1, max_gram: 15
+    tokenizer :ngram_tokenizer,
+      type: "nGram", min_gram: "2", max_gram: "3",
+      token_chars: ["letter", "digit"]
+    analyzer :ngram_analyzer,
+      tokenizer: "ngram_tokenizer"
+  end
+```
+
+###### Indexing Data
+
+The data's elements which sends to Elasticsearch is able to customize which will make it, this way is the same as Ecto.
+
+```elixir
+defmodule YourApp.Blog do
+  @derive {Poison.Encoder, only: [:title, :publish]}
+  schema "blogs" do
+    belongs_to :user, YourApp.User
+
+    field :title, :string
+    field :content, :string
+    field :publish, :boolean
+
+    timestamps
+  end
+end
+```
+
+When Ecto's Schema and ESx's mapping have defferent fields or for customization more, defining function `as_indexed_json` will make it in order to send relational data to Elasticsearch, too. Commonly it called via `ESx.Model.index_document`, `ESx.Model.update_document`.
+
+```elixir
+defmodule YourApp.Blog do
+  def as_indexed_json(struct, opts \\ %{}) do
+    ...
+    ...
+
+    Poison.encode! some_of_custmized_data
+  end
+end
+```
+
+By default will send all of defined `Ecto.Schema`'s fields to Elasticsearch.
+
+
 ## Usage
 
 ### Indexing
 
 ```elixir
-ESx.Model.create_index, YourApp
+ESx.Model.create_index, YourApp.Blog
 ```
 
 ### A search and response
 
 ```elixir
-ESx.Model.search, YourApp, %{query: %{match: %{title: "foo"}}}
+ESx.Model.search, YourApp.Blog, %{query: %{match: %{title: "foo"}}}
 ```
 
 #### then a response
 
 ```elixir
-%ESx.Model.Response{__model__: ESx.Model, __schema__: Extoon.Entry,
+%ESx.Model.Response{__model__: ESx.Model, __schema__: YourApp.Blog,
  aggregations: nil, hits: [], max_score: nil, records: nil,
  shards: %{"failed" => 0, "successful" => 5, "total" => 5}, suggestions: nil,
  timed_out: false, took: 3, total: 0}
@@ -139,7 +209,7 @@ YourApp
 #### then a response
 
 ```elixir
-%ESx.Model.Response{__model__: ESx.Model, __schema__: Extoon.Entry,
+%ESx.Model.Response{__model__: ESx.Model, __schema__: YourApp.Blog,
  aggregations: nil, hits: [], max_score: nil, records: [%YourApp{id: 1}, %YourApp{id: 2}, %YourApp{id: 3}],
  shards: %{"failed" => 0, "successful" => 5, "total" => 5}, suggestions: nil,
  timed_out: false, took: 3, total: 0}
