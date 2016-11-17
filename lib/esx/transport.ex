@@ -12,10 +12,14 @@ defmodule ESx.Transport do
     struct %__MODULE__{}, args
   end
 
-  def perform_request(%__MODULE__{} = ts, method, path, _params \\ %{}, body \\ nil) do
+  def perform_request(%__MODULE__{} = ts, method, path, params \\ %{}, body \\ nil) do
     method = if "GET" == method && body, do: ts.method, else: method
 
-    uri = URI.merge(ts.url, path) |> URI.to_string
+    uri =
+      URI.merge(ts.url, path)
+      |> URI.merge("?" <> URI.encode_query params)
+      |> URI.to_string
+
     body = if body, do: Poison.encode!(body), else: ""
     headers = [{"content-type", "application/json"}]
 

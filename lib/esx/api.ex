@@ -33,7 +33,7 @@ defmodule ESx.API do
   def index(ts, %{index: index, type: type} = args) do
     method = if args[:id], do: "PUT", else: "POST"
     path   = Utils.pathify [Utils.escape(index), Utils.escape(type), Utils.escape(args[:id])]
-    params = %{}
+    params = Utils.extract_params args
     body   = args[:body]
 
     Transport.perform_request(ts, method, path, params, body)
@@ -44,14 +44,13 @@ defmodule ESx.API do
   # http://elasticsearch.org/guide/reference/api/index_/
   """
   def create(ts, args \\ %{}) do
-    # TODO: The arguments will become querystring in Transport.perform_request
     index ts, Map.put(args, :op_type, "create")
   end
 
   def update(ts, %{index: index, type: type, id: id} = args) do
     method = "POST"
     path   = Utils.pathify [Utils.escape(index), Utils.escape(type), Utils.escape(id), "_update"]
-    params = %{}  # TODO:
+    params = Utils.extract_params args
     body   = args[:body]
 
     # TODO: The arguments will become querystring in Transport.perform_request
@@ -71,7 +70,7 @@ defmodule ESx.API do
 
     method = "POST"
     path   = Utils.pathify [Utils.escape(args[:index]), Utils.escape(type), '_bulk']
-    params = %{}
+    params = Utils.extract_params args
     body   = args[:body]
 
     payload =
@@ -95,8 +94,8 @@ defmodule ESx.API do
       end
 
     method = "GET"
-    path   = Utils.pathify([Utils.listify(args[:index]), Utils.listify(args[:type]), "_search"])
-    params = %{}
+    path   = Utils.pathify [Utils.listify(args[:index]), Utils.listify(args[:type]), "_search"]
+    params = Utils.extract_params args
     body   = args[:body]
 
     Transport.perform_request(ts, method, path, params, body)

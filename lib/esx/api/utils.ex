@@ -1,6 +1,19 @@
 defmodule ESx.API.Utils do
   import ESx.Checks, only: [present?: 1]
 
+  @unexpected_fields ~w(
+    index type body name
+  )a
+
+  def extract_params(args) when is_map(args) do
+    Map.drop args, @unexpected_fields
+  end
+
+  def extract_params(args, keys) when is_list(keys) do
+    args = extract_params args
+    Map.drop args, keys
+  end
+
   def escape(string) when string == "*", do: string
   def escape(string) do
     "#{:edoc_lib.escape_uri '#{string}'}"

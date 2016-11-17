@@ -36,4 +36,4 @@ config :esx, ESx.Model,
 # config :something, Something.Model,
   # scheme: "http",
   # host: "127.0.0.1",
-  # port: 9300
+  # port: 9200
