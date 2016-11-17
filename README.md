@@ -68,7 +68,7 @@ config :esx, ESx.Model,
 defmodule YourApp.Blog do
   use ESx.Schema
 
-  defstruct [:title, :content, :publish]
+  defstruct [:id, :title, :content, :publish]
 
   index_name "yourapp"
   document_type "doctype"
