@@ -33,7 +33,7 @@ defmodule ESx.API do
   def index(ts, %{index: index, type: type} = args) do
     method = if args[:id], do: "PUT", else: "POST"
     path   = Utils.pathify [Utils.escape(index), Utils.escape(type), Utils.escape(args[:id])]
-    params = Utils.extract_params args
+    params = Utils.extract_params args, [:id]
     body   = args[:body]
 
     Transport.perform_request(ts, method, path, params, body)

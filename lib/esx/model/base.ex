@@ -81,6 +81,8 @@ defmodule ESx.Model.Base do
         Indices.refresh @transport, %{index: index}
       end
 
+      # TODO: __changed_attributes, update_document
+
       def index_document(%{} = schema, opts \\ %{}) do
         mod  = Funcs.to_mod schema
         args = Map.merge %{
@@ -91,6 +93,17 @@ defmodule ESx.Model.Base do
         }, opts
 
         API.index @transport, args
+      end
+
+      def delete_document(%{} = schema, opts \\ %{}) do
+        mod  = Funcs.to_mod schema
+        args = Map.merge %{
+            index: mod.__es_naming__(:index_name),
+            type:  mod.__es_naming__(:document_type),
+            id:    schema.id,
+        }, opts
+
+        API.delete @transport, args
       end
 
     end

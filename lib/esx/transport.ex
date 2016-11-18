@@ -14,14 +14,18 @@ defmodule ESx.Transport do
 
   def perform_request(%__MODULE__{} = ts, method, path, params \\ %{}, body \\ nil) do
     method = if "GET" == method && body, do: ts.method, else: method
-
+    headers = [{"content-type", "application/json"}]
     uri =
       URI.merge(ts.url, path)
       |> URI.merge("?" <> URI.encode_query params)
       |> URI.to_string
-
-    body = if body, do: Poison.encode!(body), else: ""
-    headers = [{"content-type", "application/json"}]
+    body =
+      case body do
+        body when is_map(body) ->
+          Poison.encode!(body)
+        body ->
+          body
+      end
 
     if ts.trace, do: traceout method, uri, body
 
