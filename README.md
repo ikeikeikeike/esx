@@ -61,17 +61,15 @@ config :esx, ESx.Model,
   path: "path-to-endpoint"
 ```
 
-##  Definition for Analysis.
+## Definition for Analysis.
 
 
 ```elixir
 defmodule YourApp.Blog do
   use ESx.Schema
 
-  defstruct [:id, :title, :content, :publish]
-
-  index_name "yourapp"
-  document_type "doctype"
+  index_name "yourapp"     # as required
+  document_type "doctype"  # as required
 
   mapping do
     indexes :title, type: "string"
@@ -83,27 +81,31 @@ defmodule YourApp.Blog do
     filter :ja_posfilter,
       type: "kuromoji_neologd_part_of_speech",
       stoptags: ["助詞-格助詞-一般", "助詞-終助詞"]
-    filter "edge_ngram",
-      type: "edgeNGram", min_gram: 1, max_gram: 15
-
     tokenizer :ja_tokenizer,
       type: "kuromoji_neologd_tokenizer"
-    tokenizer :ngram_tokenizer,
-      type: "nGram", min_gram: "2", max_gram: "3",
-      token_chars: ["letter", "digit"]
-
     analyzer :default,
       type: "custom", tokenizer: "ja_tokenizer",
       filter: ["kuromoji_neologd_baseform", "ja_posfilter", "cjk_width"]
-    analyzer :ja_analyzer,
-      type: "custom", tokenizer: "ja_tokenizer",
-      filter: ["kuromoji_neologd_baseform", "ja_posfilter", "cjk_width"]
-    analyzer :ngram_analyzer,
-      tokenizer: "ngram_tokenizer"
   end
 
 end
 
+```
+
+## Definition for updating record in such as Model.
+
+```elixir
+defmodule YourApp.Blog do
+  use ESx.Schema
+
+  defstruct [:id, :title, :content, :publish]
+
+  mapping do
+    indexes :title, type: "string"
+    indexes :content, type: "string"
+    indexes :publish, type: "boolean"
+  end
+end
 ```
 
 #### With Ecto
@@ -114,12 +116,7 @@ defmodule YourApp.Blog do
   use YourApp.Web, :model
   use ESx.Schema
 
-  index_name "yourapp"     # as required
-  document_type "doctype"  # as required
-
   schema "blogs" do
-    belongs_to :user, YourApp.User
-
     field :title, :string
     field :content, :string
     field :publish, :boolean
@@ -132,16 +129,6 @@ defmodule YourApp.Blog do
     indexes :content, type: "string"
     indexes :publish, type: "boolean"
   end
-
-  analysis do
-    filter "edge_ngram",
-      type: "edgeNGram", min_gram: 1, max_gram: 15
-    tokenizer :ngram_tokenizer,
-      type: "nGram", min_gram: "2", max_gram: "3",
-      token_chars: ["letter", "digit"]
-    analyzer :ngram_analyzer,
-      tokenizer: "ngram_tokenizer"
-  end
 ```
 
 ###### Indexing Data
@@ -152,8 +139,6 @@ The data's elements which sends to Elasticsearch is able to customize which will
 defmodule YourApp.Blog do
   @derive {Poison.Encoder, only: [:title, :publish]}
   schema "blogs" do
-    belongs_to :user, YourApp.User
-
     field :title, :string
     field :content, :string
     field :publish, :boolean
