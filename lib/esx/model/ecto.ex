@@ -38,7 +38,7 @@ defmodule ESx.Model.Ecto do
         defp stream(_query, _opts) do
           raise "could not load `Ecto` module. please install it."
         end
-        defp transform(_st) do
+        defp transform(_schema) do
           raise "could not load `Ecto` module. please install it."
         end
       end
