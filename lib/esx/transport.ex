@@ -40,7 +40,7 @@ defmodule ESx.Transport do
   end
   def perform_request!(%__MODULE__{} = ts, method, path, params \\ %{}, body \\ nil) do
     case perform_request(ts, method, path, params, body) do
-      {:ok, rs} -> rs
+      {:ok, rsp} -> rsp
       {:error, err} -> raise err
     end
   end
@@ -53,8 +53,8 @@ defmodule ESx.Transport do
   end
   defp traceout(method, uri, body) when is_binary(body) do
     case JSX.prettify(body) do
-      {:ok, message} ->
-        traceout "curl -X #{method} '#{uri}' -d '#{JSX.prettify! body}'\n"
+      {:ok, pretitfied} ->
+        traceout "curl -X #{method} '#{uri}' -d '#{pretitfied}'\n"
       {:error, message} ->
         traceout "curl -X #{method} '#{uri}' -d '#### couldn't prettify body ####'\n"
     end
