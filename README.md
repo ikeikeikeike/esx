@@ -92,7 +92,7 @@ end
 
 ```
 
-## Definition for updating record in such as Model.
+## Definition for updating record via such as Model.
 
 ```elixir
 defmodule YourApp.Blog do
@@ -108,7 +108,7 @@ defmodule YourApp.Blog do
 end
 ```
 
-#### With Ecto
+#### With Ecto's Model
 
 ```elixir
 
@@ -133,7 +133,7 @@ defmodule YourApp.Blog do
 
 ###### Indexing Data
 
-The data's elements which sends to Elasticsearch is able to customize which will make it, this way is the same as Ecto.
+The data's elements which sends to Elasticsearch is able to customize that will make it, this way is the same as Ecto.
 
 ```elixir
 defmodule YourApp.Blog do
