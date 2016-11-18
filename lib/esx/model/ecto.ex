@@ -3,26 +3,42 @@ defmodule ESx.Model.Ecto do
     quote do
       if Code.ensure_loaded?(Ecto) do
 
-        def records(st) do
-          records st, st.__schema__
+        # Inspired with https://github.com/DavidAntaramian/tributary/
+        defp stream(queryable, opts \\ %{}) do
+          chunk_size  = Map.get(opts, :chunk_size, 500)
+          key_name    = Map.get(opts, :key_name, :id)
+          initial_key = Map.get(opts, :initial_key, 0)
+
+          Stream.resource(
+            fn -> {queryable, initial_key} end,
+            fn {queryable, last_seen_key} ->
+              results =
+                queryable
+                |> Ecto.Query.where([r], field(r, ^key_name) > ^last_seen_key)
+                |> Ecto.Query.limit(^chunk_size)
+                |> __ENV__.module.all(repo_opts)
+
+              case List.last(results) do
+                %{^key_name => last_key} ->
+                  {results, {queryable, last_key}}
+                nil ->
+                  {:halt, {queryable, last_seen_key}}
+              end
+            end,
+            fn _ -> [] end)
+
         end
 
-        def records(st, queryable) do
-          require Ecto.Query  # XXX: Temporary fix
-
-          ids = Enum.map st.hits, & &1["_id"]
-          elems = st.__model__.repo.all(Ecto.Query.from q in queryable, where: q.id in ^ids)
-
-          elems =
-            Enum.map st.hits, fn hit ->
-              [elm] = Enum.filter elems, & "#{hit["_id"]}" == "#{&1.id}"
-               elm
-            end
-
-          %{st | records: elems}
+        defp transform(schema) do
+          mod  = Funcs.to_mod schema
+          %{index: %{ _id: schema.id, data: mod.as_indexed_json(schema)}}
         end
+
       else
-        def records(_st, _queryable) do
+        defp stream(_query, _opts) do
+          raise "could not load `Ecto` module. please install it."
+        end
+        defp transform(_st) do
           raise "could not load `Ecto` module. please install it."
         end
       end

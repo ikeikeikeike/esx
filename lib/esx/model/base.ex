@@ -8,6 +8,7 @@ defmodule ESx.Model.Base do
       @app       app
       @config    config
       @transport transport
+      @before_compile ESx.Model.Ecto  # TODO: tobe abstraction
 
       def repo do
         @config[:repo]
@@ -104,6 +105,32 @@ defmodule ESx.Model.Base do
         }, opts
 
         API.delete @transport, args
+      end
+
+      def import(%{} = schema, queryable, opts \\ %{}) do
+        mod  = Funcs.to_mod schema
+
+        {refresh, opts} = Map.pop opts, :refresh, false
+        {index, opts}   = Map.pop opts, :index, mod.__es_naming__(:index_name)
+        {type, opts}    = Map.pop opts, :type, mod.__es_naming__(:document_type)
+
+        results =
+          stream(queryable, opts)
+          |> mod.__model__.repo.all
+          |> Stream.chunk(50000, 50000, [])
+          |> Stream.map(fn chunk ->
+            body = Enum.map chunk, &transform/1
+            args = %{
+              index: index,
+              type:  type,
+              body:  body
+            }
+
+            API.bulk @transport, args
+          end)
+          |> Stream.run
+
+        {results, (if refresh, do: refresh_index(schema))}
       end
 
     end

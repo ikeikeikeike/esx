@@ -1,5 +1,5 @@
 defmodule ESx.Model.Response do
-  @before_compile ESx.Model.Ecto
+  @before_compile ESx.Model.Response.Ecto  # TODO: tobe abstraction
 
   defstruct [
     :took, :timed_out, :shards, :hits, :total, :max_score,
