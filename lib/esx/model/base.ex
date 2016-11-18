@@ -82,6 +82,35 @@ defmodule ESx.Model.Base do
         Indices.refresh @transport, %{index: index}
       end
 
+      def import(schema, opts \\ %{}) do
+        mod  = Funcs.to_mod schema
+
+        {refresh, opts} = Map.pop opts, :refresh, false
+        {index, opts}   = Map.pop opts, :index, mod.__es_naming__(:index_name)
+        {type, opts}    = Map.pop opts, :type, mod.__es_naming__(:document_type)
+
+        results =
+          stream(schema, opts)
+          |> Stream.chunk(50000, 50000, [])
+          |> Stream.map(fn chunk ->
+            body = Enum.map chunk, &transform/1
+            args = %{
+              index: index,
+              type:  type,
+              body:  body
+            }
+
+            API.bulk @transport, args
+          end)
+          |> Stream.filter(fn
+            {:ok, %{"errors" => false}} -> false
+            _ -> true
+          end)
+          |> Enum.to_list
+
+        {results, (if refresh, do: refresh_index(schema))}
+      end
+
       # TODO: __changed_attributes, update_document
 
       def index_document(%{} = schema, opts \\ %{}) do
@@ -105,32 +134,6 @@ defmodule ESx.Model.Base do
         }, opts
 
         API.delete @transport, args
-      end
-
-      def import(%{} = schema, queryable, opts \\ %{}) do
-        mod  = Funcs.to_mod schema
-
-        {refresh, opts} = Map.pop opts, :refresh, false
-        {index, opts}   = Map.pop opts, :index, mod.__es_naming__(:index_name)
-        {type, opts}    = Map.pop opts, :type, mod.__es_naming__(:document_type)
-
-        results =
-          stream(queryable, opts)
-          |> mod.__model__.repo.all
-          |> Stream.chunk(50000, 50000, [])
-          |> Stream.map(fn chunk ->
-            body = Enum.map chunk, &transform/1
-            args = %{
-              index: index,
-              type:  type,
-              body:  body
-            }
-
-            API.bulk @transport, args
-          end)
-          |> Stream.run
-
-        {results, (if refresh, do: refresh_index(schema))}
       end
 
     end

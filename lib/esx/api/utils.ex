@@ -56,8 +56,8 @@ defmodule ESx.API.Utils do
               {op, meta}   = Map.to_list(item) |> List.first
               {data, meta} = Map.pop meta, :data
 
-              acc = acc ++ Map.new([{op, meta}])
-              acc ++ if data, do: data, else: []
+              acc = acc ++ [Map.new([{op, meta}])]
+              acc ++ if data, do: [data], else: []
             end)
             |> Enum.map(& Poison.encode!/1)
 

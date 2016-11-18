@@ -7,8 +7,9 @@ defmodule ESx.Model.Ecto do
         defp stream(queryable, opts \\ %{}) do
           require Ecto.Query  # XXX: Temporary fix
 
-          chunk_size  = Map.get(opts, :chunk_size, 500)
+          chunk_size  = Map.get(opts, :chunk_size, 10000)
           key_name    = Map.get(opts, :key_name, :id)
+          order_name  = Map.get(opts, :order_name, :id)
           initial_key = Map.get(opts, :initial_key, 0)
 
           Stream.resource(
@@ -18,7 +19,8 @@ defmodule ESx.Model.Ecto do
                 queryable
                 |> Ecto.Query.where([r], field(r, ^key_name) > ^last_seen_key)
                 |> Ecto.Query.limit(^chunk_size)
-                |> __ENV__.module.all(repo_opts)
+                |> Ecto.Query.order_by(^order_name)
+                |> repo.all # (Enum.into(opts, []))
 
               case List.last(results) do
                 %{^key_name => last_key} ->
@@ -27,12 +29,12 @@ defmodule ESx.Model.Ecto do
                   {:halt, {queryable, last_seen_key}}
               end
             end,
-            fn _ -> [] end)
-
+            fn _ -> [] end
+          )
         end
 
         defp transform(schema) do
-          mod  = Funcs.to_mod schema
+          mod  = ESx.Funcs.to_mod schema
           %{index: %{ _id: schema.id, data: mod.as_indexed_json(schema)}}
         end
 

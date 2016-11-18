@@ -24,7 +24,7 @@ defmodule ESx.Transport do
         body when is_map(body) ->
           Poison.encode!(body)
         body ->
-          body
+          body || ""
       end
 
     if ts.trace, do: traceout method, uri, body
@@ -51,8 +51,13 @@ defmodule ESx.Transport do
   defp traceout(method, uri, "") do
     traceout "curl -X #{method} '#{uri}'\n"
   end
-  defp traceout(method, uri, body) do
-    traceout "curl -X #{method} '#{uri}' -d '#{JSX.prettify! body}'\n"
+  defp traceout(method, uri, body) when is_binary(body) do
+    case JSX.prettify(body) do
+      {:ok, message} ->
+        traceout "curl -X #{method} '#{uri}' -d '#{JSX.prettify! body}'\n"
+      {:error, message} ->
+        traceout "curl -X #{method} '#{uri}' -d '#### couldn't prettify body ####'\n"
+    end
   end
 
 end

@@ -12,7 +12,8 @@ defmodule ESx.Schema do
   defmacro __before_compile__(_env) do
     quote do
       def as_indexed_json(%{} = schema, opts) do
-        Map.drop schema, [:id]  # TODO: make sure to see original code
+        types = ESx.Funcs.to_mod(schema).__es_mapping__(:types)
+        Map.take schema, Keyword.keys(types)
       end
     end
   end
