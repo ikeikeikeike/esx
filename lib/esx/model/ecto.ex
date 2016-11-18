@@ -5,6 +5,8 @@ defmodule ESx.Model.Ecto do
 
         # Inspired with https://github.com/DavidAntaramian/tributary/
         defp stream(queryable, opts \\ %{}) do
+          require Ecto.Query  # XXX: Temporary fix
+
           chunk_size  = Map.get(opts, :chunk_size, 500)
           key_name    = Map.get(opts, :key_name, :id)
           initial_key = Map.get(opts, :initial_key, 0)
