@@ -19,10 +19,16 @@ defmodule ESx.Schema.Analysis do
     es_analysis(__MODULE__, options, block)
   end
 
-  defmacro settings(options) do
+  # Setting dynamically
+  defmacro settings(keywords) do
+    quote do
+      def __es_analysis__(:to_map) do
+        Funcs.to_map(unquote(keywords))
+      end
+    end
   end
 
-  # imitational function.
+  # For just imitational function.
   defmacro analysis([do: block]), do: block
 
   @doc false

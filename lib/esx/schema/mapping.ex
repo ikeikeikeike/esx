@@ -19,6 +19,15 @@ defmodule ESx.Schema.Mapping do
     es_mapping(__MODULE__, [], block)
   end
 
+  # Setting dynamically
+  defmacro mapping(keywords) do
+    quote do
+      def __es_mapping__(:to_map) do
+        Funcs.to_map(unquote(keywords))
+      end
+    end
+  end
+
   @doc false
   def es_mapping(_mod, options, block) do
     quote do
