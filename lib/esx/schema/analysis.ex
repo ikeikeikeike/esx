@@ -5,18 +5,28 @@ defmodule ESx.Schema.Analysis do
   @doc false
   defmacro __using__(_) do
     quote do
-      import Analysis, only: [analysis: 1]
+      import Analysis, only: [settings: 1, settings: 2]
 
       Module.register_attribute(__MODULE__, :es_analyses, accumulate: true)
     end
   end
 
-  defmacro analysis([do: block]) do
-    es_analysis(__MODULE__, block)
+  defmacro settings([do: block]) do
+    es_analysis(__MODULE__, [], block)
   end
 
+  defmacro settings(options, [do: block]) do
+    es_analysis(__MODULE__, options, block)
+  end
+
+  defmacro settings(options) do
+  end
+
+  # imitational function.
+  defmacro analysis([do: block]), do: block
+
   @doc false
-  def es_analysis(_mod, block) do
+  def es_analysis(_mod, options, block) do
     quote do
       # mod = unquote(mod)
 
@@ -30,7 +40,7 @@ defmodule ESx.Schema.Analysis do
       analyses = @es_analyses |> Enum.reverse
 
       Module.eval_quoted __ENV__, [
-        Analysis.__es_analyses__(analyses),
+        Analysis.__es_analyses__(analyses, unquote(options)),
       ]
     end
   end
@@ -65,7 +75,7 @@ defmodule ESx.Schema.Analysis do
   end
 
   @doc false
-  def __es_analyses__(analyses) do
+  def __es_analyses__(analyses, options) do
     types =
       Enum.reduce analyses, [], fn {type, name, opts}, acc ->
         m = Keyword.new([{name, opts}])
@@ -87,11 +97,16 @@ defmodule ESx.Schema.Analysis do
     escaped = Macro.escape(types)
 
     quote do
-      def __es_analysis__(:to_map), do: %{analysis: Funcs.to_map(unquote(escaped))}
+      def __es_analysis__(:to_map) do
+        analysis = %{analysis: Funcs.to_map(unquote(escaped))}
+        Map.merge Funcs.to_map(unquote(options)), analysis
+      end
       def __es_analysis__(:as_json), do: __es_analysis__ :to_map
       def __es_analysis__(:types), do: unquote(escaped)
       unquote(quoted)
       def __es_analysis__(:type, _), do: nil
+
+      def __es_analysis__(:settings), do: unquote(options)
     end
   end
 
