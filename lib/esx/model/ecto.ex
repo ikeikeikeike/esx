@@ -3,7 +3,7 @@ defmodule ESx.Model.Ecto do
     quote do
       if Code.ensure_loaded?(Ecto) do
 
-        # Inspired with https://github.com/DavidAntaramian/tributary/
+        # https://github.com/DavidAntaramian/tributary/
         defp stream(queryable, opts \\ %{}) do
           require Ecto.Query  # XXX: Temporary fix
 

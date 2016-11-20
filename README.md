@@ -161,7 +161,7 @@ defmodule YourApp.Blog do
 end
 ```
 
-By default will send all of defined `Ecto.Schema`'s fields to Elasticsearch.
+By default will send all of defined mapping's fields to Elasticsearch.
 
 
 ## Usage

@@ -5,20 +5,23 @@ defmodule ESx.Schema.Mapping do
   @doc false
   defmacro __using__(_) do
     quote do
-      import Mapping, only: [mapping: 1]
+      import Mapping, only: [mapping: 1, mapping: 2]
 
       Module.register_attribute(__MODULE__, :es_mappings, accumulate: true)
     end
   end
 
+  defmacro mapping(options, [do: block]) do
+    es_mapping(__MODULE__, options, block)
+  end
+
   defmacro mapping([do: block]) do
-    es_mapping(__MODULE__, block)
+    es_mapping(__MODULE__, [], block)
   end
 
   @doc false
-  def es_mapping(_mod, block) do
+  def es_mapping(_mod, options, block) do
     quote do
-      # mod = unquote(mod)
 
       try do
         import Mapping
@@ -30,7 +33,7 @@ defmodule ESx.Schema.Mapping do
       mappings = @es_mappings |> Enum.reverse
 
       Module.eval_quoted __ENV__, [
-        Mapping.__es_mappings__(mappings),
+        Mapping.__es_mappings__(mappings, unquote(options)),
       ]
     end
   end
@@ -48,7 +51,7 @@ defmodule ESx.Schema.Mapping do
   end
 
   @doc false
-  def __es_mappings__(mappings) do
+  def __es_mappings__(mappings, options) do
     quoted =
       Enum.map(mappings, fn {name, opts} ->
         quote do
@@ -64,11 +67,16 @@ defmodule ESx.Schema.Mapping do
     types = Macro.escape(mappings)
 
     quote do
-      def __es_mapping__(:to_map), do: %{properties: Funcs.to_map(unquote(types))}
+      def __es_mapping__(:to_map) do
+        properties = %{properties: Funcs.to_map(unquote(types))}
+        Map.merge Funcs.to_map(unquote(options)), properties
+      end
       def __es_mapping__(:as_json), do: __es_mapping__ :to_map
       def __es_mapping__(:types), do: unquote(types)
       unquote(quoted)
       def __es_mapping__(:type, _), do: nil
+
+      def __es_mapping__(:options), do: unquote(options)
     end
   end
 
