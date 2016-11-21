@@ -100,6 +100,13 @@ defmodule Something.Schema do
   use ESx.Schema
 
   mapping [
+    _ttl: [
+      enabled: true,
+      default: "180d"
+    ],
+    _all: [
+      enabled: false
+    ],
     properties: [
       title: [
         type: "string",
@@ -112,13 +119,6 @@ defmodule Something.Schema do
         type: "string",
         analyzer: "ja_analyzer"
       ]
-    ],
-    _ttl: [
-      enabled: true,
-      default: "180d"
-    ],
-    _all: [
-      enabled: false
     ]
   ]
 
