@@ -166,4 +166,14 @@ defmodule ESx.API.Indices do
 
   defdelegate exists_template?(ts, args \\ %{}), to: __MODULE__, as: :exists_template
 
+  def upgrade(ts, args \\ %{}) do
+    method = "POST"
+    path   = "_upgrade"
+    params = Utils.extract_params args
+    body   = nil
+
+    Transport.perform_request(ts, method, path, params, body)
+    |> response
+  end
+
 end
