@@ -6,6 +6,8 @@ defmodule ESx.Model.Response do
     :aggregations, :suggestions, :__schema__, :__model__, records: [],
   ]
 
+  @type t :: %__MODULE__{}
+
   def parse(_model, _schema, {:ok, %{"error" => _} = rsp}), do: rsp
   def parse(model, schema, {:ok, %{} = rsp}) do
     %__MODULE__{

@@ -1,27 +1,28 @@
-defmodule ESx.Model.Pagination do
+defimpl Scrivener.Paginater, for: ESx.Model.Response do
+  alias Scrivener.{Config, Page}
 
-  defstruct [
-    entries: [],
-    page_size: 0, page_number: 0, prev_page: 0, next_page: 0,
-    has_prev: false, has_next: false,
-    total_entries: 0, total_pages: 0,
-  ]
+  @moduledoc false
 
-  def paginate(%{recourds: recourds, total: total} = _resp, opts) do
-    page = opts[:page]
-    page_size = opts[:per_page]
-    pages = total_pages(total, page_size)
+  @spec paginate(ESx.Model.Response.t, Scrivener.Config.t) :: Scrivener.Page.t
+  def paginate(response, %Config{page_size: page_size, page_number: page_number}) do
+    total_entries = response.total
+    entries = response.records || response.hits
 
+    %Page{
+      page_size: page_size,
+      page_number: page_number,
+      entries: entries,
+      total_entries: total_entries,
+      total_pages: total_pages(total_entries, page_size)
+    }
+  end
+
+  def distance(response) do
     %{
-      entries: recourds,
-      page_size: opts[:page_size],
-      page_number: page,
-      prev_page: page - 1,
-      next_page: page + 1,
-      has_prev: page > 1,
-      has_next: page < pages,
-      total_entries: total,
-      total_pages: pages,
+      prev_page: response.page_number - 1,
+      next_page: response.page_number + 1,
+      has_prev: response.page_number > 1,
+      has_next: response.page_number < response.total_pages
     }
   end
 
