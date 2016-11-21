@@ -203,7 +203,7 @@ defmodule YourApp.Blog do
     ...
     ...
 
-    Poison.encode! some_of_custmized_data
+    Poison.encode! Map.drop(some_of_custmized_data, [:id])
   end
 end
 ```

@@ -15,16 +15,18 @@ defmodule ESx.Schema.Analysis do
     es_analysis(__MODULE__, [], block)
   end
 
-  defmacro settings(options, [do: block]) do
-    es_analysis(__MODULE__, options, block)
+  defmacro settings(setting, [do: block]) do
+    es_analysis(__MODULE__, setting, block)
   end
 
   # Setting dynamically
-  defmacro settings(keywords) do
+  defmacro settings(keywords) when is_list(keywords) do
+    {analyses, setting} = Keyword.pop keywords, :analysis
+
     quote do
-      def __es_analysis__(:to_map) do
-        Funcs.to_map(unquote(keywords))
-      end
+      Module.eval_quoted __ENV__, [
+        Analysis.__es_analyses__(unquote(analyses), unquote(setting)),
+      ]
     end
   end
 
@@ -32,7 +34,7 @@ defmodule ESx.Schema.Analysis do
   defmacro analysis([do: block]), do: block
 
   @doc false
-  def es_analysis(_mod, options, block) do
+  def es_analysis(_mod, setting, block) do
     quote do
       # mod = unquote(mod)
 
@@ -46,7 +48,7 @@ defmodule ESx.Schema.Analysis do
       analyses = @es_analyses |> Enum.reverse
 
       Module.eval_quoted __ENV__, [
-        Analysis.__es_analyses__(analyses, unquote(options)),
+        Analysis.__es_analyses__(analyses, unquote(setting)),
       ]
     end
   end
@@ -81,15 +83,19 @@ defmodule ESx.Schema.Analysis do
   end
 
   @doc false
-  def __es_analyses__(analyses, options) do
-    types =
+  def __es_analyses__([{_type, _name, _opts} | _] = analyses, setting) do
+    analyses =
       Enum.reduce analyses, [], fn {type, name, opts}, acc ->
         m = Keyword.new([{name, opts}])
         Keyword.update(acc, type, m, & Keyword.merge(&1, m))
       end
 
+    Analysis.__es_analyses__ analyses, setting
+  end
+  @doc false
+  def __es_analyses__(analyses, setting) do
     quoted =
-      Enum.map(types, fn {type, map} ->
+      Enum.map(analyses, fn {type, map} ->
         quote do
           def __es_analysis__(:type, unquote(type)) do
             unquote(Macro.escape(map))
@@ -100,19 +106,19 @@ defmodule ESx.Schema.Analysis do
         end
       end)
 
-    escaped = Macro.escape(types)
+    types = Macro.escape(analyses)
 
     quote do
       def __es_analysis__(:to_map) do
-        analysis = %{analysis: Funcs.to_map(unquote(escaped))}
-        Map.merge Funcs.to_map(unquote(options)), analysis
+        analysis = %{analysis: Funcs.to_map(unquote(types))}
+        Map.merge Funcs.to_map(unquote(setting)), analysis
       end
       def __es_analysis__(:as_json), do: __es_analysis__ :to_map
-      def __es_analysis__(:types), do: unquote(escaped)
+      def __es_analysis__(:types), do: unquote(types)
       unquote(quoted)
       def __es_analysis__(:type, _), do: nil
 
-      def __es_analysis__(:settings), do: unquote(options)
+      def __es_analysis__(:settings), do: unquote(setting)
     end
   end
 

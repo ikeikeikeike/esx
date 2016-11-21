@@ -11,8 +11,8 @@ defmodule ESx.Schema.Mapping do
     end
   end
 
-  defmacro mapping(options, [do: block]) do
-    es_mapping(__MODULE__, options, block)
+  defmacro mapping(setting, [do: block]) do
+    es_mapping(__MODULE__, setting, block)
   end
 
   defmacro mapping([do: block]) do
@@ -20,16 +20,18 @@ defmodule ESx.Schema.Mapping do
   end
 
   # Setting dynamically
-  defmacro mapping(keywords) do
+  defmacro mapping(keywords) when is_list(keywords) do
+    {mappings, setting} = Keyword.pop keywords, :properties
+
     quote do
-      def __es_mapping__(:to_map) do
-        Funcs.to_map(unquote(keywords))
-      end
+      Module.eval_quoted __ENV__, [
+        Mapping.__es_mappings__(unquote(mappings), unquote(setting)),
+      ]
     end
   end
 
   @doc false
-  def es_mapping(_mod, options, block) do
+  def es_mapping(_mod, setting, block) do
     quote do
 
       try do
@@ -42,7 +44,7 @@ defmodule ESx.Schema.Mapping do
       mappings = @es_mappings |> Enum.reverse
 
       Module.eval_quoted __ENV__, [
-        Mapping.__es_mappings__(mappings, unquote(options)),
+        Mapping.__es_mappings__(mappings, unquote(setting)),
       ]
     end
   end
@@ -60,7 +62,7 @@ defmodule ESx.Schema.Mapping do
   end
 
   @doc false
-  def __es_mappings__(mappings, options) do
+  def __es_mappings__(mappings, setting) do
     quoted =
       Enum.map(mappings, fn {name, opts} ->
         quote do
@@ -78,14 +80,14 @@ defmodule ESx.Schema.Mapping do
     quote do
       def __es_mapping__(:to_map) do
         properties = %{properties: Funcs.to_map(unquote(types))}
-        Map.merge Funcs.to_map(unquote(options)), properties
+        Map.merge Funcs.to_map(unquote(setting)), properties
       end
       def __es_mapping__(:as_json), do: __es_mapping__ :to_map
       def __es_mapping__(:types), do: unquote(types)
       unquote(quoted)
       def __es_mapping__(:type, _), do: nil
 
-      def __es_mapping__(:options), do: unquote(options)
+      def __es_mapping__(:settings), do: unquote(setting)
     end
   end
 
