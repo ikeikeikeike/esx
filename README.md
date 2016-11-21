@@ -219,43 +219,44 @@ By default will send all of defined mapping's fields to Elasticsearch.
 ESx.Model.create_index, YourApp.Blog
 ```
 
-### A search and response
+### A search
 
 ```elixir
 ESx.Model.search, YourApp.Blog, %{query: %{match: %{title: "foo"}}}
 ```
 
-#### then a response
+### Response
 
 ```elixir
-%ESx.Model.Response{__model__: ESx.Model, __schema__: YourApp.Blog,
- aggregations: nil, hits: [], max_score: nil, records: nil,
- shards: %{"failed" => 0, "successful" => 5, "total" => 5}, suggestions: nil,
- timed_out: false, took: 3, total: 0}
+response =
+  YourApp.Blog
+  |> ESx.Model.search(%{query: %{match: %{title: "foo"}}})
+
+IO.inspect Enum.map(response, fn r ->
+  r["_source"]["title"]
+end)
+# ["foo", "egg", "some"]
 ```
 
 ##### With Phoenix's Ecto
 
 ```elixir
-YourApp
-|> ESx.Model.search(%{query: %{match: %{title: "foo"}}})
-|> ESx.Model.Response.records
-```
+response =
+  YourApp.Blog
+  |> ESx.Model.search(%{query: %{match: %{title: "foo"}}})
+  |> ESx.Model.Response.records
 
-#### then a response
-
-```elixir
-%ESx.Model.Response{__model__: ESx.Model, __schema__: YourApp.Blog,
- aggregations: nil, hits: [], max_score: nil, records: [%YourApp{id: 1}, %YourApp{id: 2}, %YourApp{id: 3}],
- shards: %{"failed" => 0, "successful" => 5, "total" => 5}, suggestions: nil,
- timed_out: false, took: 3, total: 0}
+IO.inspect Enum.each(response, fn r ->
+  r.title
+end)
+# ["foo", "egg", "some"]
 ```
 
 ## Low-level APIs
 
 
 ```elixir
-ts = ESx.Transport.transport trace: true
+ts = ESx.Transport.transport trace: true  # or: ts = ESx.Model.transport
 
 ESx.API.search ts, %{index: "your_app", body: %{query: %{}}}
 
@@ -264,7 +265,7 @@ ESx.API.Indices.delete ts, %{index: "your_app"}
 
 ### TODO
 
-- Http conn collection
 - Consider to change Client proxy for multiple configuration
 - Some of APIs
 - Everything for me which uses own project.
+- Refactoring
