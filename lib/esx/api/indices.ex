@@ -37,7 +37,7 @@ defmodule ESx.API.Indices do
 
   def get_alias(ts, args \\ %{}) do
     method = "GET"
-    path   = Utils.pathify [Utils.listify(args[:index]), '_alias', Utils.escape(args[:name])]
+    path   = Utils.pathify [Utils.listify(args[:index]), "_alias", Utils.escape(args[:name])]
     params = Utils.extract_params args
     body   = nil
 
@@ -47,7 +47,7 @@ defmodule ESx.API.Indices do
 
   def get_aliases(ts, args \\ %{}) do
     method = "GET"
-    path   = Utils.pathify [Utils.listify(args[:index]), '_aliases', Utils.listify(args[:name])]
+    path   = Utils.pathify [Utils.listify(args[:index]), "_aliases", Utils.listify(args[:name])]
     params = Utils.extract_params args
     body   = nil
 
@@ -66,7 +66,7 @@ defmodule ESx.API.Indices do
 
   def put_alias(ts, %{name: name} = args) do
     method = "PUT"
-    path   = Utils.pathify [Utils.listify(args[:index]), '_alias', Utils.escape(name)]
+    path   = Utils.pathify [Utils.listify(args[:index]), "_alias", Utils.escape(name)]
     params = Utils.extract_params args
     body   = args[:body]
 
@@ -76,7 +76,7 @@ defmodule ESx.API.Indices do
 
   def delete_alias(ts, %{index: index, name: name} = args) do
     method = "DELETE"
-    path   = Utils.pathify [Utils.listify(index), '_alias', Utils.escape(name)]
+    path   = Utils.pathify [Utils.listify(index), "_alias", Utils.escape(name)]
     params = Utils.extract_params args
     body   = nil
 
@@ -86,7 +86,7 @@ defmodule ESx.API.Indices do
 
   def exists_alias(ts, args \\ %{}) do
     method = "HEAD"
-    path   = Utils.pathify [Utils.listify(args[:index]), '_alias', Utils.escape(args[:name])]
+    path   = Utils.pathify [Utils.listify(args[:index]), "_alias", Utils.escape(args[:name])]
     params = Utils.extract_params args
     body   = nil
 
@@ -94,5 +94,76 @@ defmodule ESx.API.Indices do
   end
 
   defdelegate exists_alias?(ts, args \\ %{}), to: __MODULE__, as: :exists_alias
+
+  def refresh(ts, args \\ %{}) do
+    method = "POST"
+    path   = Utils.pathify [Utils.listify(args[:index]), "_refresh"]
+    params = Utils.extract_params args
+    body   = nil
+
+    Transport.perform_request(ts, method, path, params, body)
+    |> response
+  end
+
+  def get_mapping(ts, args \\ %{}) do
+    method = "GET"
+    path   = Utils.pathify [Utils.listify(args[:index]), "_mapping", Utils.listify(args[:type])]
+    params = Utils.extract_params args
+    body = nil
+
+    Transport.perform_request(ts, method, path, params, body)
+    |> response
+  end
+
+  def get_settings(ts, args \\ %{}) do
+    method = "GET"
+    path   = Utils.pathify [Utils.listify(args[:index]), Utils.listify(args[:type]), args.delete(:prefix), "_settings", Utils.escape(args[:name])]
+    params = Utils.extract_params args
+    body   = nil
+
+    Transport.perform_request(ts, method, path, params, body)
+    |> response
+  end
+
+  def get_template(ts, args \\ %{}) do
+    method = "GET"
+    path   = Utils.pathify ["_template", Utils.escape(args[:name])]
+    params = Utils.extract_params args
+    body   = args[:body]
+
+    Transport.perform_request(ts, method, path, params, body)
+    |> response
+  end
+
+  def put_template(ts, %{name: name, body: body} = args) do
+    method = "PUT"
+    path   = Utils.pathify "_template", Utils.escape(name)
+    params = Utils.extract_params args
+    body   = body
+
+    Transport.perform_request(ts, method, path, params, body)
+    |> response
+  end
+
+  def delete_template(ts, %{name: name} = args) do
+    method = HTTP_DELETE
+    path   = Utils.pathify "_template", Utils.escape(name)
+    params = Utils.extract_params args
+    body = nil
+
+    Transport.perform_request(ts, method, path, params, body)
+    |> response
+  end
+
+  def exists_template(ts, %{name: name} = args) do
+    method = HTTP_HEAD
+    path   = Utils.pathify '_template', Utils.escape(name)
+    params = Utils.extract_params args
+    body = nil
+
+    status200? ts, method, path, params, body
+  end
+
+  defdelegate exists_template?(ts, args \\ %{}), to: __MODULE__, as: :exists_template
 
 end

@@ -41,7 +41,7 @@ defmodule ESx.API do
   end
 
   def reindex(ts, %{body: body} = args) do
-    method = 'POST'
+    method = "POST"
     path   = "_reindex"
     params = Utils.extract_params args
     body   = body
@@ -63,7 +63,7 @@ defmodule ESx.API do
     params = Utils.extract_params args
     body   = args[:body]
 
-    # TODO: The arguments will become querystring in Transport.perform_request
+    # TODO: The args will become querystring in Transport.perform_request
     params =
       Map.merge params, (if fields = params[:fields] do
         %{fields: Utils.listify(fields)}
@@ -75,11 +75,21 @@ defmodule ESx.API do
     |> response
   end
 
+  def update_by_query(ts, %{index: index} = args) do
+    method = "POST"
+    path   = Utils.pathify [Utils.listify(index), Utils.listify(args[:type]), "/_update_by_query"]
+    params = Utils.extract_params args
+    body   = args[:body]
+
+    Transport.perform_request(ts, method, path, params, body)
+    |> response
+  end
+
   def bulk(ts, args \\ %{}) do
     {type, args} = Map.pop(args, :type)
 
     method = "POST"
-    path   = Utils.pathify [Utils.escape(args[:index]), Utils.escape(type), '_bulk']
+    path   = Utils.pathify [Utils.escape(args[:index]), Utils.escape(type), "_bulk"]
     params = Utils.extract_params args
     body   = args[:body]
 
@@ -116,4 +126,77 @@ defmodule ESx.API do
     search(ts, args)
     |> response!
   end
+
+  def termvectors(ts, %{index: index, type: type} = args) do
+    method = "GET"
+    {endpoint, args} = Map.pop args, :endpoint, "_termvectors"
+    path   = Utils.pathify [Utils.escape(index), Utils.escape(type), args[:id], endpoint]
+
+    params = Utils.extract_params args
+    body   = args[:body]
+
+    Transport.perform_request(ts, method, path, params, body)
+    |> response
+  end
+
+  def suggest(ts, args \\ %{}) do
+    method = "POST"
+    path   = Utils.pathify [Utils.listify(args[:index]), "_suggest"]
+    params = Utils.extract_params args
+    body   = args[:body]
+
+    Transport.perform_request(ts, method, path, params, body)
+    |> response
+  end
+
+  def get_template(ts, %{id: id} = args) do
+    method = "GET"
+    path   = "_search/template/#{id}"
+    params = %{}
+    body   = args[:body]
+
+    Transport.perform_request(ts, method, path, params, body)
+    |> response
+  end
+
+  def put_template(ts, %{id: id, body: body} = args) do
+    method = "PUT"
+    path   = "_search/template/#{id}"
+    params = {}
+    body   = body
+
+    Transport.perform_request(ts, method, path, params, body)
+    |> response
+  end
+
+  def delete_template(ts, args \\ %{}) do
+    method = "DELETE"
+    path   = "_search/template/#{args[:id]}"
+    params = %{}
+    body   = nil
+
+    Transport.perform_request(ts, method, path, params, body)
+    |> response
+  end
+
+  def search_template(ts, args \\ %{}) do
+    method = HTTP_GET
+    path   = Utils.pathify [Utils.listify(args[:index]), Utils.listify(args[:type]), "_search/template"]
+    params = Utils.extract_params args
+    body   = args[:body]
+
+    Transport.perform_request(ts, method, path, params, body)
+    |> response
+  end
+
+  def render_search_template(ts, args \\ %{}) do
+    method = "GET"
+    path   = "_render/template"
+    params = Utils.extract_params args
+    body   = args[:body]
+
+    Transport.perform_request(ts, method, path, params, body)
+    |> response
+  end
+
 end
