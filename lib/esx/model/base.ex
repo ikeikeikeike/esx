@@ -32,13 +32,13 @@ defmodule ESx.Model.Base do
         rsp =
           cond do
             is_map(body) ->
-              API.search @transport, %{index: index, type: type, body: body}
+              API.search transport, %{index: index, type: type, body: body}
 
             is_binary(body) && body =~ ~r/^\s*{/ ->
-              API.search @transport, %{index: index, type: type, body: body}
+              API.search transport, %{index: index, type: type, body: body}
 
             true ->
-              API.search @transport, %{index: index, type: type, q: body}
+              API.search transport, %{index: index, type: type, q: body}
           end
 
         ESx.Model.Response.parse __MODULE__, mod, rsp
@@ -58,28 +58,28 @@ defmodule ESx.Model.Base do
           end
 
         body = Map.merge %{mappings: Map.new([{type, properties}])}, analysis
-        Indices.create @transport, %{index: index, body: body}
+        Indices.create transport, %{index: index, body: body}
       end
 
       def index_exists?(schema, opts \\ %{}) do
         mod   = Funcs.to_mod schema
         index = opts[:index] || mod.__es_naming__(:index_name)
 
-        Indices.exists? @transport, %{index: index}
+        Indices.exists? transport, %{index: index}
       end
 
       def delete_index(schema, opts \\ %{}) do
         mod   = Funcs.to_mod schema
         index = opts[:index] || mod.__es_naming__(:index_name)
 
-        Indices.delete @transport, %{index: index}
+        Indices.delete transport, %{index: index}
       end
 
       def refresh_index(schema, opts \\ %{}) do
         mod   = Funcs.to_mod schema
         index = opts[:index] || mod.__es_naming__(:index_name)
 
-        Indices.refresh @transport, %{index: index}
+        Indices.refresh transport, %{index: index}
       end
 
       def import(schema, opts \\ %{}) do
@@ -100,7 +100,7 @@ defmodule ESx.Model.Base do
               body:  body
             }
 
-            API.bulk @transport, args
+            API.bulk transport, args
           end)
           |> Stream.filter(fn
             {:ok, %{"errors" => false}} -> false
@@ -122,7 +122,7 @@ defmodule ESx.Model.Base do
             body:  mod.as_indexed_json(schema, opts),
         }, opts
 
-        API.index @transport, args
+        API.index transport, args
       end
 
       def delete_document(%{} = schema, opts \\ %{}) do
@@ -133,7 +133,7 @@ defmodule ESx.Model.Base do
             id:    schema.id,
         }, opts
 
-        API.delete @transport, args
+        API.delete transport, args
       end
 
     end
