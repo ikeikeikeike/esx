@@ -3,7 +3,7 @@ defmodule ESx.Model.Response do
 
   defstruct [
     :took, :timed_out, :shards, :hits, :total, :max_score,
-    :records, :aggregations, :suggestions, :__schema__, :__model__
+    :aggregations, :suggestions, :__schema__, :__model__, records: [],
   ]
 
   def parse(_model, _schema, {:ok, %{"error" => _} = rsp}), do: rsp
@@ -26,6 +26,29 @@ defmodule ESx.Model.Response do
 
   def suggestions(_st) do
     # Suggestions.new(response['suggest'])
+  end
+
+  defimpl Enumerable, for: ESx.Model.Response do
+
+    # TODO: Should be only to define around records implement when Ecto loaded.
+    def member?(%ESx.Model.Response{records: records}, value) when length(records) > 0 do
+      value in records
+    end
+
+    # TODO: Should be only to define around records implement when Ecto loaded.
+    def reduce(%ESx.Model.Response{records: records}, acc, fun) when length(records) > 0 do
+      Enumerable.reduce(records, acc, fun)
+    end
+
+    def count(%ESx.Model.Response{total: total}), do: total
+
+    def member?(%ESx.Model.Response{hits: hits}, value) do
+      value in hits
+    end
+
+    def reduce(%ESx.Model.Response{hits: hits}, acc, fun) do
+      Enumerable.reduce(hits, acc, fun)
+    end
   end
 
 end

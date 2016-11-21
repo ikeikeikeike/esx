@@ -1,3 +1,4 @@
+# XXX: Temporary fix which this loader code.
 defmodule ESx.Model.Ecto do
   defmacro __before_compile__(_env) do
     quote do

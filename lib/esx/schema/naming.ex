@@ -9,31 +9,26 @@ defmodule ESx.Schema.Naming do
 
       Module.register_attribute(__MODULE__, :es_document_type, accumulate: false)
       Module.register_attribute(__MODULE__, :es_index_name, accumulate: false)
-
-      def __es_naming__(:index_name), do: @es_index_name || Funcs.to_index_name(__MODULE__)
-      def __es_naming__(:document_type), do: @es_document_type || Funcs.to_document_type(__MODULE__)
     end
   end
 
   defmacro index_name(name) do
     quote do
-      Mapping.__es_index_name__(__MODULE__, unquote(name))
+      Module.put_attribute(__MODULE__, :es_index_name, "#{unquote(name)}")
+
+      def __es_naming__(:index_name) do
+        @es_index_name || Funcs.to_index_name(__MODULE__)
+      end
     end
   end
   defmacro document_type(name) do
     quote do
-      Mapping.__es_document_type__(__MODULE__, unquote(name))
+      Module.put_attribute(__MODULE__, :es_document_type, "#{unquote(name)}")
+
+      def __es_naming__(:document_type) do
+        @es_document_type || Funcs.to_document_type(__MODULE__)
+      end
     end
   end
-
-  @doc false
-  def __es_index_name__(mod, name, _opts \\ []) do
-    Module.put_attribute(mod, :es_index_name, :"#{name}")
-  end
-  @doc false
-  def __es_document_type__(mod, name, _opts \\ []) do
-    Module.put_attribute(mod, :es_document_type, :"#{name}")
-  end
-
 
 end
