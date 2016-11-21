@@ -29,7 +29,9 @@ defmodule ESx.Model.Config do
         "configuration. There's not it in Mix.Config."
     end
 
-    [app: app, mod: mod] ++ extract_repo(app, cfg[:repo]) ++ build_url(cfg)
+    build_url(cfg)
+      ++ extract_repo(app, cfg[:repo])
+      ++ [app: app, mod: mod, trace: cfg[:trace] || false]
   end
 
   def extract_repo(app, nil), do: possibly_load app

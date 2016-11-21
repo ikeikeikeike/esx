@@ -3,7 +3,7 @@ defmodule ESx.Transport do
     url: "http://127.0.0.1:9200",
     transport: HTTPoison, # TODO: More
     method: "GET",
-    trace: true,
+    trace: false,
   ]
 
   # @type t :: %__MODULE__{method: String.t, transport: HTTPoison.t, trace: String.t}
