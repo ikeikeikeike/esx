@@ -30,22 +30,18 @@ defmodule ESx.Model.Response do
 
   defimpl Enumerable, for: ESx.Model.Response do
 
-    # TODO: Should be only to define around records implement when Ecto loaded.
+    def count(%ESx.Model.Response{total: total}), do: total
+
     def member?(%ESx.Model.Response{records: records}, value) when length(records) > 0 do
       value in records
     end
-
-    # TODO: Should be only to define around records implement when Ecto loaded.
-    def reduce(%ESx.Model.Response{records: records}, acc, fun) when length(records) > 0 do
-      Enumerable.reduce(records, acc, fun)
-    end
-
-    def count(%ESx.Model.Response{total: total}), do: total
-
     def member?(%ESx.Model.Response{hits: hits}, value) do
       value in hits
     end
 
+    def reduce(%ESx.Model.Response{records: records}, acc, fun) when length(records) > 0 do
+      Enumerable.reduce(records, acc, fun)
+    end
     def reduce(%ESx.Model.Response{hits: hits}, acc, fun) do
       Enumerable.reduce(hits, acc, fun)
     end
