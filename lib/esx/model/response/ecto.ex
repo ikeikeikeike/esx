@@ -27,11 +27,11 @@ defmodule ESx.Model.Response.Ecto do
         end
 
       else
-        def records(%{} = _search) do
-          raise "could not load `Ecto` module. please install it."
+        def records(%{__model__: model} = _search) do
+          raise "could not load `Ecto` module. please install it, then sets `#{model}` into Mix.Config "
         end
-        def records(%{} = _search, _queryable) do
-          raise "could not load `Ecto` module. please install it."
+        def records(%{__model__: model} = _search, _queryable) do
+          raise "could not load `Ecto` module. please install it, then sets `#{model}` into Mix.Config "
         end
       end
     end

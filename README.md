@@ -26,7 +26,8 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 
 ```elixir
 config :esx, ESx.Model,
-  url: "http://example.com:9200"
+  url: "http://example.com:9200",
+  repo: MyApp.Repo  # As required, which defines Ecto for connecting database.
 ```
 
 #### Multiple configuration
@@ -54,6 +55,7 @@ config :my_app, MyApp.ESx,
 
 ```elixir
 config :esx, ESx.Model,
+  repo: MyApp.Repo,                        # As required, which defines Ecto for connecting database.
   protocol: "http",                        # or: scheme: "http"
   user: "yourname", password: "yourpass",  # or: userinfo: "yourname:yourpass"
   host: "localhost",
