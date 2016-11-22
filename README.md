@@ -203,7 +203,7 @@ defmodule YourApp.Blog do
     ...
     ...
 
-    Poison.encode! Map.drop(some_of_custmized_data, [:id])
+    Map.drop some_of_custmized_data, [:id]
   end
 end
 ```
@@ -252,6 +252,18 @@ IO.inspect Enum.each(response, fn r ->
 end)
 # ["foo", "egg", "some"]
 ```
+
+##### Pagination
+
+[github.com/ikeikeikeike/scrivener_esx](https://github.com/ikeikeikeike/scrivener_esx)
+
+```elixir
+page =
+  MyApp.Blog
+  |> MyApp.ESx.search(%{query: %{match: %{title: "foo"}}})
+  |> MyApp.ESx.paginate(page: 2, page_size: 5)
+```
+
 
 ## Low-level APIs
 
