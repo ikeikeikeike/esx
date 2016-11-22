@@ -1,6 +1,6 @@
 # ESx
 
-**TODO: Add description**
+A client for the Elasticsearch, written in Elixir which's still development status.
 
 ## Installation
 
@@ -36,15 +36,15 @@ config :esx, ESx.Model,
 First, that configuration is defined with `ESx.Model.Base` into your project. It's like Ecto's Repo.
 
 ```elixir
-defmodule YourApp.AnotherModel do
-  use ESx.Model.Base, app: :your_app
+defmodule MyApp.ESx do
+  use ESx.Model.Base, app: :my_app
 end
 ```
 
-And so that there's `YourApp.AnotherModel` configuration for Mix.config below.
+And so that there's `MyApp.ESx` configuration for Mix.config below.
 
 ```elixir
-config :your_app, YourApp.AnotherModel,
+config :my_app, MyApp.ESx,
   scheme: "http",
   host: "example.com",
   port: 9200
@@ -65,11 +65,11 @@ config :esx, ESx.Model,
 
 #### DSL
 ```elixir
-defmodule YourApp.Blog do
+defmodule MyApp.Blog do
   use ESx.Schema
 
-  index_name "yourapp"     # as required
-  document_type "doctype"  # as required
+  index_name    "blog"  # as required
+  document_type "blog"  # as required
 
   mapping _all: [enabled: false], _ttl: [enabled: true, default: "180d"] do
     indexes :title, type: "string"
@@ -142,7 +142,7 @@ end
 ## Definition for updating record via such as Model.
 
 ```elixir
-defmodule YourApp.Blog do
+defmodule MyApp.Blog do
   use ESx.Schema
 
   defstruct [:id, :title, :content, :publish]
@@ -159,8 +159,8 @@ end
 
 ```elixir
 
-defmodule YourApp.Blog do
-  use YourApp.Web, :model
+defmodule MyApp.Blog do
+  use MyApp.Web, :model
   use ESx.Schema
 
   schema "blogs" do
@@ -183,7 +183,7 @@ defmodule YourApp.Blog do
 The data's elements which sends to Elasticsearch is able to customize that will make it, this way is the same as Ecto.
 
 ```elixir
-defmodule YourApp.Blog do
+defmodule MyApp.Blog do
   @derive {Poison.Encoder, only: [:title, :publish]}
   schema "blogs" do
     field :title, :string
@@ -198,7 +198,7 @@ end
 When Ecto's Schema and ESx's mapping have defferent fields or for customization more, defining function `as_indexed_json` will make it in order to send relational data to Elasticsearch, too. Commonly it called via `ESx.Model.index_document`, `ESx.Model.update_document`.
 
 ```elixir
-defmodule YourApp.Blog do
+defmodule MyApp.Blog do
   def as_indexed_json(struct, opts) do
     ...
     ...
@@ -216,20 +216,29 @@ By default will send all of defined mapping's fields to Elasticsearch.
 ### Indexing
 
 ```elixir
-ESx.Model.create_index, YourApp.Blog
+MyApp.ESx.create_index, MyApp.Blog
+ESx.Model.index_exists?, MyApp.Blog
+MyApp.ESx.delete_index, MyApp.Blog
+ESx.Model.refresh_index, MyApp.Blog
 ```
 
-### A search
+### Document
 
 ```elixir
-ESx.Model.search, YourApp.Blog, %{query: %{match: %{title: "foo"}}}
+ESx.Model.import, MyApp.Blog
+MyApp.ESx.index_document, %MyApp.Blog{id: 1, title: "egg"}
+ESx.Model.delete_document, %MyApp.Blog{id: 1, title: "ham"}
 ```
 
-### Response
+### Search & Response
+
+```elixir
+ESx.Model.search, MyApp.Blog, %{query: %{match: %{title: "foo"}}}
+```
 
 ```elixir
 response =
-  YourApp.Blog
+  MyApp.Blog
   |> ESx.Model.search(%{query: %{match: %{title: "foo"}}})
   |> ESx.Model.results
 
@@ -243,7 +252,7 @@ end)
 
 ```elixir
 response =
-  YourApp.Blog
+  MyApp.Blog
   |> ESx.Model.search(%{query: %{match: %{title: "foo"}}})
   |> ESx.Model.records
 
@@ -267,6 +276,7 @@ page =
 
 ## Low-level APIs
 
+There're Low-level APIs in `ESx.API` and `ESx.API.Indices`.
 
 ```elixir
 ts = ESx.Transport.transport trace: true  # or: ts = ESx.Model.transport
@@ -276,9 +286,12 @@ ESx.API.search ts, %{index: "your_app", body: %{query: %{}}}
 ESx.API.Indices.delete ts, %{index: "your_app"}
 ```
 
+
 ### TODO
 
-- Consider to change Client proxy for multiple configuration
+- Multiple configuration for transport
 - Some of APIs
 - Everything for me which uses own project.
+- Aggregations, Suggestions
 - Refactoring
+- Unittest
