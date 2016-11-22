@@ -14,7 +14,8 @@ defmodule ESx.Transport do
 
   def perform_request(%__MODULE__{} = ts, method, path, params \\ %{}, body \\ nil) do
     method = if "GET" == method && body, do: ts.method, else: method
-    headers = [{"content-type", "application/json"}]
+    headers = [{"Content-Type", "application/json"}, {"Connection", "keep-alive"}]
+    options = [hackney: [pool: Base.encode16(:erlang.md5(ts.url), case: :lower)]] # TODO: transfer to connection module
     uri =
       URI.merge(ts.url, path)
       |> URI.merge("?" <> URI.encode_query params)
@@ -30,11 +31,11 @@ defmodule ESx.Transport do
     if ts.trace, do: traceout method, uri, body
 
     case method do
-      "GET"    -> ts.transport.request :get,    uri, body, headers
-      "PUT"    -> ts.transport.request :put,    uri, body, headers
-      "POST"   -> ts.transport.request :post,   uri, body, headers
-      "HEAD"   -> ts.transport.request :head,   uri, body, headers
-      "DELETE" -> ts.transport.request :delete, uri, body, headers
+      "GET"    -> ts.transport.request :get,    uri, body, headers, options
+      "PUT"    -> ts.transport.request :put,    uri, body, headers, options
+      "POST"   -> ts.transport.request :post,   uri, body, headers, options
+      "HEAD"   -> ts.transport.request :head,   uri, body, headers, options
+      "DELETE" -> ts.transport.request :delete, uri, body, headers, options
       method   -> {:error, %ArgumentError{message: "Method #{method} not supported"}}
     end
   end
