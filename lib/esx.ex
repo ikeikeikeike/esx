@@ -7,7 +7,7 @@ defmodule ESx do
     import Supervisor.Spec, warn: false
 
     children = [
-      supervisor(ESx.Transport.Supervisor, [])
+      supervisor(ESx.Transport.Connection.Supervisor, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

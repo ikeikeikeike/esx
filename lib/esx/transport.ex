@@ -1,21 +1,33 @@
 defmodule ESx.Transport do
+  alias ESx.Transport.Connection
+
   defstruct [
     url: "http://127.0.0.1:9200",
-    transport: HTTPoison, # TODO: More
     method: "GET",
     trace: false,
   ]
 
-  # @type t :: %__MODULE__{method: String.t, transport: HTTPoison.t, trace: String.t}
+  @type t :: %__MODULE__{}
 
-  def transport(args \\ %{}) do
-    struct %__MODULE__{}, args
+  # TODO: to reference library
+  def transport(args \\ []) do
+    Connection.pool args
+    struct __MODULE__, args
+  end
+
+  # TODO: to reference library
+  def connection do
+    Connection.connections
+    |> List.first
+    |> Connection.get
   end
 
   def perform_request(%__MODULE__{} = ts, method, path, params \\ %{}, body \\ nil) do
     method = if "GET" == method && body, do: ts.method, else: method
+
     headers = [{"Content-Type", "application/json"}, {"Connection", "keep-alive"}]
     options = [hackney: [pool: Base.encode16(:erlang.md5(ts.url), case: :lower)]] # TODO: transfer to connection module
+
     uri =
       URI.merge(ts.url, path)
       |> URI.merge("?" <> URI.encode_query params)

@@ -1,4 +1,4 @@
-defmodule ESx.Transport.Supervisor do
+defmodule ESx.Transport.Connection.Supervisor do
   @moduledoc false
   use Supervisor
 
@@ -20,4 +20,9 @@ defmodule ESx.Transport.Supervisor do
   def count_children do
     Supervisor.count_children(__MODULE__)
   end
+
+  def which_children do
+    Supervisor.which_children(__MODULE__)
+  end
+
 end
