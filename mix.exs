@@ -7,7 +7,8 @@ defmodule ESx.Mixfile do
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps()]
+     deps: deps(),
+   ]
   end
 
   # Configuration for the OTP application
@@ -31,6 +32,7 @@ defmodule ESx.Mixfile do
       {:httpoison, ">= 0.7.0"},
       {:poison, ">= 2.0.0"},
       {:exjsx, ">= 3.0.0"},
+      {:ecto, ">= 2.0.0", optional: true},
     ]
   end
 end

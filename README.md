@@ -295,3 +295,6 @@ ESx.API.Indices.delete ts, %{index: "your_app"}
 - Aggregations, Suggestions
 - Refactoring
 - Unittest
+
+Probably won't make it.
+- Search DSL
