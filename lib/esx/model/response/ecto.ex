@@ -4,27 +4,33 @@ defmodule ESx.Model.Response.Ecto do
     quote do
       if Code.ensure_loaded?(Ecto) do
 
-        def records(%{__schema__: schema} = response) do
-          records response, schema
+        def records(%{__schema__: schema} = search) do
+          records search, schema
         end
 
-        def records(%{__model__: model} = response, queryable) do
+        def records(%{__schema__: schema, __model__: model} = search, queryable) do
           require Ecto.Query  # XXX: Temporary fix
 
-          ids = Enum.map response.hits, & &1["_id"]
-          elems = model.repo.all(Ecto.Query.from q in queryable, where: q.id in ^ids)
+          rsp = ESx.Model.Search.execute search
+          response = ESx.Model.Response.parse model, schema, rsp
 
-          elems =
+          ids = Enum.map response.hits, & &1["_id"]
+          records = model.repo.all(Ecto.Query.from q in queryable, where: q.id in ^ids)
+
+          records =
             Enum.map response.hits, fn hit ->
-              [elm] = Enum.filter elems, & "#{hit["_id"]}" == "#{&1.id}"
+              [elm] = Enum.filter records, & "#{hit["_id"]}" == "#{&1.id}"
                elm
             end
 
-          %{response | records: elems}
+          %{response | records: records}
         end
 
       else
-        def records(%{} = _response, _queryable) do
+        def records(%{} = _search) do
+          raise "could not load `Ecto` module. please install it."
+        end
+        def records(%{} = _search, _queryable) do
           raise "could not load `Ecto` module. please install it."
         end
       end

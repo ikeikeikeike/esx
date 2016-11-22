@@ -231,6 +231,7 @@ ESx.Model.search, YourApp.Blog, %{query: %{match: %{title: "foo"}}}
 response =
   YourApp.Blog
   |> ESx.Model.search(%{query: %{match: %{title: "foo"}}})
+  |> ESx.Model.results
 
 IO.inspect Enum.map(response, fn r ->
   r["_source"]["title"]
@@ -244,7 +245,7 @@ end)
 response =
   YourApp.Blog
   |> ESx.Model.search(%{query: %{match: %{title: "foo"}}})
-  |> ESx.Model.Response.records
+  |> ESx.Model.records
 
 IO.inspect Enum.each(response, fn r ->
   r.title

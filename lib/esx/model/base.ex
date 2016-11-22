@@ -29,19 +29,19 @@ defmodule ESx.Model.Base do
         type  = opts[:type]  || mod.__es_naming__(:document_type)
         body  = query_or_payload
 
-        rsp =
+        args =
           cond do
             is_map(body) ->
-              API.search transport, %{index: index, type: type, body: body}
+              %{index: index, type: type, body: body}
 
             is_binary(body) && body =~ ~r/^\s*{/ ->
-              API.search transport, %{index: index, type: type, body: body}
+              %{index: index, type: type, body: body}
 
             true ->
-              API.search transport, %{index: index, type: type, q: body}
+              %{index: index, type: type, q: body}
           end
 
-        ESx.Model.Response.parse __MODULE__, mod, rsp
+        ESx.Model.Search.wrap __MODULE__, mod, args
       end
 
       def create_index(schema, opts \\ %{}) do
@@ -135,6 +135,12 @@ defmodule ESx.Model.Base do
 
         API.delete transport, args
       end
+
+      defdelegate records(search, queryable), to: ESx.Model.Response, as: :records
+
+      defdelegate records(search), to: ESx.Model.Response, as: :records
+
+      defdelegate results(search), to: ESx.Model.Response, as: :results
 
     end
   end

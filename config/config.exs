@@ -31,9 +31,11 @@ use Mix.Config
 config :esx, ESx.Model,
   protocol: "http",
   host: "localhost",
-  port: 9200
+  port: 9200,
+  trace: true
 
 config :something, Something.Model,
   scheme: "http",
   host: "127.0.0.1",
-  port: 9200
+  port: 9200,
+  trace: true

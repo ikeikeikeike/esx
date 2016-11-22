@@ -3,7 +3,7 @@ defmodule ESx.Model.Response do
 
   defstruct [
     :took, :timed_out, :shards, :hits, :total, :max_score,
-    :aggregations, :suggestions, :__schema__, :__model__, records: [],
+    :aggregations, :suggestions, :__schema__, :__model__, results: [], records: [],
   ]
 
   @type t :: %__MODULE__{}
@@ -20,6 +20,11 @@ defmodule ESx.Model.Response do
       timed_out: rsp["timed_out"],
       shards: rsp["_shards"],
     }
+  end
+
+  def results(%{__model__: model, __schema__: schema} = search) do
+    rsp = ESx.Model.Search.execute search
+    ESx.Model.Response.parse model, schema, rsp
   end
 
   def aggregations(_st) do
