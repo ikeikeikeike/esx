@@ -1,25 +1,42 @@
 defmodule ESx.Transport do
+
+  defmodule State do
+    defstruct [:last_request_at, :resurrect_after]
+
+    def start_link do
+      Agent.start_link(fn ->
+        %__MODULE__{
+          last_request_at: :os.system_time(:seconds),
+          resurrect_after: 60,
+        }
+      end, name: __MODULE__)
+    end
+
+    def get do
+      Agent.get(__MODULE__, fn config -> config end)
+    end
+
+    def set!(name, key, value) do
+      Agent.get_and_update(__MODULE__, fn conn ->
+         conn = Map.update!(conn, key, fn _ -> value end)
+        {conn, conn}
+      end)
+    end
+  end
+
+  alias ESx.Transport.State
   alias ESx.Transport.Connection
 
   defstruct [
-    url: "http://127.0.0.1:9200",
     method: "GET",
     trace: false,
   ]
 
   @type t :: %__MODULE__{}
 
-  # TODO: to reference library
   def transport(args \\ []) do
     Connection.pool args
     struct __MODULE__, args
-  end
-
-  # TODO: to reference library
-  def connection do
-    Connection.connections
-    |> List.first
-    |> Connection.get
   end
 
   def perform_request(%__MODULE__{} = ts, method, path, params \\ %{}, body \\ nil) do
@@ -72,5 +89,28 @@ defmodule ESx.Transport do
         traceout "curl -X #{method} '#{uri}' -d '#### couldn't prettify body ####'\n"
     end
   end
+
+
+
+
+
+  def connection do
+    s = State.get
+
+    if Time.now > s.last_request_at + s.resurrect_after do
+      resurrect_deads
+    end
+
+    Connection.connections
+    |> List.first
+    |> Connection.get
+  end
+
+  def resurrect_deads do
+    Connection.connections
+    |> Enum.filter_map(& &1.dead, &Connection.resurrect/1)
+  end
+
+
 
 end

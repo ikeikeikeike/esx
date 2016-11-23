@@ -10,7 +10,7 @@ defmodule ESx.Transport.Connection.Supervisor do
     children = [
       worker(ESx.Transport.Connection, [], restart: :transient)
     ]
-    supervise(children, strategy: :simple_one_for_one)
+    supervise(children, strategy: :simple_one_for_one, name: __MODULE__)
   end
 
   def start_child(args) do

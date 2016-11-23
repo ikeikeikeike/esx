@@ -7,12 +7,13 @@ defmodule ESx do
     import Supervisor.Spec, warn: false
 
     children = [
-      supervisor(ESx.Transport.Connection.Supervisor, [])
+      supervisor(ESx.Transport.Connection.Supervisor, []),
+      worker(ESx.Transport.State, []),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_all, name: ESx.Supervisor]
+    opts = [strategy: :one_for_one, name: ESx.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end

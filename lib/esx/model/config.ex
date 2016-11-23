@@ -5,7 +5,7 @@ defmodule ESx.Model.Config do
     app = Keyword.fetch!(opts, :app)
     cfg  = parse_config(mod, app)
 
-    transport = ESx.Transport.transport Enum.into(cfg, %{})
+    transport = []  # ESx.Transport.transport cfg > no process because of runnning stail compile status
     unless transport do
       raise ArgumentError, "missing configuration for transport in " <>
                            "config #{inspect app}, #{inspect mod}"
