@@ -1,5 +1,5 @@
 defmodule ESx.API.Indices do
-  import ESx.API.R
+  import ESx.R
 
   alias ESx.API.Utils
   alias ESx.Transport

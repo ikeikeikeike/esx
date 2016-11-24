@@ -13,8 +13,8 @@ defmodule ESx.Transport.Connection.Supervisor do
     supervise(children, strategy: :simple_one_for_one, name: __MODULE__)
   end
 
-  def start_child(args) do
-    Supervisor.start_child(__MODULE__, [args])
+  def start_child(name, args) do
+    Supervisor.start_child(__MODULE__, [name, args])
   end
 
   def count_children do

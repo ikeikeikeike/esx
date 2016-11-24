@@ -1,4 +1,4 @@
-defmodule ESx.API.R do
+defmodule ESx.R do
   alias ESx.Transport
 
   @blank_args {"GET", "", %{}, nil}

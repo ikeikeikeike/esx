@@ -1,5 +1,5 @@
 defmodule ESx.API do
-  import ESx.API.R
+  import ESx.R
 
   alias ESx.API.Utils
   alias ESx.Transport
@@ -180,7 +180,7 @@ defmodule ESx.API do
   end
 
   def search_template(ts, args \\ %{}) do
-    method = HTTP_GET
+    method = "GET"
     path   = Utils.pathify [Utils.listify(args[:index]), Utils.listify(args[:type]), "_search/template"]
     params = Utils.extract_params args
     body   = args[:body]
@@ -194,6 +194,16 @@ defmodule ESx.API do
     path   = "_render/template"
     params = Utils.extract_params args
     body   = args[:body]
+
+    Transport.perform_request(ts, method, path, params, body)
+    |> response
+  end
+
+  def nodes_http(ts, args \\ %{}) do
+    method = "GET"
+    path   = "_nodes/http"
+    params = %{}
+    body   = nil
 
     Transport.perform_request(ts, method, path, params, body)
     |> response
