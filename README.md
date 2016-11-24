@@ -292,11 +292,13 @@ ESx.API.Indices.delete ts, %{index: "your_app"}
 ### TODO
 
 - Multiple configuration for transport
-- Some of APIs
-- Everything for me which uses own project.
+- Auto discover es cluster for transport.
 - Aggregations, Suggestions
+- Some of APIs
 - Refactoring
 - Unittest
+
+Everything for me which uses own project.
 
 Probably won't make it.
 - Search DSL
