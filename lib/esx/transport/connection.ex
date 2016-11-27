@@ -1,12 +1,9 @@
 defmodule ESx.Transport.Connection do
-  alias ESx.Transport.Connection.Supervisor
-
   use ESx.Transport.Statex, [
     :pidname, :url, :client,
     :dead_since, dead: false,
     failures: 0, resurrect_timeout: 60,
   ]
-
   def initialize_state(args) do
     Keyword.merge args, [
       pidname: namepid(args[:url]),
@@ -14,15 +11,48 @@ defmodule ESx.Transport.Connection do
     ]
   end
 
+  alias ESx.Transport.Selector
+  alias ESx.Transport.Connection.Supervisor
+
+  import ESx.Checks, only: [blank?: 1]
+
+  @type t :: %__MODULE__{}
   @client HTTPoison  # XXX: to be abstraction
 
   # TODO: Allow setting optional in arguments which is struct's value
-  def pool([{:url, url} | _]), do: pool url
-  def pool(url) do
+  #
+  #
+  def start_conn([{:url, url} | _]) do
+    start_conn url
+  end
+  def start_conn(url) do
     Supervisor.start_child url, [url: url, client: @client]
   end
 
-  def pools do
+  def delete(name) do
+    Supervisor.remove_child name
+  end
+
+  def conn(opts \\ []) do
+    if blank?(alives) do
+      deadconn = List.first(Enum.sort(dead_conns, & &1.failures > &2.failures))
+      if deadconn, do: deadconn.alive!
+    end
+
+    alives && Selector.Random.select(alives)
+  end
+
+  def alives do
+    conns
+    |> Enum.filter(& alive? &1.url)
+  end
+
+  def dead_conns do
+    conns
+    |> Enum.filter(& dead? &1.url)
+  end
+
+  def conns do
     Supervisor.which_children
     |> Enum.map(fn {_, pid, _, _conn} ->
       state pid

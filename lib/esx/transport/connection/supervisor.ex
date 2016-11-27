@@ -7,14 +7,21 @@ defmodule ESx.Transport.Connection.Supervisor do
   end
 
   def init(_args) do
-    children = [
-      worker(ESx.Transport.Connection, [], restart: :transient)
-    ]
-    supervise(children, strategy: :simple_one_for_one, name: __MODULE__)
+    supervise([], strategy: :one_for_one, name: __MODULE__)
   end
 
   def start_child(name, args) do
-    Supervisor.start_child(__MODULE__, [name, args])
+    id = ESx.Funcs.nameid(__MODULE__, name)
+
+    worker = worker(ESx.Transport.Connection, [name, args], id: id, restart: :transient)
+    Supervisor.start_child(__MODULE__, worker)
+  end
+
+  def remove_child(name) do
+    id = ESx.Funcs.nameid(__MODULE__, name)
+
+    Supervisor.terminate_child(__MODULE__, id)
+    Supervisor.delete_child(__MODULE__, id)
   end
 
   def count_children do

@@ -4,10 +4,9 @@ defmodule ESx.Model.Base do
     opts = Keyword.update opts, :app, :esx, & &1
 
     quote bind_quoted: [opts: opts] do
-      {app, transport, config} = ESx.Model.Config.resource(__MODULE__, opts)
+      {app, config} = ESx.Model.Config.resource(__MODULE__, opts)
       @app       app
       @config    config
-      @transport transport
       @before_compile ESx.Model.Ecto  # TODO: tobe abstraction
 
       def repo do
@@ -17,7 +16,7 @@ defmodule ESx.Model.Base do
         @config
       end
       def transport do
-        @transport
+        ESx.Transport.transport config
       end
 
       alias ESx.{API, Funcs}

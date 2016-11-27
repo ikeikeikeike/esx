@@ -1,35 +1,45 @@
 defmodule ESx.Transport.Sniffer do
   import ESx.R
   alias ESx.Transport
+  alias ESx.Transport.Config
 
   @protocol "http"
   @timeout 1
 
   def urls(%{} = ts) do
-    nodes =
-      Transport.perform_request(ts, "GET", "_nodes/http", %{}, nil)
-      |> response
+    Transport.perform_request(ts, "GET", "_nodes/http", %{}, nil)
+    |> response
+    |> parse
+  end
 
+  defp parse({:ok, nodes}) do
     hosts =
       Map.get(nodes, "nodes", [])
       |> Enum.map(fn {id, info} ->
         if info[@protocol] do
           [host, port] =
             get_in(info, [@protocol, "publish_address"])
-            |> String.splite(":")
+            |> String.split(":")
 
-          %{
-            id:          id,
-            name:        info["name"],
-            version:     info["version"],
-            host:        host,
-            port:        port,
-            roles:       info["roles"],
-            attributes:  info["attributes"]
-          }
+          {port, _} = Integer.parse port
+
+          config =
+            [
+              # id:          id,
+              # name:        info["name"],
+              # version:     info["version"],
+              host:        host,
+              port:        port,
+              protocol:    @protocol,
+              # roles:       info["roles"],
+              # attributes:  info["attributes"]
+            ]
+
+          ESx.Funcs.build_url config
         end
       end)
-      |> Enum.filter(& !!&1)
+
+    hosts = hosts |> Enum.filter(& !!&1)
 
     if Transport.State.state.randomize_hosts do
       Enum.shuffle hosts
@@ -37,5 +47,6 @@ defmodule ESx.Transport.Sniffer do
       hosts
     end
   end
+  defp parse(any), do: {:error, any}
 
 end

@@ -7,7 +7,7 @@ defmodule ESx.R do
   def response({:ok, rs}), do: Poison.decode rs.body
   def response({:error, err}), do: {:error, err}
 
-  def response!({:ok, rs}), do: rs
+  def response!({:ok, rs}), do: Poison.decode rs.body
   def response!({:error, err}), do: raise err
 
   def status200?(%Transport{} = ts, method, path, params \\ %{}, body \\ nil) do

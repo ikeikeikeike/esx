@@ -9,6 +9,7 @@ defmodule ESx do
     children = [
       supervisor(ESx.Transport.Connection.Supervisor, []),
       worker(ESx.Transport.State, []),
+      worker(ESx.Transport.Selector.RoundRobin, []),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

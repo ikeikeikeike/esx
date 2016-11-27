@@ -5,13 +5,7 @@ defmodule ESx.Model.Config do
     app = Keyword.fetch!(opts, :app)
     cfg  = parse_config(mod, app)
 
-    transport = []  # ESx.Transport.transport cfg > no process because of runnning stail compile status
-    unless transport do
-      raise ArgumentError, "missing configuration for transport in " <>
-                           "config #{inspect app}, #{inspect mod}"
-    end
-
-    {app, transport, cfg}
+    {app, cfg}
   end
 
   def parse_config(mod, app) do
@@ -29,7 +23,7 @@ defmodule ESx.Model.Config do
         "configuration. There's not it in Mix.Config."
     end
 
-    build_url(cfg)
+    ESx.Funcs.build_url(cfg)
       ++ extract_repo(app, cfg[:repo])
       ++ [app: app, mod: mod, trace: cfg[:trace] || false]
   end
@@ -48,25 +42,5 @@ defmodule ESx.Model.Config do
       {:module, repo} -> [repo: repo]
       _               -> []
     end
-  end
-
-  def build_url([url: url]) do
-    case URI.parse(url) do
-      %URI{scheme: nil} -> raise ArgumentError, "Missing scheme in Mix.Config"
-      %URI{host: nil}   -> raise ArgumentError, "Missing host in Mix.Config"
-      _                 -> [url: url]
-    end
-  end
-
-  def build_url({:system, env}) when is_binary(env) do
-    build_url [url: System.get_env(env)]
-  end
-
-  def build_url(cfg) when is_list(cfg) do
-    u = struct URI, cfg
-    u = if cfg[:protocol], do: Map.put(u, :scheme, cfg[:protocol]), else: u
-    u = if cfg[:user], do: Map.put(u, :userinfo, "#{cfg[:user]}:#{cfg[:password]}"), else: u
-
-    build_url [url: URI.to_string u]
   end
 end

@@ -8,7 +8,7 @@ defmodule ESx.Transport.Statex do
       def start_link(name \\ "", args \\ []) do
         args =
           if function_exported?(__MODULE__, :initialize_state, 1) do
-            initialize_state args
+            apply __MODULE__, :initialize_state, [args]
           else
             args
           end
@@ -46,10 +46,7 @@ defmodule ESx.Transport.Statex do
         pid
       end
       def namepid(name) do
-        Enum.join([__MODULE__, name])
-        |> :erlang.md5
-        |> Base.encode16(case: :lower)
-        |> String.to_atom
+        ESx.Funcs.nameid __MODULE__, name
       end
     end
   end
