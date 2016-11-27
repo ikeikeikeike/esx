@@ -19,10 +19,13 @@ defmodule ESx.Transport do
     end
   end
 
-  import ESx.Checks, only: [present?: 1]
   alias ESx.Transport.State
   alias ESx.Transport.Sniffer
   alias ESx.Transport.Connection
+
+  import ESx.Checks, only: [present?: 1]
+
+  require Logger
 
   defstruct [
     method: "GET",
@@ -120,7 +123,7 @@ defmodule ESx.Transport do
   end
 
   defp traceout(out) when is_binary(out) do
-    IO.puts out
+    Logger.debug out
   end
   defp traceout(method, uri, "") do
     traceout "curl -X #{method} '#{uri}'\n"
