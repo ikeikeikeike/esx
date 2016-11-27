@@ -1,7 +1,7 @@
 defmodule ESx.Model.Search do
   alias ESx.{API, Funcs}
 
-  defstruct [:__schema__, :__model__, args: %{}]
+  defstruct [:__model__, :__schema__, args: %{}]
 
   @type t :: %__MODULE__{}
 

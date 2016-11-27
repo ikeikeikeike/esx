@@ -22,8 +22,8 @@ defmodule ESx.Model.Base do
       alias ESx.{API, Funcs}
       alias ESx.API.Indices
 
-      def search(schema, query_or_payload, opts \\ %{}) do
-        mod   = Funcs.to_mod schema
+      def search(queryable, query_or_payload, opts \\ %{}) do
+        mod   = Funcs.to_mod queryable
         index = opts[:index] || mod.__es_naming__(:index_name)
         type  = opts[:type]  || mod.__es_naming__(:document_type)
         body  = query_or_payload
@@ -40,7 +40,7 @@ defmodule ESx.Model.Base do
               %{index: index, type: type, q: body}
           end
 
-        ESx.Model.Search.wrap __MODULE__, mod, args
+        ESx.Model.Search.wrap __MODULE__, queryable, args
       end
 
       def create_index(schema, opts \\ %{}) do

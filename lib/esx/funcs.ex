@@ -1,5 +1,6 @@
 defmodule ESx.Funcs do
 
+  def to_mod(%{from: {_, mod}}), do: mod
   def to_mod(%{__struct__: mod}), do: mod
   def to_mod(mod), do: mod
 
