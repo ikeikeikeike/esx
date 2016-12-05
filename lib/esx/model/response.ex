@@ -1,12 +1,12 @@
 defmodule ESx.Model.Response do
-  @before_compile ESx.Model.Response.Ecto  # TODO: tobe abstraction
-
   defstruct [
     :took, :timed_out, :shards, :hits, :total, :max_score,
     :aggregations, :suggestions, :__schema__, :__model__, results: [], records: [],
   ]
 
   @type t :: %__MODULE__{}
+
+  use ESx.Model.Response.Ecto  # TODO: tobe abstraction
 
   def parse(_model, _schema, {:ok, %{"error" => _} = rsp}), do: rsp
   def parse(model, schema, {:ok, %{} = rsp}) do

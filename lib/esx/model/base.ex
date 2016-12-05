@@ -7,7 +7,6 @@ defmodule ESx.Model.Base do
       {app, config} = ESx.Model.Config.resource(__MODULE__, opts)
       @app       app
       @config    config
-      @before_compile ESx.Model.Ecto
 
       def repo do
         @config[:repo]
@@ -18,6 +17,8 @@ defmodule ESx.Model.Base do
       def transport do
         ESx.Transport.transport config
       end
+
+      use ESx.Model.Ecto
 
       alias ESx.{API, Funcs}
       alias ESx.API.Indices

@@ -1,7 +1,8 @@
 # Temporary fix
 if Code.ensure_loaded?(Ecto) do
   defmodule ESx.Model.Ecto do
-    defmacro __before_compile__(_env) do
+
+    defmacro __using__(_) do
       quote do
         require Ecto.Query
 
@@ -44,7 +45,7 @@ if Code.ensure_loaded?(Ecto) do
   end
 else
   defmodule ESx.Model.Ecto do
-    defmacro __before_compile__(_env) do
+    defmacro __using__(_) do
       quote do
         defp stream(_query, _opts \\ %{}) do
           raise "could not load `Ecto` module. please install it."

@@ -1,7 +1,7 @@
 # Temporary fix
 if Code.ensure_loaded?(Ecto) do
   defmodule ESx.Model.Response.Ecto do
-    defmacro __before_compile__(_env) do
+    defmacro __using__(_) do
       quote do
         require Ecto.Query
 
@@ -29,7 +29,7 @@ if Code.ensure_loaded?(Ecto) do
   end
 else
   defmodule ESx.Model.Response.Ecto do
-    defmacro __before_compile__(_env) do
+    defmacro __using__(_) do
       quote do
         def records(%{__model__: model} = _search) do
           raise "could not load `Ecto` module. please install it, then sets `#{model}` into Mix.Config "
