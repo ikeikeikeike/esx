@@ -1,12 +1,12 @@
-# XXX: Temporary fix which this loader code.
-defmodule ESx.Model.Ecto do
-  defmacro __before_compile__(_env) do
-    quote do
-      if Code.ensure_loaded?(Ecto) do
+# Temporary fix
+if Code.ensure_loaded?(Ecto) do
+  defmodule ESx.Model.Ecto do
+    defmacro __before_compile__(_env) do
+      quote do
+        require Ecto.Query
 
         # https://github.com/DavidAntaramian/tributary/
         defp stream(queryable, opts \\ %{}) do
-          require Ecto.Query  # XXX: Temporary fix
 
           chunk_size  = Map.get(opts, :chunk_size, 10000)
           key_name    = Map.get(opts, :key_name, :id)
@@ -39,8 +39,14 @@ defmodule ESx.Model.Ecto do
           %{index: %{ _id: schema.id, data: mod.as_indexed_json(schema)}}
         end
 
-      else
-        defp stream(_query, _opts) do
+      end
+    end
+  end
+else
+  defmodule ESx.Model.Ecto do
+    defmacro __before_compile__(_env) do
+      quote do
+        defp stream(_query, _opts \\ %{}) do
           raise "could not load `Ecto` module. please install it."
         end
         defp transform(_schema) do

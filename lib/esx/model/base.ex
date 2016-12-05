@@ -7,7 +7,7 @@ defmodule ESx.Model.Base do
       {app, config} = ESx.Model.Config.resource(__MODULE__, opts)
       @app       app
       @config    config
-      @before_compile ESx.Model.Ecto  # TODO: tobe abstraction
+      @before_compile ESx.Model.Ecto
 
       def repo do
         @config[:repo]
@@ -140,7 +140,6 @@ defmodule ESx.Model.Base do
       defdelegate records(search), to: ESx.Model.Response, as: :records
 
       defdelegate results(search), to: ESx.Model.Response, as: :results
-
     end
   end
 end

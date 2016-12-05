@@ -1,16 +1,15 @@
-# XXX: Temporary fix which this loader code.
-defmodule ESx.Model.Response.Ecto do
-  defmacro __before_compile__(_env) do
-    quote do
-      if Code.ensure_loaded?(Ecto) do
+# Temporary fix
+if Code.ensure_loaded?(Ecto) do
+  defmodule ESx.Model.Response.Ecto do
+    defmacro __before_compile__(_env) do
+      quote do
+        require Ecto.Query
 
         def records(%{__schema__: schema} = search) do
           records search, schema
         end
 
         def records(%{__schema__: schema, __model__: model} = search, queryable) do
-          require Ecto.Query  # XXX: Temporary fix
-
           rsp = ESx.Model.Search.execute search
           response = ESx.Model.Response.parse model, schema, rsp
 
@@ -25,8 +24,13 @@ defmodule ESx.Model.Response.Ecto do
 
           %{response | records: records}
         end
-
-      else
+      end
+    end
+  end
+else
+  defmodule ESx.Model.Response.Ecto do
+    defmacro __before_compile__(_env) do
+      quote do
         def records(%{__model__: model} = _search) do
           raise "could not load `Ecto` module. please install it, then sets `#{model}` into Mix.Config "
         end
