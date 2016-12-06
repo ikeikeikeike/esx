@@ -16,7 +16,7 @@ defmodule ESx.API.Utils do
 
   def escape(string) when string == "*", do: string
   def escape(string) do
-    "#{:edoc_lib.escape_uri '#{string}'}"
+    URI.encode_www_form string
   end
 
   # TODO: More
