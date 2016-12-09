@@ -202,6 +202,7 @@ When Ecto's Schema and ESx's mapping have defferent fields or for customization 
 ```elixir
 defmodule MyApp.Blog do
   def as_indexed_json(struct, opts) do
+    all_of_defined_data = super struct, opts
     ...
     ...
 
