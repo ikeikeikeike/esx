@@ -31,7 +31,7 @@ defmodule ESx.Transport do
 
   require Logger
 
-  alias ESx.Transport.{State, Sniffer, Connection}
+  alias ESx.Transport.{State, Sniffer, Connection, ServerError}
 
   defstruct [
     method: "GET",
@@ -109,10 +109,6 @@ defmodule ESx.Transport do
     end
   end
 
-  defmodule ServerError do
-    defexception message: "no message"
-  end
-
   defp do_perform_request(method, path, params, body, tries \\ 0) do
     tries = tries + 1
 
@@ -139,7 +135,7 @@ defmodule ESx.Transport do
     s = State.state
 
     case resp do
-      {:ok, %HTTPoison.Response{status_code: code} = resp} when code < 300 ->
+      {:ok, %HTTPoison.Response{status_code: status}} when status < 300 ->
         resp
 
         # TODO:
@@ -148,20 +144,27 @@ defmodule ESx.Transport do
         # connection.healthy! if connection.failures > 0
 
       # retry_on_status
-      {:ok, %HTTPoison.Response{status_code: code}} when code >= 300 ->
-        if tries <= s.max_retry and code in s.retry_on_status do
-          Logger.debug "retry in #{code} status code."
+      {:ok, %HTTPoison.Response{status_code: status}} when status >= 300 ->
+        if tries <= s.max_retries and status in s.retry_on_status do
+          Logger.warn "[retry_on_status] Attempt #{tries} to get response from #{uri}"
+
           do_perform_request method, path, params, body, tries
         else
-          {:error, %ServerError{message: "Method #{method} not supported"}}
+          msg = "[retry_on_status] Couldn't get response from #{uri} after #{tries} tries"
+
+          Logger.error msg
+          {:error, %ServerError{message: msg, status: status}}
         end
 
       # failure
       {:error, %HTTPoison.Error{reason: reason} = perr} ->
-        if tries <= s.max_retry do
-          Logger.debug reason
+        if tries <= s.max_retries do
+          Logger.warn "[#{reason}] Attempt #{tries} connecting to #{uri}"
+
           do_perform_request method, path, params, body, tries
         else
+          Logger.error "[#{reason}] Couldn't connect to #{uri} after #{tries} tries"
+
           {:error, perr}
         end
     end
