@@ -135,7 +135,9 @@ defmodule ESx.Transport do
     s = State.state
 
     case resp do
+      # TODO: fix it, coz there's something wrong.
       {:ok, %HTTPoison.Response{status_code: status}} when status < 300 ->
+        # TODO: 300 以下だけ入るのはおかしいので修正
         resp
 
         # TODO:
@@ -143,6 +145,7 @@ defmodule ESx.Transport do
 
         # connection.healthy! if connection.failures > 0
 
+      # TODO: fix it, coz there's something wrong.
       # retry_on_status
       {:ok, %HTTPoison.Response{status_code: status}} when status >= 300 ->
         if tries <= s.max_retries and status in s.retry_on_status do
