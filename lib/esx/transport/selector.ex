@@ -7,7 +7,8 @@ defmodule ESx.Transport.Selector do
   end
 
   defmodule Random do
-    @behaviour ESx.Transport.Selector.Base
+    @moduledoc "Random Selector"
+    @behaviour Base
 
     def select(conns) do
       Enum.random conns
@@ -15,21 +16,23 @@ defmodule ESx.Transport.Selector do
   end
 
   defmodule RoundRobin do
+    @moduledoc "RoundRobin Selector"
+    @behaviour Base
+
     use ESx.Transport.Statex, [next: 0]
-    @behaviour ESx.Transport.Selector.Base
 
     def select(conns) do
-      s = state
+      s    = state()
       conn = Enum.at conns, s.next
-
       next =
-        if s.next >= length(conns) do
+        if s.next >= (length(conns) - 1) do
           0
         else
           1 + s.next
         end
 
       set_state! :next, next
+
       conn
     end
 

@@ -36,24 +36,25 @@ defmodule ESx.Funcs do
     |> String.to_atom
   end
 
-  def build_url([url: url]) do
+  def build_url!([url: url]) when is_binary(url) do
     case URI.parse(url) do
-      %URI{scheme: nil} -> raise ArgumentError, "Missing scheme in Mix.Config"
-      %URI{host: nil}   -> raise ArgumentError, "Missing host in Mix.Config"
+      %URI{scheme: nil} -> raise ArgumentError, "Missing scheme in #{url}"
+      %URI{host: nil}   -> raise ArgumentError, "Missing host in #{url}"
       _                 -> [url: url]
     end
   end
+  def build_url!([url: _]), do: raise ArgumentError, "Missing url value"
 
-  def build_url({:system, env}) when is_binary(env) do
-    build_url [url: System.get_env(env)]
+  def build_url!({:system, env}) when is_binary(env) do
+    build_url! [url: System.get_env(env)]
   end
 
-  def build_url(cfg) when is_list(cfg) do
+  def build_url!(cfg) when is_list(cfg) do
     u = struct URI, cfg
     u = if cfg[:protocol], do: Map.put(u, :scheme, cfg[:protocol]), else: u
     u = if cfg[:user], do: Map.put(u, :userinfo, "#{cfg[:user]}:#{cfg[:password]}"), else: u
 
-    build_url [url: URI.to_string u]
+    build_url! [url: URI.to_string u]
   end
 
 end

@@ -9,7 +9,7 @@ defmodule ESx.Transport.Config do
   defmacro __before_compile__(_env) do
     quote do
       cfg = Application.get_env(:esx, ESx.Model)
-      cfg = ESx.Funcs.build_url(cfg) ++ [trace: cfg[:trace]]
+      cfg = ESx.Funcs.build_url!(cfg) ++ [trace: cfg[:trace]]
 
       @defconfig cfg
       def defconfig, do: @defconfig

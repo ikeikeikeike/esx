@@ -22,34 +22,35 @@ defmodule ESx.Transport.Connection do
   # TODO: Allow setting optional in arguments which is struct's value
   #
   #
-  def start_conn([{:url, url} | _]) do
-    start_conn url
+  def start_conn([{:url, url} | opts]) do
+    start_conn url, opts
   end
-  def start_conn(url) do
-    Supervisor.start_child url, [url: url, client: @client]
+  def start_conn(url, opts) do
+    Supervisor.start_child url, [url: url, client: @client] ++ opts
   end
 
   def delete(name) do
-    Supervisor.remove_child name
+    Supervisor.remove_child id(name)
   end
 
   def conn(opts \\ []) do
-    if blank?(alives) do
+    if blank?(alives()) do
       deadconn = List.first(Enum.sort(dead_conns, & &1.failures > &2.failures))
-      if deadconn, do: deadconn.alive!
+      if deadconn, do: alive!(deadconn)
     end
 
-    alives && Selector.Random.select(alives)
+    cc = alives()
+    cc && Selector.RoundRobin.select(cc)
   end
 
   def alives do
-    conns
-    |> Enum.filter(& alive? &1.url)
+    conns()
+    |> Enum.filter(& alive? id(&1))
   end
 
   def dead_conns do
-    conns
-    |> Enum.filter(& dead? &1.url)
+    conns()
+    |> Enum.filter(& dead? id(&1))
   end
 
   def conns do
@@ -60,13 +61,13 @@ defmodule ESx.Transport.Connection do
   end
 
   def dead?(name) do
-    s = state name
+    s = state id(name)
     s.dead
   end
 
   # TODO: poolboy, transaction
   def dead!(name) do
-    Agent.get_and_update namepid(name), fn conn ->
+    Agent.get_and_update namepid(id(name)), fn conn ->
        conn = %{conn | dead: true, dead_since: :os.system_time(:seconds)}
        conn = Map.update!(conn, :failures, & &1 + 1)
       {conn, conn}
@@ -74,17 +75,17 @@ defmodule ESx.Transport.Connection do
   end
 
   def alive?(name) do
-    s = state name
+    s = state id(name)
     not s.dead
   end
 
   # TODO: poolboy, transaction
   def alive!(name) do
-    set_state! name, :dead, false
+    set_state! id(name), :dead, false
   end
 
   def healthy!(name) do
-    set_state! name, %{dead: false, failures: 0}
+    set_state! id(name), %{dead: false, failures: 0}
   end
 
   def resurrect!(name) do
@@ -93,11 +94,15 @@ defmodule ESx.Transport.Connection do
 
   # TODO: poolboy, transaction
   def resurrectable?(name) do
-    s = state name
+    s = state id(name)
+    failures = if s.failures > 1000, do: 1000, else: s.failures
 
     left  = :os.system_time(:seconds)
-    right = s.dead_since + (s.resurrect_timeout * :math.pow(2, s.failures - 1))
+    right = s.dead_since + (s.resurrect_timeout * :math.pow(2, failures - 1))
     left > right
   end
+
+  defp id(%__MODULE__{url: url}), do: url
+  defp id(name), do: name
 
 end

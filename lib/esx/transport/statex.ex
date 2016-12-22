@@ -28,7 +28,7 @@ defmodule ESx.Transport.Statex do
       end
 
       def set_state!(overwrite),        do: set_state!("", overwrite)
-      def set_state!(name, overwrite)   do
+      def set_state!(name, overwrite) when is_map(overwrite) do
         Agent.get_and_update(namepid(name), fn s ->
           s =
             Enum.reduce overwrite, s, fn {key, value}, acc ->

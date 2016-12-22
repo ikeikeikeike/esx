@@ -1,5 +1,5 @@
 defmodule ESx.Transport.ServerError do
-  defexception [:message, :status]
+  defexception [:status, :response, :message]
   @moduledoc """
   Raised
   """
@@ -51,15 +51,32 @@ defmodule ESx.Transport.ServerError do
   }
 
   def exception(opts) do
-    message = Keyword.fetch!(opts, :message)
-    status   = Keyword.fetch!(opts, :status)
-    message = """
-    #{message} in #{status} status:
+    sts = Keyword.fetch!(opts, :status)
+    msg = Keyword.fetch!(opts, :message)
+    rsp = opts[:response]
 
-    #{@http_statuses[status]}
-    """
-
-    %__MODULE__{message: message, status: status}
+    msg = "status=#{sts} message=#{@http_statuses[sts]}: #{msg} "
+    %__MODULE__{status: sts, response: rsp, message: msg}
   end
+
+  defdelegate wrap(opts), to: __MODULE__, as: :exception
+
+end
+
+defmodule ESx.Transport.UnknownError do
+  defexception [:message, :error]
+  @moduledoc """
+  Raised
+  """
+
+  def exception(opts) do
+    err = Keyword.fetch!(opts, :error)
+    msg = Keyword.fetch!(opts, :message)
+
+    msg = "`#{inspect msg}` happened: #{inspect err}"
+    %__MODULE__{message: msg, error: err}
+  end
+
+  defdelegate wrap(opts), to: __MODULE__, as: :exception
 
 end

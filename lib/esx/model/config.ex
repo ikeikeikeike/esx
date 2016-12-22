@@ -23,7 +23,7 @@ defmodule ESx.Model.Config do
         "configuration. There's not it in Mix.Config."
     end
 
-    ESx.Funcs.build_url(cfg)
+    ESx.Funcs.build_url!(cfg)
       ++ extract_repo(app, cfg[:repo])
       ++ [app: app, mod: mod, trace: cfg[:trace] || false]
   end

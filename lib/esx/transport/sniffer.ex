@@ -35,7 +35,7 @@ defmodule ESx.Transport.Sniffer do
               # attributes:  info["attributes"]
             ]
 
-          ESx.Funcs.build_url config
+          ESx.Funcs.build_url! config
         end
       end)
 

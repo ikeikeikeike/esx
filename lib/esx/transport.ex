@@ -12,11 +12,15 @@ defmodule ESx.Transport do
       :randomize_hosts,
       :max_retries,
       :retry_on_status,
+      :reload_on_failure,
+      :retry_on_failure,
     ]
     def initialize_state(args) do
       Keyword.merge args, [
         max_retries: 5,
         retry_on_status: [],
+        reload_on_failure: false,
+        retry_on_failure: false,
         randomize_hosts: false,
         last_request_at: :os.system_time(:seconds),
         resurrect_after: 60,
@@ -31,33 +35,46 @@ defmodule ESx.Transport do
 
   require Logger
 
-  alias ESx.Transport.{State, Sniffer, Connection, ServerError}
+  alias ESx.Transport.{State, Sniffer, Connection, ServerError, UnknownError}
 
   defstruct [
     method: "GET",
-    conn: nil,
     trace: false,
   ]
 
   @type t :: %__MODULE__{}
 
-  def transport, do: transport defconfig
+  def transport do
+    case Connection.alives do
+      alives when 0 < length(alives) ->
+        alives
+        |> Enum.random
+        |> Map.delete(:__struct__)
+        |> Enum.into([])
+        |> transport()
+      _ ->
+        transport defconfig
+    end
+  end
   def transport(args) do
-    Connection.start_conn args
-    struct __MODULE__, Keyword.merge(args, conn: conn)
+    {url, args} = Keyword.pop(args, :url)
+
+    Connection.start_conn ESx.Funcs.build_url!([url: url]) ++ args
+
+    struct __MODULE__, args
   end
 
   def conn do
     s = State.state
 
     if :os.system_time(:seconds) > s.last_request_at + s.resurrect_after do
-      resurrect_deads
+      resurrect_deads()
     end
 
     counter = State.incr_state! :counter, 1
 
-    if s.reload && rem(counter, s.reload_after) == 0 do
-      rebuild_conns
+    if s.reload and rem(counter, s.reload_after) == 0 or counter == 1 do
+      rebuild_conns()
       Connection.conn
     else
       Connection.conn
@@ -65,7 +82,7 @@ defmodule ESx.Transport do
   end
 
   def rebuild_conns do
-    urls = Sniffer.urls transport
+    urls = Sniffer.urls transport()
 
     old_conns = Connection.conns
     new_conns =
@@ -112,64 +129,81 @@ defmodule ESx.Transport do
   defp do_perform_request(method, path, params, body, tries \\ 0) do
     tries = tries + 1
 
-    c = conn()  # TODO: needs error management
+    conn = conn()  # TODO: need transaction and must need error management
+    # IO.inspect conn
 
     headers = [{"Content-Type", "application/json"}, {"Connection", "keep-alive"}]
-    options = [hackney: [pool: c.pidname]]
-    uri =
-      c.url
+    options = [hackney: [pool: conn.pidname]]
+    uri     =
+      conn.url
       |> URI.merge(path)
       |> URI.merge("?" <> URI.encode_query params)
       |> URI.to_string
 
     resp =
       case method do
-        "GET"    -> c.client.request :get,    uri, body, headers, options
-        "PUT"    -> c.client.request :put,    uri, body, headers, options
-        "POST"   -> c.client.request :post,   uri, body, headers, options
-        "HEAD"   -> c.client.request :head,   uri, body, headers, options
-        "DELETE" -> c.client.request :delete, uri, body, headers, options
+        "GET"    -> conn.client.request :get,    uri, body, headers, options
+        "PUT"    -> conn.client.request :put,    uri, body, headers, options
+        "POST"   -> conn.client.request :post,   uri, body, headers, options
+        "HEAD"   -> conn.client.request :head,   uri, body, headers, options
+        "DELETE" -> conn.client.request :delete, uri, body, headers, options
         method   -> {:error, %ArgumentError{message: "Method #{method} not supported"}}
       end
 
     s = State.state
 
     case resp do
-      # TODO: fix it, coz there's something wrong.
       {:ok, %HTTPoison.Response{status_code: status}} when status < 300 ->
-        # TODO: 300 以下だけ入るのはおかしいので修正
+
+        # TODO: if ts.trace, do: traceout method, uri, body
+        if conn.failures > 0, do: Connection.healthy! conn
+
         resp
 
-        # TODO:
-        # if ts.trace, do: traceout method, uri, body
+      {:ok, %HTTPoison.Response{status_code: status, body: rbody} = resp} when status >= 300 ->
+        if conn.failures > 0, do: Connection.healthy! conn
 
-        # connection.healthy! if connection.failures > 0
-
-      # TODO: fix it, coz there's something wrong.
-      # retry_on_status
-      {:ok, %HTTPoison.Response{status_code: status}} when status >= 300 ->
         if tries <= s.max_retries and status in s.retry_on_status do
-          Logger.warn "[retry_on_status] Attempt #{tries} to get response from #{uri}"
+          Logger.warn "[retry_on_status] Retries #{tries}/#{s.max_retries} " <>
+                      "connecting to #{uri}"
 
           do_perform_request method, path, params, body, tries
         else
-          msg = "[retry_on_status] Couldn't get response from #{uri} after #{tries} tries"
+          msg = "[#{status}] Couldn't get response from #{uri} after " <>
+                "#{tries} tries: #{rbody}"
 
           Logger.error msg
-          {:error, %ServerError{message: msg, status: status}}
+          {:error, ServerError.wrap response: resp, status: status, message: msg}
         end
 
-      # failure
-      {:error, %HTTPoison.Error{reason: reason} = perr} ->
-        if tries <= s.max_retries do
-          Logger.warn "[#{reason}] Attempt #{tries} connecting to #{uri}"
+      # Failure
+      {:error, %HTTPoison.Error{reason: reason} = error} ->
+        Logger.error "Close connection to #{uri}: #{reason}"
+        Connection.dead! conn
 
-          do_perform_request method, path, params, body, tries
-        else
-          Logger.error "[#{reason}] Couldn't connect to #{uri} after #{tries} tries"
+        cond do
+          s.reload_on_failure and tries < length(Connection.conns) ->
+            Logger.warn "[reload_on_failure] Reloading connections " <>
+                        "(retries #{tries}/#{length(Connection.conns)})"
+            rebuild_conns()
 
-          {:error, perr}
+            do_perform_request method, path, params, body, tries
+
+          s.retry_on_failure and tries <= s.max_retries ->
+            Logger.warn "[retry_on_failure] Retries #{tries}/#{s.max_retries} " <>
+                        "connecting to #{uri}"
+
+            do_perform_request method, path, params, body, tries
+
+          true ->
+            {:error, error}
         end
+
+      error ->
+        msg = "[unknown] uri:#{uri} tries:#{tries}"
+        Logger.error msg
+
+        {:error, UnknownError.wrap error: error, message: msg}
     end
   end
 
