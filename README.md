@@ -141,7 +141,7 @@ defmodule Something.Schema do
 end
 ```
 
-## Definition for updating record via such as Model.
+## Definition for updating record via such as a Model.
 
 ```elixir
 defmodule MyApp.Blog do
@@ -160,7 +160,6 @@ end
 #### With Ecto's Model
 
 ```elixir
-
 defmodule MyApp.Blog do
   use MyApp.Web, :model
   use ESx.Schema
@@ -206,7 +205,7 @@ defmodule MyApp.Blog do
     ...
     ...
 
-    Map.drop some_of_custmized_data, [:id]
+    some_of_custmized_data
   end
 end
 ```
@@ -234,10 +233,8 @@ ESx.Model.delete_document, %MyApp.Blog{id: 1, title: "ham"}
 ```
 
 ### Search & Response
-
 ```elixir
-ESx.Model.search, MyApp.Blog, %{query: %{match: %{title: "foo"}}}
-```
+ESx.Model.search, MyApp.Blog, %{query: %{match: %{title: "foo"}}}```
 
 ```elixir
 response =
