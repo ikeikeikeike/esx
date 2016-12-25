@@ -291,6 +291,7 @@ ESx.API.Indices.delete ts, %{index: "your_app"}
 
 - Multiple configuration for transport
 - Auto discover es cluster for transport.
+- resolve race condition
 - Aggregations, Suggestions
 - Some of APIs
 - Refactoring
