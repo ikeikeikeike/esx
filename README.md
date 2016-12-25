@@ -10,7 +10,7 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 
     ```elixir
     def deps do
-      [{:esx, github: "ikeikeikeike/esx"}]
+      [{:esx, "~> 0.1"}]
     end
     ```
 
@@ -295,8 +295,6 @@ ESx.API.Indices.delete ts, %{index: "your_app"}
 - Some of APIs
 - Refactoring
 - Unittest
-
-Everything for me which uses own project.
 
 Probably won't make it.
 - Search DSL

@@ -1,6 +1,10 @@
 defmodule ESx.Mixfile do
   use Mix.Project
 
+  @description """
+  A client for the Elasticsearch, written in Elixir which's still development status.
+  """
+
   def project do
     [app: :esx,
      version: "0.1.0",
@@ -8,6 +12,8 @@ defmodule ESx.Mixfile do
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps(),
+     package: package(),
+     description: @description,
    ]
   end
 
@@ -29,11 +35,25 @@ defmodule ESx.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:credo, "~> 0.5", only: [:dev, :test]},
       {:httpoison, ">= 0.7.0"},
       {:poison, ">= 2.0.0"},
       {:exjsx, ">= 3.0.0"},
       {:ecto, ">= 2.0.0", optional: true},
+
+      {:credo, "~> 0.5", only: [:dev, :test]},
+      {:earmark, ">= 0.0.0", only: :dev},
+      {:ex_doc, "~> 0.10", only: :dev},
+      {:inch_ex, only: :docs},
+
     ]
   end
+
+  defp package do
+    [
+      maintainers: ["Tatsuo Ikeda / ikeikeikeike"],
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/ikeikeikeike/esx"},
+    ]
+  end
+
 end
