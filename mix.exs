@@ -38,6 +38,7 @@ defmodule ESx.Mixfile do
       {:httpoison, ">= 0.7.0"},
       {:poison, ">= 2.0.0"},
       {:exjsx, ">= 3.0.0"},
+      {:poolboy, ">= 1.5.0 and < 2.0.0"},
       {:ecto, ">= 2.0.0", optional: true},
 
       {:credo, "~> 0.5", only: [:dev, :test]},

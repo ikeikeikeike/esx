@@ -6,15 +6,15 @@ defmodule ESx.Transport.Connection do
   ]
   def initialize_state(args) do
     Keyword.merge args, [
-      pidname: namepid(args[:url]),
+      pidname: pidname(args[:url]),
       dead_since: :os.system_time(:seconds),
     ]
   end
 
+  import ESx.Checks, only: [blank?: 1]
+
   alias ESx.Transport.Selector
   alias ESx.Transport.Connection.Supervisor
-
-  import ESx.Checks, only: [blank?: 1]
 
   @type t :: %__MODULE__{}
   @client HTTPoison  # XXX: to be abstraction
@@ -55,8 +55,12 @@ defmodule ESx.Transport.Connection do
 
   def conns do
     Supervisor.which_children
-    |> Enum.map(fn {_, pid, _, _conn} ->
-      state pid
+    |> Enum.map(fn {name, _pid, _, _conn} ->
+      "#{name}"
+      |> String.split("_")
+      |> List.last
+      |> String.to_atom
+      |> Agent.get(& &1)
     end)
   end
 
@@ -65,12 +69,13 @@ defmodule ESx.Transport.Connection do
     s.dead
   end
 
-  # TODO: poolboy, transaction
   def dead!(name) do
-    Agent.get_and_update namepid(id(name)), fn conn ->
-       conn = %{conn | dead: true, dead_since: :os.system_time(:seconds)}
-       conn = Map.update!(conn, :failures, & &1 + 1)
-      {conn, conn}
+    Supervisor.transaction id(name), fn pool ->
+      Agent.get_and_update pool, fn conn ->
+         conn = %{conn | dead: true, dead_since: :os.system_time(:seconds)}
+         conn = Map.update!(conn, :failures, & &1 + 1)
+        {conn, conn}
+      end
     end
   end
 
@@ -79,13 +84,12 @@ defmodule ESx.Transport.Connection do
     not s.dead
   end
 
-  # TODO: poolboy, transaction
   def alive!(name) do
-    set_state! id(name), :dead, false
+    Supervisor.transaction id(name), &set_state!(&1, :dead, false)
   end
 
   def healthy!(name) do
-    set_state! id(name), %{dead: false, failures: 0}
+    Supervisor.transaction id(name), &set_state!(&1, %{dead: false, failures: 0})
   end
 
   def resurrect!(name) do

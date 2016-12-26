@@ -75,10 +75,9 @@ defmodule ESx.Transport do
 
     if s.reload and rem(counter, s.reload_after) == 0 or counter == 1 do
       rebuild_conns()
-      Connection.conn
-    else
-      Connection.conn
     end
+
+    Connection.conn
   end
 
   def rebuild_conns do
