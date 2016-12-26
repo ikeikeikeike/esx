@@ -50,10 +50,10 @@ defmodule ESx.Transport.Statex do
         pid
       end
       def pidname(name) do
-        Funcs.nameid __MODULE__, name
+        Funcs.encid __MODULE__, name
       end
 
-      defoverridable [pidname: 1]
+      defoverridable [pidname: 1, state: 0, state: 1]
     end
   end
 end

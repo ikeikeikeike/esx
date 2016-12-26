@@ -11,7 +11,7 @@ defmodule ESx.Transport.Connection do
     ]
   end
 
-  import ESx.Checks, only: [blank?: 1]
+  import ESx.Checks, only: [blank?: 1, present?: 1]
 
   alias ESx.Transport.Selector
   alias ESx.Transport.Connection.Supervisor
@@ -40,7 +40,18 @@ defmodule ESx.Transport.Connection do
     end
 
     cc = alives()
-    cc && Selector.RoundRobin.select(cc)
+    if present?(cc), do: Selector.RoundRobin.select(cc)
+  end
+
+  def checkout(name) do
+    id(name)
+    |> Supervisor.checkout
+    |> state
+  end
+
+  def checkin(%__MODULE__{pidname: pid, url: url}) do
+    pid = Process.whereis pid
+    Supervisor.checkin url, pid
   end
 
   def alives do
@@ -55,12 +66,8 @@ defmodule ESx.Transport.Connection do
 
   def conns do
     Supervisor.which_children
-    |> Enum.map(fn {name, _pid, _, _conn} ->
-      "#{name}"
-      |> String.split("_")
-      |> List.last
-      |> String.to_atom
-      |> Agent.get(& &1)
+    |> Enum.map(fn {name, pid, _, _conn} ->
+      state Funcs.decid(name)
     end)
   end
 

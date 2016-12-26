@@ -16,7 +16,7 @@ defmodule ESx.Transport.Connection.Supervisor do
     pid
   end
   def poolname(name) do
-    :"poolboy_#{Funcs.nameid(ESx.Transport.Connection, name)}"
+    Funcs.encid([:poolboy, ESx.Transport.Connection], name)
   end
 
   def start_child(name, args) do
@@ -34,13 +34,6 @@ defmodule ESx.Transport.Connection.Supervisor do
     Supervisor.start_child(__MODULE__, worker)
   end
 
-  def remove_child(name) do
-    id = poolname name
-
-    Supervisor.terminate_child(__MODULE__, id)
-    Supervisor.delete_child(__MODULE__, id)
-  end
-
   def count_children do
     Supervisor.count_children(__MODULE__)
   end
@@ -49,8 +42,22 @@ defmodule ESx.Transport.Connection.Supervisor do
     Supervisor.which_children(__MODULE__)
   end
 
+  def remove_child(name) do
+    id = poolname name
+    Supervisor.terminate_child(__MODULE__, id)
+    Supervisor.delete_child(__MODULE__, id)
+  end
+
   def transaction(name, fun) do
     :poolboy.transaction poolname(name), &fun.(&1)
+  end
+
+  def checkout(name) do
+    :poolboy.checkout poolname(name)
+  end
+
+  def checkin(name, pid) do
+    :poolboy.checkin poolname(name), pid
   end
 
 end
