@@ -7,7 +7,7 @@ defmodule ESx.Mixfile do
 
   def project do
     [app: :esx,
-     version: "0.1.1",
+     version: "0.1.2",
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
@@ -38,7 +38,7 @@ defmodule ESx.Mixfile do
       {:httpoison, ">= 0.7.0"},
       {:poison, ">= 2.0.0"},
       {:exjsx, ">= 3.0.0"},
-      {:ecto, ">= 2.0.0", optional: true},
+      {:ecto, ">= 1.1.0", optional: true},
 
       {:credo, "~> 0.5", only: [:dev, :test]},
       {:earmark, ">= 0.0.0", only: :dev},
