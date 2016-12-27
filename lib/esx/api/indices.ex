@@ -23,7 +23,9 @@ defmodule ESx.API.Indices do
     status200? ts, method, path, params, body
   end
 
-  defdelegate exists?(ts, args \\ %{}), to: __MODULE__, as: :exists
+  def exists?(ts, args \\ %{}) do
+    exists ts, args
+  end
 
   def create(ts, %{index: index, body: body} = args) when is_map(body) do
     method = "PUT"
@@ -93,7 +95,9 @@ defmodule ESx.API.Indices do
     status200? ts, method, path, params, body
   end
 
-  defdelegate exists_alias?(ts, args \\ %{}), to: __MODULE__, as: :exists_alias
+  def exists_alias?(ts, args \\ %{}) do
+    exists_alias ts, args
+  end
 
   def refresh(ts, args \\ %{}) do
     method = "POST"
@@ -164,7 +168,9 @@ defmodule ESx.API.Indices do
     status200? ts, method, path, params, body
   end
 
-  defdelegate exists_template?(ts, args \\ %{}), to: __MODULE__, as: :exists_template
+  def exists_template?(ts, args \\ %{}) do
+    exists_template ts, args
+  end
 
   def upgrade(ts, args \\ %{}) do
     method = "POST"
