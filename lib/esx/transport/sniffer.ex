@@ -28,7 +28,7 @@ defmodule ESx.Transport.Sniffer do
               # id:          id,
               # name:        info["name"],
               # version:     info["version"],
-              host:        host,
+              host:        String.replace(host, "inet[/", ""),
               port:        port,
               protocol:    @protocol,
               # roles:       info["roles"],

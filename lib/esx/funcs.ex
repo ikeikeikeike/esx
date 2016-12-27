@@ -67,4 +67,65 @@ defmodule ESx.Funcs do
     build_url! [url: URI.to_string u]
   end
 
+  # for elixir 1.2
+  # https://github.com/elixir-lang/elixir/blob/master/lib/elixir/lib/uri.ex#L467
+
+  def merge(uri, rel)
+
+  def merge(%URI{authority: nil}, _rel) do
+    raise ArgumentError, "you must merge onto an absolute URI"
+  end
+  def merge(_base, %URI{scheme: rel_scheme} = rel) when rel_scheme != nil do
+    rel
+  end
+  def merge(%URI{} = base, %URI{path: rel_path} = rel) when rel_path in ["", nil] do
+    %{base | query: rel.query || base.query, fragment: rel.fragment}
+  end
+  def merge(%URI{} = base, %URI{} = rel) do
+    new_path = merge_paths(base.path, rel.path)
+    %{base | path: new_path, query: rel.query, fragment: rel.fragment}
+  end
+  def merge(base, rel) do
+    merge(URI.parse(base), URI.parse(rel))
+  end
+
+  defp merge_paths(nil, rel_path),
+    do: merge_paths("/", rel_path)
+  defp merge_paths(_, "/" <> _ = rel_path),
+    do: rel_path
+  defp merge_paths(base_path, rel_path) do
+    [_ | base_segments] = path_to_segments(base_path)
+    path_to_segments(rel_path)
+    |> Kernel.++(base_segments)
+    |> remove_dot_segments([])
+    |> Enum.join("/")
+  end
+
+  defp remove_dot_segments([], [head, ".." | acc]),
+    do: remove_dot_segments([], [head | acc])
+  defp remove_dot_segments([], acc),
+    do: acc
+  defp remove_dot_segments(["." | tail], acc),
+    do: remove_dot_segments(tail, acc)
+  defp remove_dot_segments([head | tail], ["..", ".." | _] = acc),
+    do: remove_dot_segments(tail, [head | acc])
+  defp remove_dot_segments(segments, [_, ".." | acc]),
+    do: remove_dot_segments(segments, acc)
+  defp remove_dot_segments([head | tail], acc),
+    do: remove_dot_segments(tail, [head | acc])
+
+  def path_to_segments(path) do
+    [head | tail] = String.split(path, "/")
+    reverse_and_discard_empty(tail, [head])
+  end
+
+  defp reverse_and_discard_empty([], acc),
+    do: acc
+  defp reverse_and_discard_empty([head], acc),
+    do: [head | acc]
+  defp reverse_and_discard_empty(["" | tail], acc),
+    do: reverse_and_discard_empty(tail, acc)
+  defp reverse_and_discard_empty([head | tail], acc),
+    do: reverse_and_discard_empty(tail, [head | acc])
+
 end

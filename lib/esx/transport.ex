@@ -35,6 +35,7 @@ defmodule ESx.Transport do
 
   require Logger
 
+  alias ESx.Funcs
   alias ESx.Transport.{State, Sniffer, Connection, ServerError, UnknownError}
 
   defstruct [
@@ -59,7 +60,7 @@ defmodule ESx.Transport do
   def transport(args) do
     {url, args} = Keyword.pop(args, :url)
 
-    Connection.start_conn ESx.Funcs.build_url!([url: url]) ++ args
+    Connection.start_conn Funcs.build_url!([url: url]) ++ args
 
     struct __MODULE__, args
   end
@@ -135,8 +136,8 @@ defmodule ESx.Transport do
     options = [hackney: [pool: conn.pidname]]
     uri     =
       conn.url
-      |> URI.merge(path)
-      |> URI.merge("?" <> URI.encode_query params)
+      |> Funcs.merge(path)
+      |> Funcs.merge("?" <> URI.encode_query params)
       |> URI.to_string
 
     resp =
@@ -208,14 +209,8 @@ defmodule ESx.Transport do
   catch
     :exit, errors ->
       error = elem(errors, 0)
-      uri   =
-        errors
-        |> elem(1)
-        |> elem(2)
-        |> List.first
-        |> ESx.Funcs.decid
 
-      Logger.error "Close connection to #{uri}: #{error}"
+      Logger.error "Close connection: #{inspect errors}"
 
       Connection.dead! conn
       Connection.checkin conn
