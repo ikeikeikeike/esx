@@ -19,12 +19,13 @@ defmodule ESx.Model.Response do
       took: rsp["took"],
       timed_out: rsp["timed_out"],
       shards: rsp["_shards"],
+      aggregations: rsp["aggregations"] || rsp["facets"],
     }
   end
 
   def results(%{__model__: model, __schema__: schema} = search) do
     rsp = ESx.Model.Search.execute search
-    ESx.Model.Response.parse model, schema, rsp
+    parse model, schema, rsp
   end
 
   def aggregations(_st) do
