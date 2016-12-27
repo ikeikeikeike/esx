@@ -29,11 +29,21 @@ defmodule ESx.Funcs do
     end
   end
 
-  def nameid(mod, name) do
-    Enum.join([mod, name])
-    |> :erlang.md5
-    |> Base.encode16(case: :lower)
+  def encid(mod, name) when is_list(mod) do
+    encid Enum.join(mod), name
+  end
+  def encid(mod, name) do
+    [mod, "_", name]
+    |> Enum.join
+    |> Base.encode64
     |> String.to_atom
+  end
+
+  def decid(name) do
+    "#{name}"
+    |> Base.decode64!
+    |> String.split("_")
+    |> List.last
   end
 
   def build_url!([url: url]) when is_binary(url) do

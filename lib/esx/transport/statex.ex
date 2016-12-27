@@ -2,10 +2,14 @@ defmodule ESx.Transport.Statex do
   @doc false
   defmacro __using__(opts) do
     quote do
+      alias ESx.Funcs
+
       defstruct unquote(opts)
       @__struct_resource__ unquote(opts)
 
-      def start_link(name \\ "", args \\ []) do
+      # callback from any supervisor
+      def start_link([{:name, name} | args]), do: start_link name, args
+      def start_link(name \\ "", args \\ [])  do
         args =
           if function_exported?(__MODULE__, :initialize_state, 1) do
             apply __MODULE__, :initialize_state, [args]
@@ -13,15 +17,15 @@ defmodule ESx.Transport.Statex do
             args
           end
 
-        Agent.start_link(fn -> struct(__MODULE__, args) end, name: namepid(name))
+        Agent.start_link(fn -> struct(__MODULE__, args) end, name: pidname(name))
       end
 
       def state(name \\ "") do
-        Agent.get(namepid(name), fn config -> config end)
+        Agent.get(pidname(name), fn config -> config end)
       end
 
       def incr_state!(name \\ "", key, number) do
-        Agent.get_and_update(namepid(name), fn s ->
+        Agent.get_and_update(pidname(name), fn s ->
           s = Map.update!(s, key, & &1 + number)
           {Map.get(s, key), s}
         end)
@@ -29,7 +33,7 @@ defmodule ESx.Transport.Statex do
 
       def set_state!(overwrite),        do: set_state!("", overwrite)
       def set_state!(name, overwrite) when is_map(overwrite) do
-        Agent.get_and_update(namepid(name), fn s ->
+        Agent.get_and_update(pidname(name), fn s ->
           s =
             Enum.reduce overwrite, s, fn {key, value}, acc ->
               Map.update!(acc, key, fn _ -> value end)
@@ -42,12 +46,14 @@ defmodule ESx.Transport.Statex do
         set_state! name, Map.new([{key, value}])
       end
 
-      def namepid(pid) when is_pid(pid) do
+      def pidname(pid) when is_pid(pid) do
         pid
       end
-      def namepid(name) do
-        ESx.Funcs.nameid __MODULE__, name
+      def pidname(name) do
+        Funcs.encid __MODULE__, name
       end
+
+      defoverridable [pidname: 1, state: 0, state: 1]
     end
   end
 end

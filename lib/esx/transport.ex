@@ -75,10 +75,9 @@ defmodule ESx.Transport do
 
     if s.reload and rem(counter, s.reload_after) == 0 or counter == 1 do
       rebuild_conns()
-      Connection.conn
-    else
-      Connection.conn
     end
+
+    Connection.conn
   end
 
   def rebuild_conns do
@@ -129,7 +128,7 @@ defmodule ESx.Transport do
   defp do_perform_request(method, path, params, body, tries \\ 0) do
     tries = tries + 1
 
-    conn = conn()  # TODO: need transaction and must need error management
+    conn = Connection.checkout conn()  # TODO: need transaction and must need error management
     # IO.inspect conn
 
     headers = [{"Content-Type", "application/json"}, {"Connection", "keep-alive"}]
@@ -205,6 +204,25 @@ defmodule ESx.Transport do
 
         {:error, UnknownError.wrap error: error, message: msg}
     end
+
+  catch
+    :exit, errors ->
+      error = elem(errors, 0)
+      uri   =
+        errors
+        |> elem(1)
+        |> elem(2)
+        |> List.first
+        |> ESx.Funcs.decid
+
+      Logger.error "Close connection to #{uri}: #{error}"
+
+      Connection.dead! conn
+      Connection.checkin conn
+
+      {:error, error}
+  after
+    Connection.checkin conn
   end
 
   defp traceout(out) when is_binary(out) do
