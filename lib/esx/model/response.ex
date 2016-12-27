@@ -1,7 +1,8 @@
 defmodule ESx.Model.Response do
   defstruct [
-    :took, :timed_out, :shards, :hits, :total, :max_score,
-    :aggregations, :suggestions, :__schema__, :__model__, results: [], records: [],
+    :took, :timed_out, :shards, :total, :max_score,
+    :aggregations, :suggestions, :__schema__, :__model__,
+    hits: [], records: [],
   ]
 
   @type t :: %__MODULE__{}
