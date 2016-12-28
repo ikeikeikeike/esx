@@ -238,8 +238,10 @@ ESx.Model.delete_document, %MyApp.Blog{id: 1, title: "ham"}
 ```
 
 ### Search & Response
+
 ```elixir
-ESx.Model.search, MyApp.Blog, %{query: %{match: %{title: "foo"}}}```
+ESx.Model.search, MyApp.Blog, %{query: %{match: %{title: "foo"}}}
+```
 
 ```elixir
 response =
