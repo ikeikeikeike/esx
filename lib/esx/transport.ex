@@ -105,7 +105,10 @@ defmodule ESx.Transport do
       stale_conns = old_conns -- new_conns
 
       Enum.each stale_conns, &Connection.delete/1
-      Enum.each new_conns, &Connection.checkin/1
+
+      new_conns
+      |> Enum.map(&Connection.alive!/1)
+      |> Enum.each(&Connection.checkin/1)
     end
   end
 

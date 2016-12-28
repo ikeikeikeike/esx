@@ -34,7 +34,8 @@ defmodule ESx.Transport.Connection do
 
   def conn(opts \\ []) do
     if blank?(alives()) do
-      deadconn = List.first(Enum.sort(dead_conns, & &1.failures > &2.failures))
+      # deadconn = List.first(Enum.sort(dead_conns, & &1.failures > &2.failures))
+      deadconn = List.first(Enum.take_random(dead_conns, 1))
       if deadconn, do: alive!(deadconn)
     end
 
