@@ -7,7 +7,7 @@ defmodule ESx.Mixfile do
 
   def project do
     [app: :esx,
-     version: "0.2.3",
+     version: "0.2.4",
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
