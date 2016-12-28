@@ -1,7 +1,8 @@
 defmodule ESx.Transport.Sniffer do
   import ESx.R
-  alias ESx.Transport
-  alias ESx.Transport.Config
+
+  alias ESx.{Transport, Funcs}
+  # alias ESx.Transport.Config
 
   @protocol "http"
   @timeout 1
@@ -15,7 +16,7 @@ defmodule ESx.Transport.Sniffer do
   defp parse({:ok, nodes}) do
     hosts =
       Map.get(nodes, "nodes", [])
-      |> Enum.map(fn {id, info} ->
+      |> Enum.map(fn {_id, info} ->
         if info[@protocol] do
           [host, port] =
             get_in(info, [@protocol, "publish_address"])
@@ -35,7 +36,7 @@ defmodule ESx.Transport.Sniffer do
               # attributes:  info["attributes"]
             ]
 
-          ESx.Funcs.build_url! config
+          Funcs.build_url! config
         end
       end)
 

@@ -1,5 +1,5 @@
 defmodule ESx.Model.Search do
-  alias ESx.{API, Funcs}
+  alias ESx.API
 
   defstruct [:__model__, :__schema__, args: %{}]
 
@@ -13,7 +13,7 @@ defmodule ESx.Model.Search do
     }
   end
 
-  def execute(%{__model__: model, __schema__: schema, args: args}) do
+  def execute(%{__model__: model, __schema__: _schema, args: args}) do
     API.search model.transport, args
   end
 

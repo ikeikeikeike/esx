@@ -85,6 +85,16 @@ defmodule ESx.API do
     |> response
   end
 
+  def delete(ts, %{index: index, type: type, id: id} = args) do
+    method = "DELETE"
+    path   = Utils.pathify [Utils.escape(index), Utils.escape(type), Utils.escape(id)]
+    params = Utils.extract_params args
+    body   = nil
+
+    Transport.perform_request(ts, method, path, params, body)
+    |> response
+  end
+
   def bulk(ts, args \\ %{}) do
     {type, args} = Map.pop(args, :type)
 
@@ -159,7 +169,7 @@ defmodule ESx.API do
     |> response
   end
 
-  def put_template(ts, %{id: id, body: body} = args) do
+  def put_template(ts, %{id: id, body: body} = _args) do
     method = "PUT"
     path   = "_search/template/#{id}"
     params = {}
@@ -199,7 +209,7 @@ defmodule ESx.API do
     |> response
   end
 
-  def nodes_http(ts, args \\ %{}) do
+  def nodes_http(ts, _args \\ %{}) do
     method = "GET"
     path   = "_nodes/http"
     params = %{}

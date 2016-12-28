@@ -141,7 +141,7 @@ defmodule ESx.API.Indices do
 
   def put_template(ts, %{name: name, body: body} = args) do
     method = "PUT"
-    path   = Utils.pathify "_template", Utils.escape(name)
+    path   = Utils.pathify ["_template", Utils.escape(name)]
     params = Utils.extract_params args
     body   = body
 
@@ -151,7 +151,7 @@ defmodule ESx.API.Indices do
 
   def delete_template(ts, %{name: name} = args) do
     method = HTTP_DELETE
-    path   = Utils.pathify "_template", Utils.escape(name)
+    path   = Utils.pathify ["_template", Utils.escape(name)]
     params = Utils.extract_params args
     body = nil
 
@@ -161,7 +161,7 @@ defmodule ESx.API.Indices do
 
   def exists_template(ts, %{name: name} = args) do
     method = HTTP_HEAD
-    path   = Utils.pathify '_template', Utils.escape(name)
+    path   = Utils.pathify ['_template', Utils.escape(name)]
     params = Utils.extract_params args
     body = nil
 

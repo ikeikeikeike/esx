@@ -11,12 +11,12 @@ defmodule ESx.Schema.Analysis do
     end
   end
 
-  defmacro settings([do: block]) do
-    es_analysis(__MODULE__, [], block)
-  end
-
   defmacro settings(setting, [do: block]) do
     es_analysis(__MODULE__, setting, block)
+  end
+
+  defmacro settings([do: block]) do
+    es_analysis(__MODULE__, [], block)
   end
 
   # Setting dynamically

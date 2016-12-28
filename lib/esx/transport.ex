@@ -31,8 +31,6 @@ defmodule ESx.Transport do
     end
   end
 
-  import ESx.Checks, only: [present?: 1]
-
   require Logger
 
   alias ESx.Funcs

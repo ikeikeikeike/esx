@@ -32,7 +32,7 @@ defmodule ESx.Transport.Connection do
     Supervisor.remove_child id(name)
   end
 
-  def conn(opts \\ []) do
+  def conn(_opts \\ []) do
     if blank?(alives()) do
       # deadconn = List.first(Enum.sort(dead_conns, & &1.failures > &2.failures))
       deadconn = List.first(Enum.take_random(dead_conns, 1))
@@ -45,7 +45,7 @@ defmodule ESx.Transport.Connection do
 
   def conns do
     Supervisor.which_children
-    |> Enum.map(fn {name, pid, _, _conn} ->
+    |> Enum.map(fn {name, _pid, _, _conn} ->
       state Funcs.decid(name)
     end)
   end
@@ -86,11 +86,6 @@ defmodule ESx.Transport.Connection do
     set_state! id(name), %{dead: false, failures: 0}
   end
 
-  def dead?(name) do
-    s = state id(name)
-    s.dead
-  end
-
   def resurrect!(name) do
     if resurrectable?(name), do: alive! name
   end
@@ -116,7 +111,7 @@ defmodule ESx.Transport.Connection do
     |> state
   end
 
-  def checkin([%__MODULE__{pidname: pid, url: url} | _] = structs) do
+  def checkin([%__MODULE__{pidname: _, url: _} | _] = structs) do
     Enum.each structs, &checkin/1
   end
   def checkin(%__MODULE__{pidname: pid, url: url}) do
