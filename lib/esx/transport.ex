@@ -178,7 +178,7 @@ defmodule ESx.Transport do
             msg = "[#{status}] Couldn't get response from #{uri} after " <>
                   "#{tries} tries: #{rbody}"
 
-            # Logger.error msg
+            Logger.warn msg
             {:error, ServerError.wrap response: resp, status: status, message: msg}
           end
 

@@ -13,8 +13,7 @@ defmodule ESx.Transport.Connection do
 
   import ESx.Checks, only: [blank?: 1, present?: 1]
 
-  alias ESx.Transport.Selector
-  alias ESx.Transport.Connection.Supervisor
+  alias ESx.Transport.{Selector, Connection.Supervisor}
 
   @type t :: %__MODULE__{}
   @client HTTPoison  # XXX: to be abstraction

@@ -1,5 +1,10 @@
 # ESx
 
+[![Build Status](http://img.shields.io/travis/ikeikeikeike/esx.svg?style=flat-square)](http://travis-ci.org/ikeikeikeike/esx)
+[![Hex version](https://img.shields.io/hexpm/v/esx.svg "Hex version")](https://hex.pm/packages/esx)
+[![Inline docs](https://inch-ci.org/github/ikeikeikeike/esx.svg)](http://inch-ci.org/github/ikeikeikeike/esx)
+[![Lisence](https://img.shields.io/hexpm/l/ltsv.svg)](https://github.com/ikeikeikeike/esx/blob/master/LICENSE)
+
 A client for the Elasticsearch, written in Elixir
 
 ## Installation
@@ -293,7 +298,7 @@ ESx.API.Indices.delete ts, %{index: "your_app"}
 - Some of APIs
 - Refactoring
 - Unittest
-- Multiple configuration for transport
+- urls into transport
 - README
 
 Probably won't make it.
