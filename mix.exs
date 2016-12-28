@@ -2,12 +2,12 @@ defmodule ESx.Mixfile do
   use Mix.Project
 
   @description """
-  A client for the Elasticsearch, written in Elixir which's still development status.
+  A client for the Elasticsearch, written in Elixir
   """
 
   def project do
     [app: :esx,
-     version: "0.1.3",
+     version: "0.2.0",
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
@@ -38,7 +38,7 @@ defmodule ESx.Mixfile do
       {:httpoison, ">= 0.7.0"},
       {:poison, ">= 1.2.0"},
       {:exjsx, ">= 3.0.0"},
-      {:poolboy, ">= 1.5.0 and < 2.0.0"},
+      {:poolboy, ">= 1.0.0 and < 2.0.0"},
       {:ecto, ">= 1.1.0", optional: true},
 
       {:credo, "~> 0.5", only: [:dev, :test]},

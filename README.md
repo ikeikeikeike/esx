@@ -1,6 +1,6 @@
 # ESx
 
-A client for the Elasticsearch, written in Elixir which's still development status.
+A client for the Elasticsearch, written in Elixir
 
 ## Installation
 
@@ -10,7 +10,7 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 
     ```elixir
     def deps do
-      [{:esx, "~> 0.1"}]
+      [{:esx, "~> 0.2"}]
     end
     ```
 
@@ -289,13 +289,12 @@ ESx.API.Indices.delete ts, %{index: "your_app"}
 
 ### TODO
 
-- Multiple configuration for transport
-- Auto discover es cluster for transport.
-- resolve race condition
-- Aggregations, Suggestions
+- Suggestions
 - Some of APIs
 - Refactoring
 - Unittest
+- Multiple configuration for transport
+- README
 
 Probably won't make it.
 - Search DSL
