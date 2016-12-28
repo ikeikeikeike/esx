@@ -20,8 +20,7 @@ defmodule ESx.Model.Base do
 
       use ESx.Model.Ecto
 
-      alias ESx.{API, Funcs}
-      alias ESx.API.Indices
+      alias ESx.{Funcs, API, API.Indices}
 
       def search(queryable, query_or_payload, opts \\ %{}) do
         mod   = Funcs.to_mod queryable
