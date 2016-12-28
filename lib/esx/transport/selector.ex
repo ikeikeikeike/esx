@@ -19,19 +19,19 @@ defmodule ESx.Transport.Selector do
     @moduledoc "RoundRobin Selector"
     @behaviour Base
 
-    use ESx.Transport.Statex, [next: 0]
+    use ESx.Transport.Statex, [current: 0]
 
     def select(conns) do
       s    = state()
-      conn = Enum.at conns, s.next
       next =
-        if s.next >= (length(conns) - 1) do
+        if s.current >= (length(conns) - 1) do
           0
         else
-          1 + s.next
+          1 + s.current
         end
 
-      set_state! :next, next
+      conn = Enum.at conns, next
+      set_state! :current, next
 
       conn
     end

@@ -82,24 +82,31 @@ defmodule ESx.Transport do
   end
 
   def rebuild_conns do
-    urls = Sniffer.urls transport()
+    cnfs  = Sniffer.urls transport()
 
-    old_conns = Connection.conns
-    new_conns =
-      urls
-      |> Enum.map(&Connection.start_conn/1)
-      |> Enum.map(fn
-        {:error, {_, pid}} when is_pid(pid) ->
-          Connection.state pid
-        {:ok, pid} ->
-          Connection.state pid
-        _ ->
-          nil
-      end)
-      |> Enum.filter(& !!&1)
+    if is_list(cnfs) and length(cnfs) > 0 do
+      old_conns = Connection.checkout
+      new_conns =
+        cnfs
+        |> Enum.map(&Connection.start_conn/1)
+        |> Enum.zip(cnfs)
+        |> Enum.map(fn
+          {{:error, {_, pid}}, cnf} when is_pid(pid) ->
+            Connection.state cnf[:url]
 
-    stale_conns = old_conns -- new_conns
-    Enum.each stale_conns, & Connection.delete &1.url
+          {{:ok, pid}, _} when is_pid(pid) ->
+            Connection.checkout pid
+
+          _ ->
+            nil
+        end)
+        |> Enum.filter(& !!&1)
+
+      stale_conns = old_conns -- new_conns
+
+      Enum.each stale_conns, &Connection.delete/1
+      Enum.each new_conns, &Connection.checkin/1
+    end
   end
 
   def resurrect_deads do
@@ -127,97 +134,92 @@ defmodule ESx.Transport do
   end
 
   defp do_perform_request(method, path, params, body, tries \\ 0) do
+    cn    = Connection.checkout conn()
     tries = tries + 1
 
-    conn = Connection.checkout conn()  # TODO: need transaction and must need error management
-    # IO.inspect conn
-
     headers = [{"Content-Type", "application/json"}, {"Connection", "keep-alive"}]
-    options = [hackney: [pool: conn.pidname]]
+    options = [hackney: [pool: cn.pidname]]
     uri     =
-      conn.url
+      cn.url
       |> Funcs.merge(path)
       |> Funcs.merge("?" <> URI.encode_query params)
       |> URI.to_string
 
     resp =
       case method do
-        "GET"    -> conn.client.request :get,    uri, body, headers, options
-        "PUT"    -> conn.client.request :put,    uri, body, headers, options
-        "POST"   -> conn.client.request :post,   uri, body, headers, options
-        "HEAD"   -> conn.client.request :head,   uri, body, headers, options
-        "DELETE" -> conn.client.request :delete, uri, body, headers, options
+        "GET"    -> cn.client.request :get,    uri, body, headers, options
+        "PUT"    -> cn.client.request :put,    uri, body, headers, options
+        "POST"   -> cn.client.request :post,   uri, body, headers, options
+        "HEAD"   -> cn.client.request :head,   uri, body, headers, options
+        "DELETE" -> cn.client.request :delete, uri, body, headers, options
         method   -> {:error, %ArgumentError{message: "Method #{method} not supported"}}
       end
 
     s = State.state
 
-    case resp do
-      {:ok, %HTTPoison.Response{status_code: status}} when status < 300 ->
+    try do
+      case resp do
+        {:ok, %HTTPoison.Response{status_code: status}} when status < 300 ->
 
-        # TODO: if ts.trace, do: traceout method, uri, body
-        if conn.failures > 0, do: Connection.healthy! conn
+          # TODO: if ts.trace, do: traceout method, uri, body
+          if cn.failures > 0, do: Connection.healthy! cn
 
-        resp
+          resp
 
-      {:ok, %HTTPoison.Response{status_code: status, body: rbody} = resp} when status >= 300 ->
-        if conn.failures > 0, do: Connection.healthy! conn
+        {:ok, %HTTPoison.Response{status_code: status, body: rbody} = resp} when status >= 300 ->
+          if cn.failures > 0, do: Connection.healthy! cn
 
-        if tries <= s.max_retries and status in s.retry_on_status do
-          Logger.warn "[retry_on_status] Retries #{tries}/#{s.max_retries} " <>
-                      "connecting to #{uri}"
-
-          do_perform_request method, path, params, body, tries
-        else
-          msg = "[#{status}] Couldn't get response from #{uri} after " <>
-                "#{tries} tries: #{rbody}"
-
-          Logger.error msg
-          {:error, ServerError.wrap response: resp, status: status, message: msg}
-        end
-
-      # Failure
-      {:error, %HTTPoison.Error{reason: reason} = error} ->
-        Logger.error "Close connection to #{uri}: #{reason}"
-        Connection.dead! conn
-
-        cond do
-          s.reload_on_failure and tries < length(Connection.conns) ->
-            Logger.warn "[reload_on_failure] Reloading connections " <>
-                        "(retries #{tries}/#{length(Connection.conns)})"
-            rebuild_conns()
-
-            do_perform_request method, path, params, body, tries
-
-          s.retry_on_failure and tries <= s.max_retries ->
-            Logger.warn "[retry_on_failure] Retries #{tries}/#{s.max_retries} " <>
+          if tries <= s.max_retries and status in s.retry_on_status do
+            Logger.warn "[retry_on_status] Retries #{tries}/#{s.max_retries} " <>
                         "connecting to #{uri}"
 
             do_perform_request method, path, params, body, tries
+          else
+            msg = "[#{status}] Couldn't get response from #{uri} after " <>
+                  "#{tries} tries: #{rbody}"
 
-          true ->
-            {:error, error}
-        end
+            # Logger.error msg
+            {:error, ServerError.wrap response: resp, status: status, message: msg}
+          end
 
-      error ->
-        msg = "[unknown] uri:#{uri} tries:#{tries}"
-        Logger.error msg
+        # Failure
+        {:error, %HTTPoison.Error{reason: reason} = error} ->
+          Logger.error "Close connection to #{uri}: #{reason}"
+          Connection.dead! cn
 
-        {:error, UnknownError.wrap error: error, message: msg}
+          cond do
+            s.reload_on_failure and tries < length(Connection.conns) ->
+              Logger.warn "[reload_on_failure] Reloading connections " <>
+                          "(retries #{tries}/#{length(Connection.conns)})"
+              rebuild_conns()
+
+              do_perform_request method, path, params, body, tries
+
+            s.retry_on_failure and tries <= s.max_retries ->
+              Logger.warn "[retry_on_failure] Retries #{tries}/#{s.max_retries} " <>
+                          "connecting to #{uri}"
+
+              do_perform_request method, path, params, body, tries
+
+            true ->
+              {:error, error}
+          end
+
+        error ->
+          msg = "[unknown] uri:#{uri} tries:#{tries}"
+          Logger.error msg
+
+          {:error, UnknownError.wrap error: error, message: msg}
+      end
+    catch
+      :exit, errors ->
+        error = elem(errors, 0)
+        Logger.error "Close connection: #{inspect errors}"
+
+        {:error, error}
+    after
+      Connection.checkin cn
     end
-
-  catch
-    :exit, errors ->
-      error = elem(errors, 0)
-
-      Logger.error "Close connection: #{inspect errors}"
-
-      Connection.dead! conn
-      Connection.checkin conn
-
-      {:error, error}
-  after
-    Connection.checkin conn
   end
 
   defp traceout(out) when is_binary(out) do

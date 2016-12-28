@@ -43,15 +43,11 @@ defmodule ESx.Transport.Connection do
     if present?(cc), do: Selector.RoundRobin.select(cc)
   end
 
-  def checkout(name) do
-    id(name)
-    |> Supervisor.checkout
-    |> state
-  end
-
-  def checkin(%__MODULE__{pidname: pid, url: url}) do
-    pid = Process.whereis pid
-    Supervisor.checkin url, pid
+  def conns do
+    Supervisor.which_children
+    |> Enum.map(fn {name, pid, _, _conn} ->
+      state Funcs.decid(name)
+    end)
   end
 
   def alives do
@@ -64,25 +60,16 @@ defmodule ESx.Transport.Connection do
     |> Enum.filter(& dead? id(&1))
   end
 
-  def conns do
-    Supervisor.which_children
-    |> Enum.map(fn {name, pid, _, _conn} ->
-      state Funcs.decid(name)
-    end)
-  end
-
   def dead?(name) do
     s = state id(name)
     s.dead
   end
 
   def dead!(name) do
-    Supervisor.transaction id(name), fn pool ->
-      Agent.get_and_update pool, fn conn ->
-         conn = %{conn | dead: true, dead_since: :os.system_time(:seconds)}
-         conn = Map.update!(conn, :failures, & &1 + 1)
-        {conn, conn}
-      end
+    Agent.get_and_update pidname(id(name)), fn conn ->
+       conn = %{conn | dead: true, dead_since: :os.system_time(:seconds)}
+       conn = Map.update!(conn, :failures, & &1 + 1)
+      {conn, conn}
     end
   end
 
@@ -92,18 +79,22 @@ defmodule ESx.Transport.Connection do
   end
 
   def alive!(name) do
-    Supervisor.transaction id(name), &set_state!(&1, :dead, false)
+    set_state! id(name), :dead, false
   end
 
   def healthy!(name) do
-    Supervisor.transaction id(name), &set_state!(&1, %{dead: false, failures: 0})
+    set_state! id(name), %{dead: false, failures: 0}
+  end
+
+  def dead?(name) do
+    s = state id(name)
+    s.dead
   end
 
   def resurrect!(name) do
     if resurrectable?(name), do: alive! name
   end
 
-  # TODO: poolboy, transaction
   def resurrectable?(name) do
     s = state id(name)
     failures = if s.failures > 1000, do: 1000, else: s.failures
@@ -111,6 +102,26 @@ defmodule ESx.Transport.Connection do
     left  = :os.system_time(:seconds)
     right = s.dead_since + (s.resurrect_timeout * :math.pow(2, failures - 1))
     left > right
+  end
+
+  def checkout do
+    Supervisor.which_children
+    |> Enum.map(fn {_name, pid, _, _conn} ->
+      checkout(pid)
+    end)
+  end
+  def checkout(name) do
+    id(name)
+    |> Supervisor.checkout
+    |> state
+  end
+
+  def checkin([%__MODULE__{pidname: pid, url: url} | _] = structs) do
+    Enum.each structs, &checkin/1
+  end
+  def checkin(%__MODULE__{pidname: pid, url: url}) do
+    pid = Process.whereis pid
+    Supervisor.checkin url, pid
   end
 
   defp id(%__MODULE__{url: url}), do: url
