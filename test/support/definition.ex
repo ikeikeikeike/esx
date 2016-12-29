@@ -34,6 +34,8 @@ defmodule ESX.Test.Support.Definition do
         tokenizer :ngram_tokenizer,
           type: "nGram", min_gram: "2", max_gram: "3",
           token_chars: ["letter", "digit"]
+        filter "edge_ngram",
+          type: "edgeNGram", min_gram: 1, max_gram: 15
       end
     end
 
@@ -106,6 +108,12 @@ defmodule ESX.Test.Support.Definition do
               "html_strip",
               "kuromoji_iteration_mark"
             ]
+          ]
+        ],
+        filter: [
+          edge_ngram: [
+            type: "edgeNGram",
+            min_gram: 1, max_gram: 15
           ]
         ]
       ]

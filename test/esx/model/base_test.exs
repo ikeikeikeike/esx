@@ -36,13 +36,11 @@ defmodule ESx.Model.BaseTest do
   test "ok model.base.config" do
     assert Model.config == [
       url: "http://localhost:9200",
-      app: :esx, mod: Model, trace: true
+      app: :esx, mod: Model, trace: false
     ]
   end
 
   test "ok model.base.transport" do
-    assert 0 == length(ESx.Transport.Connection.conns)
-
     Model.transport
 
     conn =

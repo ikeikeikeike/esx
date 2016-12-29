@@ -9,110 +9,162 @@ defmodule ESx.Model.AnalysisTest do
   alias ESX.Test.Support.Definition.{Model, Schema, NonameSchema, NoDSLSchema}
 
   test "ok schema.analysis.__es_analysis__" do
-    assert Schema.__es_analysis__(:to_map) == %{
-      properties: %{
-        content: %{
-          analyzer: "ngram_analyzer",
-          search_analyzer: "ngram_analyzer",
-          type: "string"
+    assert Schema.__es_analysis__(:to_map) ==  %{
+      analysis: %{
+        analyzer: %{
+          ngram_analyzer: %{
+            char_filter: ["html_strip", "kuromoji_neologd_iteration_mark"],
+            filter: ["lowercase", "kuromoji_neologd_stemmer", "cjk_width"],
+            tokenizer: "ngram_tokenizer"
+          }
         },
-        title: %{
-          analyzer: "ngram_analyzer",
-          search_analyzer: "ngram_analyzer",
-          type: "string"
+        tokenizer: %{
+          ngram_tokenizer: %{
+            max_gram: "3", min_gram: "2",
+            token_chars: ["letter", "digit"], type: "nGram"}
+        },
+        filter: %{
+          edge_ngram: %{
+            max_gram: 15, min_gram: 1,
+            type: "edgeNGram"
+          }
         }
       },
-      _all: %{enabled: false},
-      _ttl: %{default: "180d", enabled: true},
+      number_of_replicas: "5",
+      number_of_shards: "10"
     }
 
     assert Schema.__es_analysis__(:as_json) == %{
-      properties: %{
-        content: %{
-          analyzer: "ngram_analyzer",
-          search_analyzer: "ngram_analyzer",
-          type: "string"
+      analysis: %{
+        analyzer: %{
+          ngram_analyzer: %{
+            char_filter: ["html_strip", "kuromoji_neologd_iteration_mark"],
+            filter: ["lowercase", "kuromoji_neologd_stemmer", "cjk_width"],
+            tokenizer: "ngram_tokenizer"
+          }
         },
-        title: %{
-          analyzer: "ngram_analyzer",
-          search_analyzer: "ngram_analyzer",
-          type: "string"
+        tokenizer: %{
+          ngram_tokenizer: %{
+            max_gram: "3", min_gram: "2",
+            token_chars: ["letter", "digit"], type: "nGram"}
+        },
+        filter: %{
+          edge_ngram: %{
+            max_gram: 15, min_gram: 1,
+            type: "edgeNGram"
+          }
         }
       },
-      _all: %{enabled: false},
-      _ttl: %{default: "180d", enabled: true},
+      number_of_replicas: "5",
+      number_of_shards: "10"
     }
 
     assert Schema.__es_analysis__(:types) == [
-      title: [type: "string", analyzer: "ngram_analyzer", search_analyzer: "ngram_analyzer"],
-      content: [type: "string", analyzer: "ngram_analyzer", search_analyzer: "ngram_analyzer"],
+      analyzer: [
+        ngram_analyzer: [
+          tokenizer: "ngram_tokenizer",
+          char_filter: ["html_strip", "kuromoji_neologd_iteration_mark"],
+          filter: ["lowercase", "kuromoji_neologd_stemmer", "cjk_width"]
+        ]
+      ],
+      tokenizer: [
+        ngram_tokenizer: [
+          type: "nGram", min_gram: "2", max_gram: "3",
+          token_chars: ["letter", "digit"]
+        ]
+      ],
+      filter: [edge_ngram: [type: "edgeNGram", min_gram: 1, max_gram: 15]],
     ]
 
-    assert Schema.__es_analysis__(:type, :title) == [
-      type: "string", analyzer: "ngram_analyzer", search_analyzer: "ngram_analyzer"
+    assert Schema.__es_analysis__(:type, :analyzer) == [
+      ngram_analyzer: [
+        tokenizer: "ngram_tokenizer",
+        char_filter: ["html_strip", "kuromoji_neologd_iteration_mark"],
+        filter: ["lowercase", "kuromoji_neologd_stemmer", "cjk_width"]
+      ]
     ]
-    assert Schema.__es_analysis__(:type, :content) == [
-      type: "string", analyzer: "ngram_analyzer", search_analyzer: "ngram_analyzer"
-    ]
-    assert nil == Schema.__es_analysis__(:type, :unkown)
 
-    assert Schema.__es_analysis__(:settings) == [
-      _ttl: [enabled: true, default: "180d"], _all: [enabled: false]
+    assert Schema.__es_analysis__(:type, :tokenizer) == [
+      ngram_tokenizer: [type: "nGram", min_gram: "2", max_gram: "3", token_chars: ["letter", "digit"]]
     ]
+
+    assert Schema.__es_analysis__(:type, :filter) == [edge_ngram: [type: "edgeNGram", min_gram: 1, max_gram: 15]]
+
+    assert Schema.__es_analysis__(:type, :unkown) == nil
+
+    assert Schema.__es_analysis__(:settings) == [number_of_replicas: "5", number_of_shards: "10"]
   end
 
   test "ok schema.analysis.__es_analysis__ with no DSL" do
     assert NoDSLSchema.__es_analysis__(:to_map) == %{
-      properties: %{
-        content: %{
-          analyzer: "ngram_analyzer",
-          search_analyzer: "ngram_analyzer",
-          type: "string"
+      analysis: %{
+        analyzer: %{
+          ngram_analyzer: %{
+            char_filter: ["html_strip", "kuromoji_iteration_mark"],
+            filter: ["lowercase", "kuromoji_stemmer", "cjk_width"],
+            tokenizer: "ngram_tokenizer"
+          }
         },
-        title: %{
-          analyzer: "ngram_analyzer",
-          search_analyzer: "ngram_analyzer",
-          type: "string"
+        tokenizer: %{
+          ngram_tokenizer: %{
+            max_gram: "3", min_gram: "2",
+            token_chars: ["letter", "digit"], type: "nGram"}
+        },
+        filter: %{
+          edge_ngram: %{
+            max_gram: 15, min_gram: 1,
+            type: "edgeNGram"
+          }
         }
       },
-      _all: %{enabled: false},
-      _ttl: %{default: "180d", enabled: true},
+      number_of_replicas: "5",
+      number_of_shards: "10"
     }
 
     assert NoDSLSchema.__es_analysis__(:as_json) == %{
-      properties: %{
-        content: %{
-          analyzer: "ngram_analyzer",
-          search_analyzer: "ngram_analyzer",
-          type: "string"
+      analysis: %{
+        analyzer: %{
+          ngram_analyzer: %{
+            char_filter: ["html_strip", "kuromoji_iteration_mark"],
+            filter: ["lowercase", "kuromoji_stemmer", "cjk_width"],
+            tokenizer: "ngram_tokenizer"
+          }
         },
-        title: %{
-          analyzer: "ngram_analyzer",
-          search_analyzer: "ngram_analyzer",
-          type: "string"
+        tokenizer: %{
+          ngram_tokenizer: %{
+            max_gram: "3", min_gram: "2",
+            token_chars: ["letter", "digit"], type: "nGram"}
+        },
+        filter: %{
+          edge_ngram: %{
+            max_gram: 15, min_gram: 1,
+            type: "edgeNGram"
+          }
         }
       },
-      _all: %{enabled: false},
-      _ttl: %{default: "180d", enabled: true},
+      number_of_replicas: "5",
+      number_of_shards: "10"
     }
 
     assert NoDSLSchema.__es_analysis__(:types) == [
-      title: [type: "string", analyzer: "ngram_analyzer", search_analyzer: "ngram_analyzer"],
-      content: [type: "string", analyzer: "ngram_analyzer", search_analyzer: "ngram_analyzer"],
+      tokenizer: [ngram_tokenizer: [type: "nGram", token_chars: ["letter", "digit"], min_gram: "2", max_gram: "3"]],
+      analyzer: [ngram_analyzer: [tokenizer: "ngram_tokenizer", filter: ["lowercase", "kuromoji_stemmer", "cjk_width"], char_filter: ["html_strip", "kuromoji_iteration_mark"]]],
+      filter: [edge_ngram: [type: "edgeNGram", min_gram: 1, max_gram: 15]],
     ]
 
-    assert NoDSLSchema.__es_analysis__(:type, :title) == [
-      type: "string", analyzer: "ngram_analyzer", search_analyzer: "ngram_analyzer"
-    ]
-    assert NoDSLSchema.__es_analysis__(:type, :content) == [
-      type: "string", analyzer: "ngram_analyzer", search_analyzer: "ngram_analyzer"
-    ]
-    assert nil == NoDSLSchema.__es_analysis__(:type, :unkown)
-
-    assert NoDSLSchema.__es_analysis__(:settings) == [
-      _ttl: [enabled: true, default: "180d"], _all: [enabled: false]
+    assert NoDSLSchema.__es_analysis__(:type, :analyzer) == [
+      ngram_analyzer: [tokenizer: "ngram_tokenizer", filter: ["lowercase", "kuromoji_stemmer", "cjk_width"], char_filter: ["html_strip", "kuromoji_iteration_mark"]]
     ]
 
+    assert NoDSLSchema.__es_analysis__(:type, :tokenizer) == [
+      ngram_tokenizer: [type: "nGram", token_chars: ["letter", "digit"], min_gram: "2", max_gram: "3"]
+    ]
+
+    assert NoDSLSchema.__es_analysis__(:type, :filter) == [edge_ngram: [type: "edgeNGram", min_gram: 1, max_gram: 15]]
+
+    assert NoDSLSchema.__es_analysis__(:type, :unkown) == nil
+
+    assert NoDSLSchema.__es_analysis__(:settings) == [number_of_replicas: "5", number_of_shards: "10"]
   end
 
 end
