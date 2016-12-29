@@ -61,24 +61,21 @@ defmodule ESx.Model.Base do
         Indices.create transport, %{index: index, body: body}
       end
 
-      # TODO: change keyword to opts
-      def index_exists?(schema, opts \\ %{}) do
+      def index_exists?(schema, opts \\ []) do
         mod   = Funcs.to_mod schema
         index = opts[:index] || mod.__es_naming__(:index_name)
 
         Indices.exists? transport, %{index: index}
       end
 
-      # TODO: change keyword to opts
-      def delete_index(schema, opts \\ %{}) do
+      def delete_index(schema, opts \\ []) do
         mod   = Funcs.to_mod schema
         index = opts[:index] || mod.__es_naming__(:index_name)
 
         Indices.delete transport, %{index: index}
       end
 
-      # TODO: change keyword to opts
-      def refresh_index(schema, opts \\ %{}) do
+      def refresh_index(schema, opts \\ []) do
         mod   = Funcs.to_mod schema
         index = opts[:index] || mod.__es_naming__(:index_name)
 

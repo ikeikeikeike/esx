@@ -75,14 +75,19 @@ defmodule ESx.Model.BaseTest do
     assert %{body: %{}, index: "my-index", type: "my-type"} == rsp
   end
 
-  test "ok model.base.create_index" do
-    Model.delete_index(Schema, %{})
+  test "ok model.base.create_index with some of operation" do
+    Model.delete_index(Schema)
+    Model.delete_index(Schema, index: "abc-index")
 
-    rsp = Model.create_index(Schema, %{})
-    assert ok(rsp, & &1["acknowledged"]) == true
+    assert ok(Model.create_index(Schema), & &1["acknowledged"]) == true
+    assert ok(Model.refresh_index(Schema), & get_in(&1, ["_shards", "failed"])) == 0
+    assert Model.index_exists?(Schema) == true
+    assert ok(Model.delete_index(Schema), & &1["acknowledged"]) == true
 
-    rsp = Model.delete_index(Schema, %{})
-    assert ok(rsp, & &1["acknowledged"]) == true
+    assert ok(Model.create_index(Schema, index: "abc-index"), & &1["acknowledged"]) == true
+    assert ok(Model.refresh_index(Schema, index: "abc-index"), & get_in(&1, ["_shards", "failed"])) == 0
+    assert Model.index_exists?(Schema, index: "abc-index") == true
+    assert ok(Model.delete_index(Schema, index: "abc-index"), & &1["acknowledged"]) == true
   end
 
 end
