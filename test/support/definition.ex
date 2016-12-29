@@ -16,7 +16,7 @@ defmodule ESX.Test.Support.Definition do
     index_name    "test_schema_index"
     document_type "test_schema_type"
 
-    mapping do
+    mapping _ttl: [enabled: true, default: "180d"], _all: [enabled: false] do
       indexes :title, type: "string",
         analyzer: "ngram_analyzer",
         search_analyzer: "ngram_analyzer"
@@ -25,7 +25,7 @@ defmodule ESX.Test.Support.Definition do
         search_analyzer: "ngram_analyzer"
     end
 
-    settings do
+    settings number_of_replicas: "5", number_of_shards: "10" do
       analysis do
         analyzer :ngram_analyzer,
           tokenizer: "ngram_tokenizer",
@@ -47,5 +47,69 @@ defmodule ESX.Test.Support.Definition do
     use ESx.Schema
   end
 
+  defmodule NoDSLSchema do
+    @moduledoc false
+
+    use ESx.Schema
+
+    defstruct [:id, :title]
+
+    index_name    "test_no_dsl_schema_index"
+    document_type "test_no_dsl_schema_type"
+
+    mapping [
+      _ttl: [
+        enabled: true,
+        default: "180d",
+      ],
+      _all: [
+        enabled: false,
+      ],
+      properties: [
+        title: [
+          type: "string",
+          analyzer: "ngram_analyzer",
+          search_analyzer: "ngram_analyzer",
+        ],
+        content: [
+          type: "string",
+          analyzer: "ngram_analyzer",
+          search_analyzer: "ngram_analyzer",
+        ]
+      ]
+    ]
+
+    settings [
+      number_of_replicas: "5",
+      number_of_shards: "10",
+      analysis: [
+        tokenizer: [
+          ngram_tokenizer: [
+            type: "nGram",
+            token_chars: [
+              "letter",
+              "digit"
+            ],
+            min_gram: "2",
+            max_gram: "3"
+          ]
+        ],
+        analyzer: [
+          ngram_analyzer: [
+            tokenizer: "ngram_tokenizer",
+            filter: [
+              "lowercase",
+              "kuromoji_stemmer",
+              "cjk_width"
+            ],
+            char_filter: [
+              "html_strip",
+              "kuromoji_iteration_mark"
+            ]
+          ]
+        ]
+      ]
+    ]
+  end
 
 end

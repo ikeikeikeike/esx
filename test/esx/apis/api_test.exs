@@ -8,7 +8,7 @@ defmodule ESx.APIs.APITest do
 
   alias ESx.{Transport, API, API.Indices}
 
-  @ts %Transport{}
+  @ts %Transport{trace: false}
 
   test "ok apis.api.info" do
     rsp = API.info(@ts)

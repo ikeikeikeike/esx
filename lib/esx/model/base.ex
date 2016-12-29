@@ -1,4 +1,5 @@
 defmodule ESx.Model.Base do
+
   @doc false
   defmacro __using__(opts) do
     opts = Keyword.update opts, :app, :esx, & &1
@@ -22,7 +23,7 @@ defmodule ESx.Model.Base do
 
       alias ESx.{Funcs, API, API.Indices}
 
-      def search(queryable, query_or_payload, opts \\ %{}) do
+      def search(queryable, query_or_payload, opts \\ []) do
         mod   = Funcs.to_mod queryable
         index = opts[:index] || mod.__es_naming__(:index_name)
         type  = opts[:type]  || mod.__es_naming__(:document_type)
@@ -43,7 +44,7 @@ defmodule ESx.Model.Base do
         ESx.Model.Search.wrap __MODULE__, queryable, args
       end
 
-      def create_index(schema, opts \\ %{}) do
+      def create_index(schema, opts \\ []) do
         mod   = Funcs.to_mod schema
         index = opts[:index] || mod.__es_naming__(:index_name)
         type  = opts[:type]  || mod.__es_naming__(:document_type)
@@ -60,6 +61,7 @@ defmodule ESx.Model.Base do
         Indices.create transport, %{index: index, body: body}
       end
 
+      # TODO: change keyword to opts
       def index_exists?(schema, opts \\ %{}) do
         mod   = Funcs.to_mod schema
         index = opts[:index] || mod.__es_naming__(:index_name)
@@ -67,6 +69,7 @@ defmodule ESx.Model.Base do
         Indices.exists? transport, %{index: index}
       end
 
+      # TODO: change keyword to opts
       def delete_index(schema, opts \\ %{}) do
         mod   = Funcs.to_mod schema
         index = opts[:index] || mod.__es_naming__(:index_name)
@@ -74,6 +77,7 @@ defmodule ESx.Model.Base do
         Indices.delete transport, %{index: index}
       end
 
+      # TODO: change keyword to opts
       def refresh_index(schema, opts \\ %{}) do
         mod   = Funcs.to_mod schema
         index = opts[:index] || mod.__es_naming__(:index_name)
@@ -81,6 +85,7 @@ defmodule ESx.Model.Base do
         Indices.refresh transport, %{index: index}
       end
 
+      # TODO: change keyword to opts
       def import(schema, opts \\ %{}) do
         mod  = Funcs.to_mod schema
 
@@ -90,7 +95,7 @@ defmodule ESx.Model.Base do
 
         results =
           stream(schema, opts)
-          |> Stream.chunk(50000, 50000, [])
+          |> Stream.chunk(50_000, 50_000, [])
           |> Stream.map(fn chunk ->
             body = Enum.map chunk, &transform/1
             args = %{
@@ -112,6 +117,7 @@ defmodule ESx.Model.Base do
 
       # TODO: __changed_attributes, update_document
 
+      # TODO: change keyword to opts
       def index_document(%{} = schema, opts \\ %{}) do
         mod  = Funcs.to_mod schema
         args = Map.merge %{
@@ -124,6 +130,7 @@ defmodule ESx.Model.Base do
         API.index transport, args
       end
 
+      # TODO: change keyword to opts
       def delete_document(%{} = schema, opts \\ %{}) do
         mod  = Funcs.to_mod schema
         args = Map.merge %{

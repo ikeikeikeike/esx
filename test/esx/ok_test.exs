@@ -12,8 +12,8 @@ defmodule ESx.ChecksTest do
     assert ok({:ok, m}, & &1[:ok]) == true
     assert ok({:ok, m}) == true
 
-    assert ok({:error, m}, & &1[:ok]) == false
-    assert ok({:error, m}, & &1[:ok]) == false
+    assert ok({:error, m}, & &1[:ok]) == {:ng, %{ok: true}}
+    assert ok({:error, m}) == {:ng, %{ok: true}}
   end
 
 end

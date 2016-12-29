@@ -63,7 +63,7 @@ defmodule ESx.API do
     params = Utils.extract_params args
     body   = args[:body]
 
-    # TODO: The args will become querystring in Transport.perform_request
+    # TODO: The args will become querystring for sets into Transport.perform_request
     params =
       Map.merge params, (if fields = params[:fields] do
         %{fields: Utils.listify(fields)}

@@ -36,10 +36,7 @@ defmodule ESx.Transport do
   alias ESx.Funcs
   alias ESx.Transport.{State, Sniffer, Connection, ServerError, UnknownError}
 
-  defstruct [
-    method: "GET",
-    trace: false,
-  ]
+  defstruct [method: "GET", path: "", params: %{}, body: nil, trace: false]
 
   @type t :: %__MODULE__{}
 
@@ -101,7 +98,6 @@ defmodule ESx.Transport do
         |> Enum.filter(& !!&1)
 
       stale_conns = old_conns -- new_conns
-
       Enum.each stale_conns, &Connection.delete/1
 
       new_conns
@@ -115,6 +111,9 @@ defmodule ESx.Transport do
     |> Enum.filter_map(& &1.dead, &Connection.resurrect!/1)
   end
 
+  def perform_request(%__MODULE__{} = ts) do
+    perform_request ts, ts.method, ts.path, ts.params, ts.body
+  end
   def perform_request(%__MODULE__{} = ts, method, path, params \\ %{}, body \\ nil) do
     method = if "GET" == method && body, do: ts.method, else: method
     body =
@@ -125,7 +124,11 @@ defmodule ESx.Transport do
           body || ""
       end
 
-    do_perform_request method, path, params, body
+    do_perform_request struct(ts, [
+      method: method, path: path, params: params, body: body])
+  end
+  def perform_request!(%__MODULE__{} = ts) do
+    perform_request! ts, ts.method, ts.path, ts.params, ts.body
   end
   def perform_request!(%__MODULE__{} = ts, method, path, params \\ %{}, body \\ nil) do
     case perform_request(ts, method, path, params, body) do
@@ -134,25 +137,27 @@ defmodule ESx.Transport do
     end
   end
 
-  defp do_perform_request(method, path, params, body, tries \\ 0) do
+  defp do_perform_request(%__MODULE__{} = ts, tries \\ 0) do
     cn    = Connection.checkout conn()
     tries = tries + 1
 
     headers = [{"Content-Type", "application/json"}, {"Connection", "keep-alive"}]
     options = [hackney: [pool: cn.pidname]]
-    uri     =
+    url     =
       cn.url
-      |> Funcs.merge(path)
-      |> Funcs.merge("?" <> URI.encode_query params)
+      |> Funcs.merge(ts.path)
+      |> Funcs.merge("?" <> URI.encode_query ts.params)
       |> URI.to_string
 
+    if ts.trace and tries == 1, do: traceout ts.method, url, ts.body
+
     resp =
-      case method do
-        "GET"    -> cn.client.request :get,    uri, body, headers, options
-        "PUT"    -> cn.client.request :put,    uri, body, headers, options
-        "POST"   -> cn.client.request :post,   uri, body, headers, options
-        "HEAD"   -> cn.client.request :head,   uri, body, headers, options
-        "DELETE" -> cn.client.request :delete, uri, body, headers, options
+      case ts.method do
+        "GET"    -> cn.client.request :get,    url, ts.body, headers, options
+        "PUT"    -> cn.client.request :put,    url, ts.body, headers, options
+        "POST"   -> cn.client.request :post,   url, ts.body, headers, options
+        "HEAD"   -> cn.client.request :head,   url, ts.body, headers, options
+        "DELETE" -> cn.client.request :delete, url, ts.body, headers, options
         method   -> {:error, %ArgumentError{message: "Method #{method} not supported"}}
       end
 
@@ -162,7 +167,6 @@ defmodule ESx.Transport do
       case resp do
         {:ok, %HTTPoison.Response{status_code: status}} when status < 300 ->
 
-          # TODO: if ts.trace, do: traceout method, uri, body
           if cn.failures > 0, do: Connection.healthy! cn
 
           resp
@@ -172,11 +176,11 @@ defmodule ESx.Transport do
 
           if tries <= s.max_retries and status in s.retry_on_status do
             Logger.warn "[retry_on_status] Retries #{tries}/#{s.max_retries} " <>
-                        "connecting to #{uri}"
+                        "connecting to #{url}"
 
-            do_perform_request method, path, params, body, tries
+            do_perform_request ts, tries
           else
-            msg = "[#{status}] Couldn't get response from #{uri} after " <>
+            msg = "[#{status}] Couldn't get response from #{url} after " <>
                   "#{tries} tries: #{rbody}"
 
             Logger.warn msg
@@ -185,7 +189,7 @@ defmodule ESx.Transport do
 
         # Failure
         {:error, %HTTPoison.Error{reason: reason} = error} ->
-          Logger.error "Close connection to #{uri}: #{reason}"
+          Logger.error "Close connection to #{url}: #{reason}"
           Connection.dead! cn
 
           cond do
@@ -194,20 +198,20 @@ defmodule ESx.Transport do
                           "(retries #{tries}/#{length(Connection.conns)})"
               rebuild_conns()
 
-              do_perform_request method, path, params, body, tries
+              do_perform_request ts, tries
 
             s.retry_on_failure and tries <= s.max_retries ->
               Logger.warn "[retry_on_failure] Retries #{tries}/#{s.max_retries} " <>
-                          "connecting to #{uri}"
+                          "connecting to #{url}"
 
-              do_perform_request method, path, params, body, tries
+              do_perform_request ts, tries
 
             true ->
               {:error, error}
           end
 
         error ->
-          msg = "[unknown] uri:#{uri} tries:#{tries}"
+          msg = "[unknown] url:#{url} tries:#{tries}"
           Logger.error msg
 
           {:error, UnknownError.wrap error: error, message: msg}
@@ -226,15 +230,15 @@ defmodule ESx.Transport do
   defp traceout(out) when is_binary(out) do
     Logger.debug out
   end
-  defp traceout(method, uri, "") do
-    traceout "curl -X #{method} '#{uri}'\n"
+  defp traceout(method, url, "") do
+    traceout "curl -X #{method} '#{url}'\n"
   end
-  defp traceout(method, uri, body) when is_binary(body) do
+  defp traceout(method, url, body) when is_binary(body) do
     case JSX.prettify(body) do
       {:ok, pretitfied} ->
-        traceout "curl -X #{method} '#{uri}' -d '#{pretitfied}'\n"
+        traceout "curl -X #{method} '#{url}' -d '#{pretitfied}'\n"
       {:error, message} ->
-        traceout "curl -X #{method} '#{uri}' -d '#### couldn't prettify body ####'\n"
+        traceout "curl -X #{method} '#{url}' -d '#### couldn't prettify body ####'\n"
     end
   end
 
