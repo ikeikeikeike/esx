@@ -1,6 +1,7 @@
 # ESx
 
 [![Build Status](http://img.shields.io/travis/ikeikeikeike/esx.svg?style=flat-square)](http://travis-ci.org/ikeikeikeike/esx)
+[![Ebert](https://ebertapp.io/github/ikeikeikeike/esx.svg)](https://ebertapp.io/github/ikeikeikeike/esx)
 [![Hex version](https://img.shields.io/hexpm/v/esx.svg "Hex version")](https://hex.pm/packages/esx)
 [![Inline docs](https://inch-ci.org/github/ikeikeikeike/esx.svg)](http://inch-ci.org/github/ikeikeikeike/esx)
 [![Lisence](https://img.shields.io/hexpm/l/ltsv.svg)](https://github.com/ikeikeikeike/esx/blob/master/LICENSE)
