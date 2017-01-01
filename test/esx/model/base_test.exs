@@ -4,9 +4,9 @@ defmodule ESx.Model.BaseTest do
   use ExUnit.Case
   doctest ESx
 
-  import ESX.Test.Support.Checks
+  import ESx.Test.Support.Checks
 
-  alias ESX.Test.Support.Definition.{Model, Schema, NonameSchema}
+  alias ESx.Test.Support.Definition.{Model, Schema, NonameSchema}
 
   test "ok model.base no names" do
     rsp =  Model.search NonameSchema, %{}
@@ -51,13 +51,6 @@ defmodule ESx.Model.BaseTest do
     assert "http://localhost:9200" == ESx.Funcs.decid(conn.pidname)
   end
 
-  test "ok model.base.repo" do
-    assert nil == Model.repo
-  end
-
-  test "ok model.base.search with repo" do
-  end
-
   test "ok model.base.search" do
     rsp = Model.search(Schema, ~s({"some": "of", "queries": "s*"})).args.body
     assert "{\"some\": \"of\", \"queries\": \"s*\"}" ==  rsp
@@ -88,6 +81,17 @@ defmodule ESx.Model.BaseTest do
     assert ok(Model.refresh_index(Schema, index: "abc-index"), & get_in(&1, ["_shards", "failed"])) == 0
     assert Model.index_exists?(Schema, index: "abc-index") == true
     assert ok(Model.delete_index(Schema, index: "abc-index"), & &1["acknowledged"]) == true
+  end
+
+  test "ok model.base.repo" do
+    assert nil == Model.repo
+  end
+
+  test "ok model.base.search with repo" do
+  end
+
+  test "ok apis.api.reindex with repo" do
+    # IO.inspect Model.reindex Schema
   end
 
 end

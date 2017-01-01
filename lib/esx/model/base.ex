@@ -82,13 +82,51 @@ defmodule ESx.Model.Base do
         Indices.refresh transport, %{index: index}
       end
 
+      def reindex(schema, opts \\ []) do
+        makeidx       = & "#{&1}_#{:os.system_time}"
+        mod           = Funcs.to_mod schema
+        {index, opts} = Keyword.pop opts, :index, mod.__es_naming__(:index_name)
+        {type, opts}  = Keyword.pop opts, :type, mod.__es_naming__(:document_type)
+
+        # create new index if cluster doesn't have that.
+        unless Indices.exists_alias?(transport, index: index) do
+          newidx = makeidx.(index)
+
+          create_index schema, index: newidx
+
+          Indices.put_alias transport, %{name: index, index: newidx}
+        end
+
+        newidx = makeidx.(index)
+        oldidx =
+          Indices.get_alias!(transport, index: index)
+          |> Map.keys
+          |> hd
+
+        # Create index
+        create_index schema, index: newidx
+
+        # Import
+        __MODULE__.import(schema, opts)
+
+        # Changes alias
+        Indices.update_aliases transport, %{body: %{
+          actions: [
+            %{remove: %{index: oldidx, alias: index}},
+            %{add:    %{index: newidx, alias: index}},
+          ]
+        }}
+
+        delete_index schema, index: oldidx
+      end
+
       # TODO: change keyword to opts
-      def import(schema, opts \\ %{}) do
+      def import(schema, opts \\ []) do
         mod  = Funcs.to_mod schema
 
-        {refresh, opts} = Map.pop opts, :refresh, false
-        {index, opts}   = Map.pop opts, :index, mod.__es_naming__(:index_name)
-        {type, opts}    = Map.pop opts, :type, mod.__es_naming__(:document_type)
+        {refresh, opts} = Keyword.pop opts, :refresh, false
+        {index, opts}   = Keyword.pop opts, :index, mod.__es_naming__(:index_name)
+        {type, opts}    = Keyword.pop opts, :type, mod.__es_naming__(:document_type)
 
         results =
           stream(schema, opts)

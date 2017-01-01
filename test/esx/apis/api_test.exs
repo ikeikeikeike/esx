@@ -4,7 +4,7 @@ defmodule ESx.APIs.APITest do
   use ExUnit.Case
   doctest ESx
 
-  import ESX.Test.Support.Checks
+  import ESx.Test.Support.Checks
 
   alias ESx.{Transport, API, API.Indices}
 

@@ -7,12 +7,12 @@ if Code.ensure_loaded?(Ecto) do
         require Ecto.Query
 
         # https://github.com/DavidAntaramian/tributary/
-        defp stream(queryable, opts \\ %{}) do
+        defp stream(queryable, opts \\ []) do
 
-          chunk_size  = Map.get(opts, :chunk_size, 10000)
-          key_name    = Map.get(opts, :key_name, :id)
-          order_name  = Map.get(opts, :order_name, :id)
-          initial_key = Map.get(opts, :initial_key, 0)
+          chunk_size  = Keyword.get(opts, :chunk_size, 10000)
+          key_name    = Keyword.get(opts, :key_name, :id)
+          order_name  = Keyword.get(opts, :order_name, :id)
+          initial_key = Keyword.get(opts, :initial_key, 0)
 
           Stream.resource(
             fn -> {queryable, initial_key} end,
@@ -47,7 +47,7 @@ else
   defmodule ESx.Model.Ecto do
     defmacro __using__(_) do
       quote do
-        defp stream(_query, _opts \\ %{}) do
+        defp stream(_query, _opts \\ []) do
           raise "could not load `Ecto` module. please install it."
         end
         defp transform(_schema) do

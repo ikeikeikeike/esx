@@ -4,6 +4,16 @@ defmodule ESx.API.Indices do
   alias ESx.API.Utils
   alias ESx.Transport
 
+  def create(ts, %{index: index, body: body} = args) when is_map(body) do
+    method = "PUT"
+    path   = Utils.pathify [Utils.escape(index)]
+    params = Utils.extract_params args
+    body   = body
+
+    Transport.perform_request(ts, method, path, params, body)
+    |> response
+  end
+
   def delete(ts, args \\ %{}) do
     method = "DELETE"
     path   = Utils.pathify Utils.listify(args[:index])
@@ -27,16 +37,6 @@ defmodule ESx.API.Indices do
     exists ts, args
   end
 
-  def create(ts, %{index: index, body: body} = args) when is_map(body) do
-    method = "PUT"
-    path   = Utils.pathify [Utils.escape(index)]
-    params = Utils.extract_params args
-    body   = body
-
-    Transport.perform_request(ts, method, path, params, body)
-    |> response
-  end
-
   def get_alias(ts, args \\ %{}) do
     method = "GET"
     path   = Utils.pathify [Utils.listify(args[:index]), "_alias", Utils.escape(args[:name])]
@@ -45,6 +45,10 @@ defmodule ESx.API.Indices do
 
     Transport.perform_request(ts, method, path, params, body)
     |> response
+  end
+  def get_alias!(ts, args \\ %{}) do
+    get_alias(ts, args)
+    |> response!
   end
 
   def get_aliases(ts, args \\ %{}) do

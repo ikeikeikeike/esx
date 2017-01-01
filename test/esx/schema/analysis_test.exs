@@ -4,9 +4,9 @@ defmodule ESx.Model.AnalysisTest do
   use ExUnit.Case
   doctest ESx
 
-  import ESX.Test.Support.Checks
+  import ESx.Test.Support.Checks
 
-  alias ESX.Test.Support.Definition.{Model, Schema, NonameSchema, NoDSLSchema}
+  alias ESx.Test.Support.Definition.{Model, Schema, NonameSchema, NoDSLSchema}
 
   test "ok schema.analysis.__es_analysis__" do
     assert Schema.__es_analysis__(:to_map) ==  %{

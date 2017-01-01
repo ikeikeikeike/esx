@@ -1,4 +1,4 @@
-defmodule ESX.Test.Support.Checks do
+defmodule ESx.Test.Support.Checks do
   @moduledoc false
 
   def ok({:ok, _value}), do: true

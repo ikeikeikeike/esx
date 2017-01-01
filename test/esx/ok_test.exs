@@ -4,7 +4,7 @@ defmodule ESx.ChecksTest do
   use ExUnit.Case
   doctest ESx
 
-  import ESX.Test.Support.Checks
+  import ESx.Test.Support.Checks
 
   test "ok.test" do
     m = %{ok: true}

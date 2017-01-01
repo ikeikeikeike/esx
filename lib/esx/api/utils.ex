@@ -8,10 +8,16 @@ defmodule ESx.API.Utils do
   def extract_params(args) when is_map(args) do
     Map.drop args, @unexpected_fields
   end
-
-  def extract_params(args, keys) when is_list(keys) do
+  def extract_params(args) when is_list(args) do
+    Keyword.drop args, @unexpected_fields
+  end
+  def extract_params(args, keys) when is_map(args) and is_list(keys) do
     args = extract_params args
     Map.drop args, keys
+  end
+  def extract_params(args, keys) when is_list(args) and is_list(keys) do
+    args = extract_params args
+    Keyword.drop args, keys
   end
 
   def escape(string) when string == "*", do: string

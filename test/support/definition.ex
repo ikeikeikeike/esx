@@ -1,4 +1,4 @@
-defmodule ESX.Test.Support.Definition do
+defmodule ESx.Test.Support.Definition do
 
   defmodule Model do
     @moduledoc false
