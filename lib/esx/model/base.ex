@@ -130,7 +130,7 @@ defmodule ESx.Model.Base do
 
         results =
           stream(schema, opts)
-          |> Stream.chunk(50_000, 50_000, [])
+          |> Stream.chunk(10_000, 10_000, [])
           |> Stream.map(fn chunk ->
             body = Enum.map chunk, &transform(&1, opts)
             args = %{
