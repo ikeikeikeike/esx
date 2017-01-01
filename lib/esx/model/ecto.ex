@@ -9,7 +9,7 @@ if Code.ensure_loaded?(Ecto) do
         # https://github.com/DavidAntaramian/tributary/
         defp stream(queryable, opts \\ []) do
 
-          chunk_size  = Keyword.get(opts, :chunk_size, 10000)
+          chunk_size  = Keyword.get(opts, :chunk_size, 10_000)
           key_name    = Keyword.get(opts, :key_name, :id)
           order_name  = Keyword.get(opts, :order_name, :id)
           initial_key = Keyword.get(opts, :initial_key, 0)
@@ -35,9 +35,9 @@ if Code.ensure_loaded?(Ecto) do
           )
         end
 
-        defp transform(schema) do
+        defp transform(schema, opts) do
           mod  = ESx.Funcs.to_mod schema
-          %{index: %{ _id: schema.id, data: mod.as_indexed_json(schema)}}
+          %{index: %{_id: schema.id, data: mod.as_indexed_json(schema, opts)}}
         end
 
       end
@@ -50,7 +50,7 @@ else
         defp stream(_query, _opts \\ []) do
           raise "could not load `Ecto` module. please install it."
         end
-        defp transform(_schema) do
+        defp transform(_schema, _opts) do
           raise "could not load `Ecto` module. please install it."
         end
       end
