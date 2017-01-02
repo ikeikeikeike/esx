@@ -86,15 +86,17 @@ defmodule ESx.Model.Base do
         makeidx       = & "#{&1}_#{:os.system_time}"
         mod           = Funcs.to_mod schema
         {index, opts} = Keyword.pop opts, :index, mod.__es_naming__(:index_name)
-        {type, opts}  = Keyword.pop opts, :type, mod.__es_naming__(:document_type)
 
         # create new index if cluster doesn't have that.
-        unless Indices.exists_alias?(transport, index: index) do
-          newidx = makeidx.(index)
+        case Indices.get_alias(transport, index: index) do
+          {:error, _} ->
+            newidx = makeidx.(index)
 
-          create_index schema, index: newidx
+            create_index schema, index: newidx
 
-          Indices.put_alias transport, %{name: index, index: newidx}
+            Indices.put_alias transport, %{name: index, index: newidx}
+          _ ->
+            nil
         end
 
         newidx = makeidx.(index)
@@ -107,7 +109,7 @@ defmodule ESx.Model.Base do
         create_index schema, index: newidx
 
         # Import
-        __MODULE__.import(schema, opts)
+        __MODULE__.import(schema, index: newidx)
 
         # Changes alias
         Indices.update_aliases transport, %{body: %{
@@ -120,7 +122,6 @@ defmodule ESx.Model.Base do
         delete_index schema, index: oldidx
       end
 
-      # TODO: change keyword to opts
       def import(schema, opts \\ []) do
         mod  = Funcs.to_mod schema
 
