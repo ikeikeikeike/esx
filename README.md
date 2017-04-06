@@ -12,21 +12,21 @@ A client for the Elasticsearch, written in Elixir
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
 
-  1. Add `esx` to your list of dependencies in `mix.exs`:
+1. Add `esx` to your list of dependencies in `mix.exs`:
 
-    ```elixir
-    def deps do
-      [{:esx, "~> 0.2"}]
-    end
-    ```
+```elixir
+def deps do
+  [{:esx, "~> 0.2"}]
+end
+```
 
-  2. Ensure `esx` is started before your application:
+2. Ensure `esx` is started before your application:
 
-    ```elixir
-    def application do
-      [applications: [:esx]]
-    end
-    ```
+```elixir
+def application do
+  [applications: [:esx]]
+end
+```
 
 ## Configuration
 

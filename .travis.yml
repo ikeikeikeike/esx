@@ -8,8 +8,14 @@ otp_release:
   - 18.3
   - 19.2
 
+dist: trusty
+
+env:
+  - JDK=openjdk8
+
 before_install:
   - sudo apt-get update -qq
+  - jdk_switcher use $JDK
   - ./test/build.sh
 
 after_script:

@@ -1,8 +1,6 @@
 defmodule ESx.Transport.Selector do
 
   defmodule Base do
-    use Behaviour
-
     @callback select(conns::List.t) :: ESx.Transport.Connection.t | {:error, term}
   end
 

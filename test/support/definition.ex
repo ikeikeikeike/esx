@@ -51,7 +51,6 @@ defmodule ESx.Test.Support.Definition do
 
   defmodule NoDSLSchema do
     @moduledoc false
-
     use ESx.Schema
 
     defstruct [:id, :title]
@@ -114,6 +113,52 @@ defmodule ESx.Test.Support.Definition do
         ]
       ]
     ]
+  end
+
+  defmodule RepoSchema do
+    @moduledoc false
+    use ESx.Schema
+    use Ecto.Schema
+
+    import Ecto
+    import Ecto.Changeset
+    import Ecto.Query
+
+    schema "repos" do
+      field :title, :string
+
+      timestamps()
+    end
+
+    index_name    "test_repo_schema_index"
+    document_type "test_repo_schema_type"
+
+    mapping _all: [enabled: false] do
+      indexes :title, type: "string",
+        analyzer: "ngram_analyzer",
+        search_analyzer: "ngram_analyzer"
+      indexes :content, type: "string",
+        analyzer: "ngram_analyzer",
+        search_analyzer: "ngram_analyzer"
+    end
+
+    settings number_of_replicas: "5", number_of_shards: "10" do
+      analysis do
+        analyzer :ngram_analyzer,
+          tokenizer: "ngram_tokenizer",
+          char_filter: ["html_strip", "kuromoji_neologd_iteration_mark"],
+          filter: ["lowercase", "kuromoji_neologd_stemmer", "cjk_width"]
+        tokenizer :ngram_tokenizer,
+          type: "nGram", min_gram: "2", max_gram: "3",
+          token_chars: ["letter", "digit"]
+        filter "edge_ngram",
+          type: "edgeNGram", min_gram: 1, max_gram: 15
+      end
+    end
+
+    def as_indexed_json(%{} = schema, opts) do
+      super(schema, opts)
+    end
   end
 
 end
