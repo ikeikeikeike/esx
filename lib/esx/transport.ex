@@ -49,7 +49,7 @@ defmodule ESx.Transport do
         |> Enum.into([])
         |> transport()
       _ ->
-        transport defconfig
+        transport defconfig()
     end
   end
   def transport(args) do

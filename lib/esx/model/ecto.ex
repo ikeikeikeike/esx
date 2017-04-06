@@ -22,7 +22,7 @@ if Code.ensure_loaded?(Ecto) do
                 |> Ecto.Query.where([r], field(r, ^key_name) > ^last_seen_key)
                 |> Ecto.Query.limit(^chunk_size)
                 |> Ecto.Query.order_by(^order_name)
-                |> repo.all # (Enum.into(opts, []))
+                |> repo().all # (Enum.into(opts, []))
 
               case List.last(results) do
                 %{^key_name => last_key} ->

@@ -16,7 +16,7 @@ defmodule ESx.Model.Base do
         @config
       end
       def transport do
-        ESx.Transport.transport config
+        ESx.Transport.transport config()
       end
 
       use ESx.Model.Ecto
@@ -58,28 +58,28 @@ defmodule ESx.Model.Base do
           end
 
         body = Map.merge %{mappings: Map.new([{type, properties}])}, analysis
-        Indices.create transport, %{index: index, body: body}
+        Indices.create transport(), %{index: index, body: body}
       end
 
       def index_exists?(schema, opts \\ []) do
         mod   = Funcs.to_mod schema
         index = opts[:index] || mod.__es_naming__(:index_name)
 
-        Indices.exists? transport, %{index: index}
+        Indices.exists? transport(), %{index: index}
       end
 
       def delete_index(schema, opts \\ []) do
         mod   = Funcs.to_mod schema
         index = opts[:index] || mod.__es_naming__(:index_name)
 
-        Indices.delete transport, %{index: index}
+        Indices.delete transport(), %{index: index}
       end
 
       def refresh_index(schema, opts \\ []) do
         mod   = Funcs.to_mod schema
         index = opts[:index] || mod.__es_naming__(:index_name)
 
-        Indices.refresh transport, %{index: index}
+        Indices.refresh transport(), %{index: index}
       end
 
       def reindex(schema, opts \\ []) do
@@ -88,20 +88,20 @@ defmodule ESx.Model.Base do
         {index, opts} = Keyword.pop opts, :index, mod.__es_naming__(:index_name)
 
         # create new index if cluster doesn't have that.
-        case Indices.get_alias(transport, index: index) do
+        case Indices.get_alias(transport(), index: index) do
           {:error, _} ->
             newidx = makeidx.(index)
 
             create_index schema, index: newidx
 
-            Indices.put_alias transport, %{name: index, index: newidx}
+            Indices.put_alias transport(), %{name: index, index: newidx}
           _ ->
             nil
         end
 
         newidx = makeidx.(index)
         oldidx =
-          Indices.get_alias!(transport, index: index)
+          Indices.get_alias!(transport(), index: index)
           |> Map.keys
           |> hd
 
@@ -112,7 +112,7 @@ defmodule ESx.Model.Base do
         __MODULE__.import(schema, index: newidx)
 
         # Changes alias
-        Indices.update_aliases transport, %{body: %{
+        Indices.update_aliases transport(), %{body: %{
           actions: [
             %{remove: %{index: oldidx, alias: index}},
             %{add:    %{index: newidx, alias: index}},
@@ -140,7 +140,7 @@ defmodule ESx.Model.Base do
               body:  body
             }
 
-            API.bulk transport, args
+            API.bulk transport(), args
           end)
           |> Stream.filter(fn
             {:ok, %{"errors" => false}} -> false
@@ -163,7 +163,7 @@ defmodule ESx.Model.Base do
             body:  mod.as_indexed_json(schema, opts),
         }, opts
 
-        API.index transport, args
+        API.index transport(), args
       end
 
       # TODO: change keyword to opts
@@ -175,7 +175,7 @@ defmodule ESx.Model.Base do
             id:    schema.id,
         }, opts
 
-        API.delete transport, args
+        API.delete transport(), args
       end
 
       defdelegate records(search, queryable), to: ESx.Model.Response, as: :records

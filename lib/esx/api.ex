@@ -5,7 +5,7 @@ defmodule ESx.API do
   alias ESx.Transport
 
   def info(ts, _args \\ %{}) do
-    {method, path, params, body} = blank_args
+    {method, path, params, body} = blank_args()
 
     Transport.perform_request(ts, method, path, params, body)
     |> response
@@ -16,7 +16,7 @@ defmodule ESx.API do
   end
 
   def ping(ts, _args \\ %{}) do
-    {method, path, params, body} = blank_args
+    {method, path, params, body} = blank_args()
 
     status200? ts, method, path, params, body
   end
