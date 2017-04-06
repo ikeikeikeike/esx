@@ -11,8 +11,19 @@ case :gen_tcp.connect(host, port, []) do
               "(http://#{host}:#{port}): #{:inet.format_error(reason)}"
 end
 
-{:ok, files} = File.ls("./test/support")
+defmodule ESx.Test.TestCase do
+  use ExUnit.CaseTemplate
 
-Enum.each files, fn(file) ->
-  Code.require_file "support/#{file}", __DIR__
+  setup do
+    # Explicitly get a connection before each test
+    # By default the test is wrapped in a transaction
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(ESx.Test.Support.Repo)
+
+    # The :shared mode allows a process to share
+    # its connection with any other process automatically
+    Ecto.Adapters.SQL.Sandbox.mode(ESx.Test.Support.Repo, {:shared, self()})
+  end
 end
+
+{:ok, _pid} = ESx.Test.Support.Repo.start_link
+Ecto.Adapters.SQL.Sandbox.mode(ESx.Test.Support.Repo, {:shared, self()})

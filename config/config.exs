@@ -33,3 +33,7 @@ config :esx, ESx.Model,
   host: "localhost",
   port: 9200,
   trace: false
+
+if Mix.env == :test do
+  import_config "test.exs"
+end

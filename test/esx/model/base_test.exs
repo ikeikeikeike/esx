@@ -1,12 +1,14 @@
 Code.require_file "../../../test_helper.exs", __ENV__.file
 
 defmodule ESx.Model.BaseTest do
-  use ExUnit.Case
+  use ESx.Test.TestCase
+  # use ExUnit.Case
+
   doctest ESx
 
   import ESx.Test.Support.Checks
 
-  alias ESx.Test.Support.Definition.{Model, Schema, NonameSchema}
+  alias ESx.Test.Support.Definition.{Model, Schema, NonameSchema, RepoSchema}
 
   test "ok model.base no names" do
     rsp =  Model.search NonameSchema, %{}
@@ -88,6 +90,7 @@ defmodule ESx.Model.BaseTest do
   end
 
   test "ok model.base.search with repo" do
+    ESx.Test.Support.Repo.all RepoSchema
   end
 
   test "ok apis.api.reindex with repo" do

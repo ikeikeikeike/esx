@@ -9,10 +9,12 @@ defmodule ESx.Mixfile do
     [app: :esx,
      version: "0.2.8",
      elixir: ">= 1.2.0",
+     elixirc_paths: elixirc_paths(Mix.env),
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      deps: deps(),
      package: package(),
+     aliases: aliases(),
      description: @description,
    ]
   end
@@ -21,7 +23,7 @@ defmodule ESx.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :httpoison], mod: {ESx, []}]
+    [applications: [:logger, :httpoison, :ecto, :postgrex], mod: {ESx, []}]
   end
 
   # Dependencies can be Hex packages:
@@ -55,6 +57,13 @@ defmodule ESx.Mixfile do
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/ikeikeikeike/esx"},
     ]
+  end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
+
+  defp aliases do
+    ["test": ["ecto.create --quiet", "ecto.migrate", "test"]]
   end
 
 end
