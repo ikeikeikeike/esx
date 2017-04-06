@@ -16,7 +16,7 @@ defmodule ESx.Test.Support.Definition do
     index_name    "test_schema_index"
     document_type "test_schema_type"
 
-    mapping _ttl: [enabled: true, default: "180d"], _all: [enabled: false] do
+    mapping _all: [enabled: false] do
       indexes :title, type: "string",
         analyzer: "ngram_analyzer",
         search_analyzer: "ngram_analyzer"
@@ -60,10 +60,6 @@ defmodule ESx.Test.Support.Definition do
     document_type "test_no_dsl_schema_type"
 
     mapping [
-      _ttl: [
-        enabled: true,
-        default: "180d",
-      ],
       _all: [
         enabled: false,
       ],

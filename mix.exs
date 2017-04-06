@@ -41,7 +41,7 @@ defmodule ESx.Mixfile do
       {:poolboy, ">= 1.0.0 and < 2.0.0"},
       {:ecto, ">= 1.1.0", optional: true},
 
-      {:credo, "~> 0.5", only: [:dev, :test]},
+      {:credo, "~> 0.7", only: [:dev, :test]},
       {:earmark, ">= 0.0.0", only: :dev},
       {:ex_doc, "~> 0.10", only: :dev},
       {:inch_ex, only: :docs},

@@ -15,7 +15,7 @@ defmodule ESx.APIs.IndicesTest do
     Indices.delete @ts, index: index
 
     rsp = Indices.create @ts, %{index: index, body: %{}}
-    assert rsp == {:ok, %{"acknowledged" => true}}
+    assert rsp == {:ok, %{"acknowledged" => true, "shards_acknowledged" => true}}
 
     rsp = Indices.put_alias @ts, %{index: index, name: name}
     assert rsp == {:ok, %{"acknowledged" => true}}

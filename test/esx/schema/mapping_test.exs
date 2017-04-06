@@ -23,7 +23,6 @@ defmodule ESx.Model.MappingTest do
         }
       },
       _all: %{enabled: false},
-      _ttl: %{default: "180d", enabled: true},
     }
 
     assert Schema.__es_mapping__(:as_json) == %{
@@ -40,7 +39,6 @@ defmodule ESx.Model.MappingTest do
         }
       },
       _all: %{enabled: false},
-      _ttl: %{default: "180d", enabled: true},
     }
 
     assert Schema.__es_mapping__(:types) == [
@@ -56,9 +54,7 @@ defmodule ESx.Model.MappingTest do
     ]
     assert nil == Schema.__es_mapping__(:type, :unkown)
 
-    assert Schema.__es_mapping__(:settings) == [
-      _ttl: [enabled: true, default: "180d"], _all: [enabled: false]
-    ]
+    assert Schema.__es_mapping__(:settings) == [_all: [enabled: false]]
   end
 
   test "ok schema.mapping.__es_mapping__ with no DSL" do
@@ -76,7 +72,6 @@ defmodule ESx.Model.MappingTest do
         }
       },
       _all: %{enabled: false},
-      _ttl: %{default: "180d", enabled: true},
     }
 
     assert NoDSLSchema.__es_mapping__(:as_json) == %{
@@ -93,7 +88,6 @@ defmodule ESx.Model.MappingTest do
         }
       },
       _all: %{enabled: false},
-      _ttl: %{default: "180d", enabled: true},
     }
 
     assert NoDSLSchema.__es_mapping__(:types) == [
@@ -109,9 +103,7 @@ defmodule ESx.Model.MappingTest do
     ]
     assert nil == NoDSLSchema.__es_mapping__(:type, :unkown)
 
-    assert NoDSLSchema.__es_mapping__(:settings) == [
-      _ttl: [enabled: true, default: "180d"], _all: [enabled: false]
-    ]
+    assert NoDSLSchema.__es_mapping__(:settings) == [_all: [enabled: false]]
 
   end
 
