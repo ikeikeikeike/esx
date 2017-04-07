@@ -51,10 +51,10 @@ before_install:
   - ESPID3=$!
 
 script:
-  - yes | mix do deps.get, deps.compile
+  - yes | mix do deps.get
   - curl 'localhost:9200/_nodes/process?pretty'
   - curl 'localhost:9201/_nodes/process?pretty'
-  - MIX_ENV=test mix test
+  - yes | MIX_ENV=test mix test
 
 after_script:
   - kill $ESPID1

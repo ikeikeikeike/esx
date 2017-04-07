@@ -1,5 +1,12 @@
 use Mix.Config
 
+config :esx, ESx.Model,
+  repo: ESx.Test.Support.Repo,
+  protocol: "http",
+  host: "localhost",
+  port: 9200,
+  trace: false
+
 config :esx, ESx.Test.Support.Repo,
   adapter: Ecto.Adapters.Postgres,
   database: "esx_dev",

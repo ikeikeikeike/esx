@@ -137,6 +137,28 @@ defmodule ESx.API do
     |> response!
   end
 
+  def count(ts, args \\ %{}) do
+    args =
+      if !args[:index] && args[:type] do
+        Map.put args, :index, "_all"
+      else
+        args
+      end
+
+    method = "GET"
+    path   = Utils.pathify [Utils.listify(args[:index]), Utils.listify(args[:type]), "_count"]
+    params = Utils.extract_params args
+    body   = args[:body]
+
+    Transport.perform_request(ts, method, path, params, body)
+    |> response
+  end
+
+  def count!(ts, args \\ %{}) do
+    count(ts, args)
+    |> response!
+  end
+
   def termvectors(ts, %{index: index, type: type} = args) do
     method = "GET"
     {endpoint, args} = Map.pop args, :endpoint, "_termvectors"

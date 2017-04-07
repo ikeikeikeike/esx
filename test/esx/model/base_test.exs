@@ -8,8 +8,9 @@ defmodule ESx.Model.BaseTest do
 
   import ESx.Test.Support.Checks
 
+  alias ESx.{API, API.Indices}
   alias ESx.Test.Support.Repo
-  alias ESx.Test.Support.Definition.{Model, Schema, NonameSchema, RepoSchema}
+  alias ESx.Test.Support.Definition.{Model, Schema, NonameSchema, RepoSchema, BulkSchema}
 
   test "ok model.base no names" do
     rsp =  Model.search NonameSchema, %{}
@@ -39,6 +40,7 @@ defmodule ESx.Model.BaseTest do
   test "ok model.base.config" do
     assert Model.config == [
       url: "http://localhost:9200",
+      repo: ESx.Test.Support.Repo,
       app: :esx, mod: Model, trace: false
     ]
   end
@@ -87,11 +89,13 @@ defmodule ESx.Model.BaseTest do
   end
 
   test "ok model.base.repo" do
-    assert nil == Model.repo
+    assert ESx.Test.Support.Repo == Model.repo
   end
 
   test "ok model.base.search with repo" do
     Repo.delete_all RepoSchema
+    Indices.delete Model.transport, %{index: "*"}
+
     assert [] == Repo.all(RepoSchema)
 
     Repo.insert %RepoSchema{title: "a"}
@@ -101,17 +105,18 @@ defmodule ESx.Model.BaseTest do
     assert 4 == length(Repo.all(RepoSchema))
   end
 
-  test "ok apis.api.reindex with repo" do
-    Repo.delete_all RepoSchema
+  test "ok apis.api.reindex with large data" do
+    Repo.delete_all BulkSchema
+    Indices.delete Model.transport, %{index: "*"}
 
-    # Repo.insert %RepoSchema{title: "a"}
-    # Repo.insert %RepoSchema{title: "b"}
-    # Repo.insert %RepoSchema{title: "c"}
-    # Repo.insert %RepoSchema{title: "d"}
+    assert 0 == API.count!(Model.transport)["count"]
 
-    # Model.reindex RepoSchema
+    Repo.insert_all BulkSchema, Enum.map(1..50000, & [title: to_string(&1) <> Ecto.UUID.generate])
+    Repo.insert_all BulkSchema, Enum.map(1..10, & [title: to_string(&1) <> Ecto.UUID.generate])
 
-    # IO.inspect Model.reindex Schema
+    Model.reindex BulkSchema
+
+    assert 0 < API.count!(Model.transport)["count"]  # TODO: flash
   end
 
 end
