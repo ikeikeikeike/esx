@@ -8,6 +8,7 @@ defmodule ESx.Model.BaseTest do
 
   import ESx.Test.Support.Checks
 
+  alias ESx.Test.Support.Repo
   alias ESx.Test.Support.Definition.{Model, Schema, NonameSchema, RepoSchema}
 
   test "ok model.base no names" do
@@ -90,10 +91,26 @@ defmodule ESx.Model.BaseTest do
   end
 
   test "ok model.base.search with repo" do
-    ESx.Test.Support.Repo.all RepoSchema
+    Repo.delete_all RepoSchema
+    assert [] == Repo.all(RepoSchema)
+
+    Repo.insert %RepoSchema{title: "a"}
+    Repo.insert %RepoSchema{title: "b"}
+    Repo.insert %RepoSchema{title: "c"}
+    Repo.insert %RepoSchema{title: "d"}
+    assert 4 == length(Repo.all(RepoSchema))
   end
 
   test "ok apis.api.reindex with repo" do
+    Repo.delete_all RepoSchema
+
+    # Repo.insert %RepoSchema{title: "a"}
+    # Repo.insert %RepoSchema{title: "b"}
+    # Repo.insert %RepoSchema{title: "c"}
+    # Repo.insert %RepoSchema{title: "d"}
+
+    # Model.reindex RepoSchema
+
     # IO.inspect Model.reindex Schema
   end
 
