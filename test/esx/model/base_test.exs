@@ -41,7 +41,7 @@ defmodule ESx.Model.BaseTest do
     assert Model.config == [
       url: "http://localhost:9200",
       repo: ESx.Test.Support.Repo,
-      app: :esx, mod: Model, trace: false
+      app: :esx, mod: Model, trace: true
     ]
   end
 
@@ -105,18 +105,90 @@ defmodule ESx.Model.BaseTest do
     assert 4 == length(Repo.all(RepoSchema))
   end
 
-  test "ok apis.api.reindex with large data" do
+  test "ok model.base.reindex with large data" do
     Repo.delete_all BulkSchema
     Indices.delete Model.transport, %{index: "*"}
 
     assert 0 == API.count!(Model.transport)["count"]
 
-    Repo.insert_all BulkSchema, Enum.map(1..50000, & [title: to_string(&1) <> Ecto.UUID.generate])
-    Repo.insert_all BulkSchema, Enum.map(1..10, & [title: to_string(&1) <> Ecto.UUID.generate])
+    Repo.insert_all BulkSchema, Enum.map(1..1000, & [title: to_string(&1) <> Ecto.UUID.generate])
+    Repo.insert_all BulkSchema, Enum.map(1..1, & [title: to_string(&1) <> Ecto.UUID.generate])
+
+    Model.reindex BulkSchema, chunk_size: 100
+
+    Model.refresh_index(BulkSchema)
+    assert 1001 == API.count!(Model.transport)["count"]  # TODO: flash
+  end
+
+  test "ok model.base.import with large data" do
+    Repo.delete_all BulkSchema
+    Indices.delete Model.transport, %{index: "*"}
+
+    assert 0 == API.count!(Model.transport)["count"]
+
+    Repo.insert_all BulkSchema, Enum.map(1..1000, & [title: to_string(&1) <> Ecto.UUID.generate])
+    Repo.insert_all BulkSchema, Enum.map(1..1, & [title: to_string(&1) <> Ecto.UUID.generate])
 
     Model.reindex BulkSchema
+    Indices.delete Model.transport, %{index: "*"}
 
-    assert 0 < API.count!(Model.transport)["count"]  # TODO: flash
+    Model.import BulkSchema, chunk_size: 100
+
+    Model.refresh_index(BulkSchema)
+    assert 1001 == API.count!(Model.transport)["count"]  # TODO: flash
+  end
+
+  test "ok model.base.index_document" do
+    Repo.delete_all BulkSchema
+    Indices.delete Model.transport, %{index: "*"}
+    Model.reindex BulkSchema
+
+    assert 0 == API.count!(Model.transport)["count"]
+
+    records =
+      Enum.map 1..10, fn num ->
+        Repo.insert! %BulkSchema{title: to_string(num) <> Ecto.UUID.generate}
+      end
+
+    Enum.each records, &Model.index_document/1
+
+    record =
+      Repo.insert! %BulkSchema{title: "my document"}
+
+    Model.index_document record
+
+
+    Model.refresh_index(BulkSchema)
+    assert 11 == API.count!(Model.transport)["count"] # TODO: flash
+
+    response =
+      BulkSchema
+      |> Model.search(%{query: %{match: %{title: "my document"}}})
+      |> Model.results
+
+    assert 1 == response.total
+
+    response =
+      BulkSchema
+      |> Model.search(%{query: %{match: %{title: "unknown"}}})
+      |> Model.results
+
+    assert 0 == response.total
+
+    records =
+      BulkSchema
+      |> Model.search(%{query: %{match: %{title: "my document"}}})
+      |> Model.records
+
+    assert 1 == Enumerable.count(records)
+    assert "my document" == (records.records |> List.first).title
+
+    records =
+      BulkSchema
+      |> Model.search(%{query: %{match: %{title: "unknown"}}})
+      |> Model.records
+
+    assert 0 == Enumerable.count(records)
   end
 
 end

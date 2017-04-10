@@ -5,7 +5,7 @@ config :esx, ESx.Model,
   protocol: "http",
   host: "localhost",
   port: 9200,
-  trace: false
+  trace: true
 
 config :esx, ESx.Test.Support.Repo,
   adapter: Ecto.Adapters.Postgres,

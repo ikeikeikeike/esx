@@ -52,9 +52,9 @@ before_install:
 
 script:
   - yes | mix do deps.get
+  - yes | MIX_ENV=test mix test
   - curl 'localhost:9200/_nodes/process?pretty'
   - curl 'localhost:9201/_nodes/process?pretty'
-  - yes | MIX_ENV=test mix test
 
 after_script:
   - kill $ESPID1

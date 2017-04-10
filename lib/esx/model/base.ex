@@ -129,9 +129,11 @@ defmodule ESx.Model.Base do
         {index, opts}   = Keyword.pop opts, :index, mod.__es_naming__(:index_name)
         {type, opts}    = Keyword.pop opts, :type, mod.__es_naming__(:document_type)
 
+        chunk_size      = Keyword.get opts, :chunk_size, 5_000
+
         results =
-          stream(schema, opts)
-          |> Stream.chunk(5_000, 5_000, [])
+          stream(schema, Keyword.merge(opts, [chunk_size: chunk_size]))
+          |> Stream.chunk(chunk_size, chunk_size, [])
           |> Stream.map(fn chunk ->
             body = Enum.map chunk, &transform(&1, opts)
             args = %{

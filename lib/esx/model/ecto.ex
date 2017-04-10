@@ -8,8 +8,7 @@ if Code.ensure_loaded?(Ecto) do
 
         # https://github.com/DavidAntaramian/tributary/
         defp stream(queryable, opts \\ []) do
-
-          chunk_size  = Keyword.get(opts, :chunk_size, 5_000)
+          chunk_size  = opts[:chunk_size]
           key_name    = Keyword.get(opts, :key_name, :id)
           order_name  = Keyword.get(opts, :order_name, :id)
           initial_key = Keyword.get(opts, :initial_key, 0)
