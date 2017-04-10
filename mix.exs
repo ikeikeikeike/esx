@@ -7,7 +7,7 @@ defmodule ESx.Mixfile do
 
   def project do
     [app: :esx,
-     version: "0.5.3",
+     version: "0.5.4",
      elixir: ">= 1.2.0",
      elixirc_paths: elixirc_paths(Mix.env),
      build_embedded: Mix.env == :prod,
@@ -45,9 +45,9 @@ defmodule ESx.Mixfile do
 
       {:postgrex, ">= 0.0.0", only: [:dev, :test]},
       {:credo, "~> 0.7", only: [:dev, :test]},
-      {:earmark, ">= 0.0.0", only: :dev},
 
-      {:ex_doc, "~> 0.14", only: :docs},
+      {:ex_doc, "~> 0.14", only: :dev},
+      {:earmark, ">= 0.0.0", only: :dev},
       {:inch_ex, ">= 0.0.0", only: :docs}
     ]
   end
