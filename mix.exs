@@ -46,8 +46,9 @@ defmodule ESx.Mixfile do
       {:postgrex, ">= 0.0.0", only: [:dev, :test]},
       {:credo, "~> 0.7", only: [:dev, :test]},
       {:earmark, ">= 0.0.0", only: :dev},
-      {:ex_doc, "~> 0.10", only: :dev},
-      {:inch_ex, only: :docs},
+
+      {:ex_doc, "~> 0.14", only: :docs},
+      {:inch_ex, ">= 0.0.0", only: :docs}
     ]
   end
 
