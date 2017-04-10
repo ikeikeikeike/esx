@@ -39,7 +39,7 @@ defmodule ESx.Model.BaseTest do
 
   test "ok model.base.config" do
     assert Model.config == [
-      url: "http://localhost:9200",
+      url: "http://127.0.0.1:9200",
       repo: ESx.Test.Support.Repo,
       app: :esx, mod: Model, trace: true
     ]
@@ -52,8 +52,9 @@ defmodule ESx.Model.BaseTest do
       ESx.Transport.Connection.conns
       |> List.first
 
-    assert "http://localhost:9200" == conn.url
-    assert "http://localhost:9200" == ESx.Funcs.decid(conn.pidname)
+    endpoints = ["http://127.0.0.1:9200", "http://127.0.0.1:9201", "http://127.0.0.1:9202"]
+    assert conn.url in endpoints
+    assert ESx.Funcs.decid(conn.pidname) in endpoints
   end
 
   test "ok model.base.search" do
