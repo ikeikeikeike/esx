@@ -64,7 +64,7 @@ config :esx, ESx.Model,
   repo: MyApp.Repo,                        # As required, which defines Ecto for connecting database.
   protocol: "http",                        # or: scheme: "http"
   user: "yourname", password: "yourpass",  # or: userinfo: "yourname:yourpass"
-  host: "localhost",
+  host: "127.0.0.1",
   port: 9200,
   path: "path-to-endpoint"
 ```

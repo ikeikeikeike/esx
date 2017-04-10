@@ -3,7 +3,7 @@ use Mix.Config
 config :esx, ESx.Model,
   repo: ESx.Test.Support.Repo,
   protocol: "http",
-  host: "localhost",
+  host: "127.0.0.1",
   port: 9200,
   trace: true
 
@@ -12,7 +12,7 @@ config :esx, ESx.Test.Support.Repo,
   database: "esx_dev",
   username: "postgres",
   password: "postgres",
-  hostname: "localhost",
+  hostname: "127.0.0.1",
   pool: Ecto.Adapters.SQL.Sandbox
   # priv: "test/support"
 
