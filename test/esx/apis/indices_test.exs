@@ -4,9 +4,9 @@ defmodule ESx.APIs.IndicesTest do
   use ExUnit.Case
   doctest ESx
 
-  import ESx.Test.Support.Checks
+  # import ESx.Test.Support.Checks
 
-  alias ESx.{Transport, API, API.Indices}
+  alias ESx.{Transport, API.Indices}
 
   @ts %Transport{trace: false}
 

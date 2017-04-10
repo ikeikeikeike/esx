@@ -4,9 +4,12 @@ defmodule ESx.Model.MappingTest do
   use ExUnit.Case
   doctest ESx
 
-  import ESx.Test.Support.Checks
+  # import ESx.Test.Support.Checks
 
-  alias ESx.Test.Support.Definition.{Model, Schema, NonameSchema, NoDSLSchema}
+  alias ESx.Test.Support.Definition.{
+    Schema, NoDSLSchema,
+    # Model, NonameSchema
+  }
 
   test "ok schema.mapping.__es_mapping__" do
     assert Schema.__es_mapping__(:to_map) == %{
