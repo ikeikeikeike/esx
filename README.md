@@ -16,7 +16,7 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 
 ```elixir
 def deps do
-  [{:esx, "~> 0.2"}]
+  [{:esx, "~> 0.5"}]
 end
 ```
 
@@ -28,12 +28,15 @@ def application do
 end
 ```
 
+hexdocs: https://hexdocs.pm/esx
+
+
 ## Configuration
 
 ```elixir
 config :esx, ESx.Model,
   url: "http://example.com:9200",
-  repo: MyApp.Repo  # As required, which defines Ecto for connecting database.
+  repo: MyApp.Repo  # Optional, which defines Ecto for connecting database.
 ```
 
 #### Multiple configuration
@@ -61,7 +64,7 @@ config :my_app, MyApp.ESx,
 
 ```elixir
 config :esx, ESx.Model,
-  repo: MyApp.Repo,                        # As required, which defines Ecto for connecting database.
+  repo: MyApp.Repo,                        # Optional, which defines Ecto for connecting database.
   protocol: "http",                        # or: scheme: "http"
   user: "yourname", password: "yourpass",  # or: userinfo: "yourname:yourpass"
   host: "127.0.0.1",
@@ -76,8 +79,8 @@ config :esx, ESx.Model,
 defmodule MyApp.Blog do
   use ESx.Schema
 
-  index_name    "blog"  # as required
-  document_type "blog"  # as required
+  index_name    "blog"  # Optional
+  document_type "blog"  # Optional
 
   mapping _all: [enabled: false], _ttl: [enabled: true, default: "180d"] do
     indexes :title, type: "string"
@@ -225,30 +228,41 @@ By default will send all of defined mapping's fields to Elasticsearch.
 
 ```elixir
 MyApp.ESx.create_index, MyApp.Blog
-ESx.Model.index_exists?, MyApp.Blog
 MyApp.ESx.delete_index, MyApp.Blog
-ESx.Model.refresh_index, MyApp.Blog
+MyApp.ESx.index_exists?, MyApp.Blog
+MyApp.ESx.refresh_index, MyApp.Blog
+
 ```
 
-### Document
+or
 
 ```elixir
-ESx.Model.import, MyApp.Blog
+ESx.Model.create_index, MyApp.Blog
+ESx.Model.delete_index, MyApp.Blog
+ESx.Model.index_exists?, MyApp.Blog
+ESx.Model.refresh_index, MyApp.Blog
+
+```
+
+### ES Document
+
+```elixir
+MyApp.ESx.import, MyApp.Blog
 MyApp.ESx.index_document, %MyApp.Blog{id: 1, title: "egg"}
-ESx.Model.delete_document, %MyApp.Blog{id: 1, title: "ham"}
+MyApp.ESx.delete_document, %MyApp.Blog{id: 1, title: "ham"}
 ```
 
 ### Search & Response
 
 ```elixir
-ESx.Model.search, MyApp.Blog, %{query: %{match: %{title: "foo"}}}
+MyApp.ESx.search, MyApp.Blog, %{query: %{match: %{title: "foo"}}}
 ```
 
 ```elixir
 response =
   MyApp.Blog
-  |> ESx.Model.search(%{query: %{match: %{title: "foo"}}})
-  |> ESx.Model.results
+  |> MyApp.ESx.search(%{query: %{match: %{title: "foo"}}})
+  |> MyApp.ESx.results
 
 IO.inspect Enum.map(response, fn r ->
   r["_source"]["title"]
@@ -261,14 +275,18 @@ end)
 ```elixir
 response =
   MyApp.Blog
-  |> ESx.Model.search(%{query: %{match: %{title: "foo"}}})
-  |> ESx.Model.records
+  |> MyApp.ESx.search(%{query: %{match: %{title: "foo"}}})
+  |> MyApp.ESx.records
 
 IO.inspect Enum.each(response, fn r ->
   r.title
 end)
 # ["foo", "egg", "some"]
 ```
+
+###### API Docs
+
+- https://hexdocs.pm/esx/ESx.Model.html
 
 ##### Pagination
 
@@ -284,6 +302,7 @@ page =
 
 ## Low-level APIs
 
+
 There're Low-level APIs in `ESx.API` and `ESx.API.Indices`.
 
 ```elixir
@@ -293,6 +312,11 @@ ESx.API.search ts, %{index: "your_app", body: %{query: %{}}}
 
 ESx.API.Indices.delete ts, %{index: "your_app"}
 ```
+
+###### API Docs
+
+- https://hexdocs.pm/esx/ESx.API.html
+- https://hexdocs.pm/esx/ESx.API.Indices.html
 
 
 ### TODO

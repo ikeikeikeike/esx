@@ -13,7 +13,10 @@ config :esx, ESx.Test.Support.Repo,
   username: "postgres",
   password: "postgres",
   hostname: "127.0.0.1",
-  pool: Ecto.Adapters.SQL.Sandbox
+  pool: Ecto.Adapters.SQL.Sandbox,
+  timeout: 60_000,
+  pool_timeout: 60_000,
+  ownership_timeout: 60_000
   # priv: "test/support"
 
 config :esx, :ecto_repos,

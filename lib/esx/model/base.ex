@@ -1,4 +1,39 @@
 defmodule ESx.Model.Base do
+  @moduledoc """
+  Sets up esx that make it easy to configure and ecto adapters.
+
+  ## Example
+
+      # In your mix.esx file
+      def application do
+        [applications: [:esx]]
+      end
+
+      # In your config/config.exs file
+      config :esx, ESx.Model,
+        url: "http://example.com:9200",
+        repo: MyApp.Repo  # defines Ecto for connecting database.
+
+  ## Multiple configuration
+
+  This is configuration that if you've have multiple Elasticsearch's Endpoint which's another one.
+  First, that configuration is defined with `ESx.Model.Base` into your project. It's like Ecto's Repo.
+
+  ## Example
+
+      # In your lib/my_app/esx.ex file
+      defmodule MyApp.ESx do
+        use ESx.Model.Base, app: :my_app
+      end
+
+      # And so that there's `MyApp.ESx` configuration for Mix.config below.
+      # In your config/config.exs file
+      config :my_app, MyApp.ESx,
+        scheme: "http",
+        host: "example.com",
+        port: 9200
+
+  """
 
   @doc false
   defmacro __using__(opts) do
@@ -23,6 +58,26 @@ defmodule ESx.Model.Base do
 
       alias ESx.{Funcs, API, API.Indices}
 
+      @doc """
+      Search document from the data store matching the given query.
+
+      ## Options
+
+        * `:index` - document index name in es
+        * `:type` - document type name in es
+
+      ## Example
+
+          # Search 'my document' from elasticsearch
+          query = MyESx.search %{query: %{match: %{title: "my document"}}}
+
+          # Featch docuemnt from elasticsarch
+          MyESx.results query
+
+          # Featch docuemnt from elasticsarch as Record struct which contains [Ecto.Schema.t] records.
+          MyESx.records query
+
+      """
       def search(queryable, query_or_payload, opts \\ []) do
         mod   = Funcs.to_mod queryable
         index = opts[:index] || mod.__es_naming__(:index_name)
@@ -187,4 +242,5 @@ defmodule ESx.Model.Base do
       defdelegate results(search), to: ESx.Model.Response, as: :results
     end
   end
+
 end
