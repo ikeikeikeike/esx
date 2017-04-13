@@ -222,6 +222,36 @@ end
 By default will send all of defined mapping's fields to Elasticsearch.
 
 
+## Transport
+
+ESx will connect to multipe elasticsearch automatically if builded cluster systems on your environment.
+
+```elixir
+iex(1)> ESx.Transport.conn  # Sniffing cluster system and choose random Elasticsearch connection
+
+01:10:26.694 [debug] curl -X GET 'http://127.0.0.1:9200/_nodes/http'  # Run sniffing
+
+%ESx.Transport.Connection{client: HTTPoison, dead: false, # chose one of cluster connection.
+ dead_since: 1492099826, failures: 0,
+ pidname: :"RWxpeGlyLkVTeC5UcmFuc3BvcnQuQ29ubmVjdGlvbl9odHRwOi8vMTI3LjAuMC4xOjkyMDI=",
+ resurrect_timeout: 60, url: "http://127.0.0.1:9202"}
+
+iex(2)> ESx.Transport.Connection.conns  # Below is all of cluster connections.
+[%ESx.Transport.Connection{client: HTTPoison, dead: false,
+  dead_since: 1492099826, failures: 0,
+  pidname: :"RWxpeGlyLkVTeC5UcmFuc3BvcnQuQ29ubmVjdGlvbl9odHRwOi8vMTI3LjAuMC4xOjkyMDE=",
+  resurrect_timeout: 60, url: "http://127.0.0.1:9201"},
+ %ESx.Transport.Connection{client: HTTPoison, dead: false,
+  dead_since: 1492099826, failures: 0,
+  pidname: :"RWxpeGlyLkVTeC5UcmFuc3BvcnQuQ29ubmVjdGlvbl9odHRwOi8vMTI3LjAuMC4xOjkyMDI=",
+  resurrect_timeout: 60, url: "http://127.0.0.1:9202"},
+ %ESx.Transport.Connection{client: HTTPoison, dead: false,
+  dead_since: 1492099826, failures: 0,
+  pidname: :"RWxpeGlyLkVTeC5UcmFuc3BvcnQuQ29ubmVjdGlvbl9odHRwOi8vMTI3LjAuMC4xOjkyMDA=",
+  resurrect_timeout: 60, url: "http://127.0.0.1:9200"}]
+```
+
+
 ## Usage
 
 ### Indexing
