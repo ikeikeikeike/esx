@@ -224,8 +224,7 @@ By default will send all of defined mapping's fields to Elasticsearch.
 
 ## Transport
 
-ESx will connect to multipe elasticsearch automatically if builded cluster systems on your environment.
-
+`ESx.Transport` and `ESx.Model` will connect to multipe elasticsearch automatically if builded cluster systems on your environment.
 ```elixir
 iex(1)> ESx.Transport.conn  # Sniffing cluster system and choose random Elasticsearch connection
 
