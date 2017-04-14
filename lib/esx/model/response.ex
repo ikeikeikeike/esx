@@ -1,7 +1,11 @@
 defmodule ESx.Model.Response do
+  @moduledoc """
+  Parse query result, there's suggest, aggregations, hits, etc..
+  """
+
   defstruct [
     :took, :timed_out, :shards, :total, :max_score,
-    :aggregations, :suggestions, :__schema__, :__model__,
+    :suggest, :aggregations, :response, :__schema__, :__model__,
     hits: [], records: [],
   ]
 
@@ -20,21 +24,15 @@ defmodule ESx.Model.Response do
       took: rsp["took"],
       timed_out: rsp["timed_out"],
       shards: rsp["_shards"],
+      suggest: rsp["suggest"],
       aggregations: rsp["aggregations"] || rsp["facets"],
+      response: rsp,
     }
   end
 
   def results(%{__model__: model, __schema__: schema} = search) do
     rsp = ESx.Model.Search.execute search
     parse model, schema, rsp
-  end
-
-  def aggregations(_st) do
-    # Aggregations.new(response['aggregations'])
-  end
-
-  def suggestions(_st) do
-    # Suggestions.new(response['suggest'])
   end
 
   defimpl Enumerable, for: ESx.Model.Response do

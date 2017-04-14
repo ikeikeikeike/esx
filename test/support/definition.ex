@@ -133,16 +133,18 @@ defmodule ESx.Test.Support.Definition do
     index_name    "test_repo_schema_index"
     document_type "test_repo_schema_type"
 
-    mapping _all: [enabled: false] do
+    mapping do
       indexes :title, type: "string",
         analyzer: "ngram_analyzer",
-        search_analyzer: "ngram_analyzer"
+        search_analyzer: "ngram_analyzer",
+        fielddata: true
+
       indexes :content, type: "string",
         analyzer: "ngram_analyzer",
         search_analyzer: "ngram_analyzer"
     end
 
-    settings number_of_replicas: "5", number_of_shards: "10" do
+    settings do
       analysis do
         analyzer :ngram_analyzer,
           tokenizer: "ngram_tokenizer",
@@ -154,10 +156,6 @@ defmodule ESx.Test.Support.Definition do
         filter "edge_ngram",
           type: "edgeNGram", min_gram: 1, max_gram: 15
       end
-    end
-
-    def as_indexed_json(%{} = schema, opts) do
-      super(schema, opts)
     end
   end
 

@@ -192,4 +192,33 @@ defmodule ESx.Model.BaseTest do
     assert 0 == Enumerable.count(records)
   end
 
+  test "Make sure aggregation result" do
+    Repo.delete_all RepoSchema
+    Indices.delete Model.transport, %{index: "*"}
+
+    assert [] == Repo.all(RepoSchema)
+
+    Enum.map(1..500, & %RepoSchema{title: to_string(&1) <> Ecto.UUID.generate})
+    |> Enum.each(&Repo.insert/1)
+
+    Model.reindex RepoSchema
+    Model.refresh_index RepoSchema
+
+    query = %{
+      query: %{match_all: %{}},
+      aggs: %{
+        titles: %{
+          terms: %{field: "title", size: 20},
+        },
+      },
+    }
+
+    response =
+      RepoSchema
+      |> Model.search(query)
+      |> Model.results
+
+    assert 20 == length(response.aggregations["titles"]["buckets"])
+  end
+
 end

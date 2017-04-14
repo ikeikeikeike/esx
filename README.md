@@ -350,14 +350,5 @@ ESx.API.Indices.delete ts, %{index: "your_app"}
 - https://hexdocs.pm/esx/ESx.API.Indices.html
 
 
-### TODO
-
-- Suggestions
-- Some of APIs
-- Refactoring
-- Unittest
-- urls into transport
-- README
-
 Probably won't make it.
 - Search DSL
