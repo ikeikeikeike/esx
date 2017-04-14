@@ -6,7 +6,7 @@
 [![Inline docs](https://inch-ci.org/github/ikeikeikeike/esx.svg)](http://inch-ci.org/github/ikeikeikeike/esx)
 [![Lisence](https://img.shields.io/hexpm/l/ltsv.svg)](https://github.com/ikeikeikeike/esx/blob/master/LICENSE)
 
-A client for the Elasticsearch, written in Elixir
+A client for the Elasticsearch with Ecto, written in Elixir
 
 ## Installation
 

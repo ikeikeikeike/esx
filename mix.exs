@@ -2,12 +2,12 @@ defmodule ESx.Mixfile do
   use Mix.Project
 
   @description """
-  A client for the Elasticsearch, written in Elixir
+  A client for the Elasticsearch with Ecto, written in Elixir
   """
 
   def project do
     [app: :esx,
-     version: "0.5.6",
+     version: "0.5.7",
      elixir: ">= 1.2.0",
      elixirc_paths: elixirc_paths(Mix.env),
      build_embedded: Mix.env == :prod,
