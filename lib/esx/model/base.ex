@@ -69,7 +69,23 @@ defmodule ESx.Model.Base do
       ## Example
 
           # Search 'my document' from elasticsearch
-          query = MyESx.search %{query: %{match: %{title: "my document"}}}
+          query = MyESx.search MyModel, %{query: %{match: %{title: "my document"}}}
+
+          # Featch docuemnt from elasticsarch
+          MyESx.results query
+
+          # Featch docuemnt from elasticsarch as Record struct which contains [Ecto.Schema.t] records.
+          MyESx.records query
+
+      ## Example with ecto queryable
+
+          # Set condition as issues ecto query.
+          query = from q in MyModel,
+            where: q.publish == true,
+            preload: [:thumbs, :category, :maker]
+
+          # Search 'my document' from elasticsearch
+          query = MyESx.search query, %{query: %{match: %{title: "my document"}}}
 
           # Featch docuemnt from elasticsarch
           MyESx.results query
@@ -99,6 +115,23 @@ defmodule ESx.Model.Base do
         ESx.Model.Search.wrap __MODULE__, queryable, args
       end
 
+      @doc """
+      Create index with any options.
+
+      ## Options
+
+        * `:index` - document index name
+        * `:type` - document type name
+
+      ## Example
+
+          # Make index with defined schema
+          MyESx.create_index MyModel
+
+          # Make index with defined schema
+          MyESx.create_index MyModel, index: "any-index", type: "any-type"
+
+      """
       def create_index(schema, opts \\ []) do
         mod   = Funcs.to_mod schema
         index = opts[:index] || mod.__es_naming__(:index_name)

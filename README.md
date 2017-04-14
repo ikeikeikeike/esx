@@ -256,6 +256,7 @@ iex(2)> ESx.Transport.Connection.conns  # Below is all of cluster connections.
 ### Indexing
 
 ```elixir
+MyApp.ESx.reindex, MyApp.Blog
 MyApp.ESx.create_index, MyApp.Blog
 MyApp.ESx.delete_index, MyApp.Blog
 MyApp.ESx.index_exists?, MyApp.Blog
@@ -266,6 +267,7 @@ MyApp.ESx.refresh_index, MyApp.Blog
 or
 
 ```elixir
+ESx.Model.reindex, MyApp.Blog
 ESx.Model.create_index, MyApp.Blog
 ESx.Model.delete_index, MyApp.Blog
 ESx.Model.index_exists?, MyApp.Blog
