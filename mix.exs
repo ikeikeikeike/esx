@@ -1,13 +1,15 @@
 defmodule ESx.Mixfile do
   use Mix.Project
 
+  @version "0.6.1"
+
   @description """
   A client for the Elasticsearch with Ecto, written in Elixir
   """
 
   def project do
     [app: :esx,
-     version: "0.6.0",
+     version: @version,
      elixir: ">= 1.2.0",
      elixirc_paths: elixirc_paths(Mix.env),
      build_embedded: Mix.env == :prod,
@@ -16,6 +18,10 @@ defmodule ESx.Mixfile do
      package: package(),
      aliases: aliases(),
      description: @description,
+     name: "ESx",
+     docs: [source_ref: "master", main: "ESx",
+            canonical: "http://hexdocs.pm/esx",
+            source_url: "https://github.com/ikeikeikeike/esx" ]
    ]
   end
 

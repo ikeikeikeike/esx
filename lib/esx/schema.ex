@@ -74,10 +74,38 @@ defmodule ESx.Schema do
         ]
       end
 
+  ## Analysis
 
+  `ESx.Schema.Analysis`
+
+  ## Mapping
+
+  `ESx.Schema.Mapping`
+
+  ## Naming
+
+  `ESx.Schema.Naming`
+
+  ## Reflection
+
+  Any schema module will generate the `__es_mapping__`, `__es_analysis__`, `__es_naming__`
+  function that can be used for runtime introspection of the schema:
+
+  * `__es_analysis__(:settings)` - Returns the analysis settings
+  * `__es_analysis__(:to_map)` - Returns the analysis settings as map
+  * `__es_analysis__(:as_json)` - Returns the analysis settings as map that is the same as :to_map
+  * `__es_analysis__(:types)` - Returns the fields types, this is part of analysis settings
+  * `__es_analysis__(:type, field)` - Returns one of the type
+
+  * `__es_mapping__(:settings)` - Returns the properties mapping
+  * `__es_mapping__(:to_map)` - Returns the properties mapping as map
+  * `__es_mapping__(:as_json)` - Returns the properties mapping as map that is the same as :to_map
+  * `__es_mapping__(:types)` - Returns the fields types, this is part of properties mapping
+  * `__es_mapping__(:type, field)` - Returns one of the type
+
+  * `__es_naming__(:index_name)` - Returns a document index's name
+  * `__es_naming__(:document_type)` - Returns a document type's name
   """
-
-
 
   @doc false
   defmacro __using__(_opts) do

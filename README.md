@@ -221,6 +221,9 @@ end
 
 By default will send all of defined mapping's fields to Elasticsearch.
 
+###### API Docs
+
+- https://hexdocs.pm/esx/ESx.Schema.html
 
 ## Transport
 
