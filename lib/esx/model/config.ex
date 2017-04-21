@@ -20,7 +20,8 @@ defmodule ESx.Model.Config do
     unless cfg do
       raise ArgumentError,
         "In #{mod} Module's app: #{inspect app} was missing " <>
-        "configuration. There's not it in Mix.Config."
+        "configuration. There's not it in Mix.Config. " <>
+        "Please see here https://github.com/ikeikeikeike/esx#configuration"
     end
 
     ESx.Funcs.build_url!(cfg)
