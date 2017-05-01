@@ -353,5 +353,20 @@ ESx.API.Indices.delete ts, %{index: "your_app"}
 - https://hexdocs.pm/esx/ESx.API.Indices.html
 
 
+## Testing
+
+Download elasticsearch and build cluster
+
+```ruby
+$ ./test/build.sh
+```
+
+run mix test
+
+```ruby
+$ mix test
+```
+
+
 Probably won't make it.
 - Search DSL
