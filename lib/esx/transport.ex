@@ -7,27 +7,20 @@ defmodule ESx.Transport do
     @moduledoc "State"
 
     use ESx.Transport.Statex, [
-      :last_request_at, :resurrect_after,
-      :counter, :reload_after, :reload,
-      :randomize_hosts,
-      :max_retries,
-      :retry_on_status,
-      :reload_on_failure,
-      :retry_on_failure,
+      resurrect_after: 60,
+      counter: 0,
+      reload_after: 10_000,
+      reload: true,
+      max_retries: 5,
+      retry_on_status: [],
+      randomize_hosts: false,
+      reload_on_failure: false,
+      retry_on_failure: false,
+      last_request_at: nil,
+      selector: ESx.Transport.Selector.RoundRobin,
     ]
     def initialize_state(args) do
-      Keyword.merge args, [
-        max_retries: 5,
-        retry_on_status: [],
-        reload_on_failure: false,
-        retry_on_failure: false,
-        randomize_hosts: false,
-        last_request_at: :os.system_time(:seconds),
-        resurrect_after: 60,
-        reload_after: 10_000,
-        reload: true,
-        counter: 0,
-      ]
+      Keyword.merge args, [last_request_at: :os.system_time(:seconds)]
     end
   end
 
@@ -40,24 +33,22 @@ defmodule ESx.Transport do
 
   @type t :: %__MODULE__{}
 
-  def transport do
-    case Connection.alives do
-      alives when 0 < length(alives) ->
-        alives
-        |> Enum.random
-        |> Map.delete(:__struct__)
-        |> Enum.into([])
-        |> transport()
-      _ ->
-        transport defconfig()
-    end
-  end
   def transport(args) do
     {url, args} = Keyword.pop(args, :url)
+    {options, args} = Keyword.pop(args, :options)
 
+    if options, do: State.set_state! options
     Connection.start_conn Funcs.build_url!([url: url]) ++ args
 
     struct __MODULE__, args
+  end
+  def transport do
+    case Connection.alives do
+      alives when 0 < length(alives) ->
+        transport Funcs.to_keyword(Enum.random(alives))
+      _ ->
+        transport defconfig()
+    end
   end
 
   def conn do
@@ -73,11 +64,11 @@ defmodule ESx.Transport do
       rebuild_conns()
     end
 
-    Connection.conn
+    Connection.conn s
   end
 
   def rebuild_conns do
-    cnfs  = Sniffer.urls transport()
+    cnfs = Sniffer.urls transport()
 
     if is_list(cnfs) and length(cnfs) > 0 do
       old_conns = Connection.checkout

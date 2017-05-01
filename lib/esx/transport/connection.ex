@@ -32,7 +32,7 @@ defmodule ESx.Transport.Connection do
     Supervisor.remove_child id(name)
   end
 
-  def conn(_opts \\ []) do
+  def conn(opts \\ []) do
     if blank?(alives()) do
       # deadconn = List.first(Enum.sort(dead_conns, & &1.failures > &2.failures))
       deadconn = List.first(Enum.take_random(dead_conns(), 1))
@@ -40,7 +40,9 @@ defmodule ESx.Transport.Connection do
     end
 
     cc = alives()
-    if present?(cc), do: Selector.RoundRobin.select(cc)
+    selector = opts[:selector] || Selector.RoundRobin
+
+    if present?(cc), do: selector.select(cc)
   end
 
   def conns do

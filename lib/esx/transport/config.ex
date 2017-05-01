@@ -7,14 +7,11 @@ defmodule ESx.Transport.Config do
   end
 
   defmacro __before_compile__(_env) do
+    cfg = Application.get_env(:esx, ESx.Model)
+    cfg = ESx.Funcs.build_url!(cfg) ++ [trace: cfg[:trace], options: cfg[:options]]
+
     quote do
-      alias ESx.Funcs
-
-      cfg = Application.get_env(:esx, ESx.Model)
-      cfg = Funcs.build_url!(cfg) ++ [trace: cfg[:trace]]
-
-      @defconfig cfg
-      def defconfig, do: @defconfig
+      def defconfig, do: unquote(cfg)
     end
   end
 end

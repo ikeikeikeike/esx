@@ -67,6 +67,12 @@ defmodule ESx.Funcs do
     build_url! [url: URI.to_string u]
   end
 
+  def to_keyword(%{} = struct) do
+    struct
+    |> Map.delete(:__struct__)
+    |> Enum.into([])
+  end
+
   # for elixir 1.2
   # https://github.com/elixir-lang/elixir/blob/master/lib/elixir/lib/uri.ex#L467
 

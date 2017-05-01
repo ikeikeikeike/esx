@@ -7,6 +7,29 @@ defmodule ESx.Transport.Statex do
       defstruct unquote(opts)
       @__struct_resource__ unquote(opts)
 
+      @behaviour Access
+
+      def fetch(term, key) do
+        case term do
+          %{^key => value} ->
+            {:ok, value}
+          _ ->
+            :error
+        end
+      end
+      def get(term, key, default) do
+        case fetch(term, key) do
+          {:ok, value} -> value
+          :error       -> default
+        end
+      end
+      def get_and_update(term, key, list) do
+        raise :not_implemented
+      end
+      def pop(term, key) do
+        raise :not_implemented
+      end
+
       # callback from any supervisor
       def start_link([{:name, name} | args]), do: start_link name, args
       def start_link(name \\ "", args \\ [])  do
@@ -32,7 +55,7 @@ defmodule ESx.Transport.Statex do
       end
 
       def set_state!(overwrite),        do: set_state!("", overwrite)
-      def set_state!(name, overwrite) when is_map(overwrite) do
+      def set_state!(name, overwrite) when is_map(overwrite) or is_list(overwrite) do
         Agent.get_and_update(pidname(name), fn s ->
           s =
             Enum.reduce overwrite, s, fn {key, value}, acc ->
