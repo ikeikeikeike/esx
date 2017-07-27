@@ -1,7 +1,7 @@
 defmodule ESx.Mixfile do
   use Mix.Project
 
-  @version "0.6.1"
+  @version "0.6.2"
 
   @description """
   A client for the Elasticsearch with Ecto, written in Elixir
@@ -29,7 +29,7 @@ defmodule ESx.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :httpoison, :ecto, :postgrex], mod: {ESx, []}]
+    [applications: [:logger, :httpoison], mod: {ESx, []}]
   end
 
   # Dependencies can be Hex packages:
