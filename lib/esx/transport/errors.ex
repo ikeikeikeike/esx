@@ -1,5 +1,6 @@
 defmodule ESx.Transport.ServerError do
   defexception [:status, :response, :message]
+
   @moduledoc """
   Raised
   """
@@ -13,7 +14,6 @@ defmodule ESx.Transport.ServerError do
     305 => "UseProxy",
     307 => "TemporaryRedirect",
     308 => "PermanentRedirect",
-
     400 => "BadRequest",
     401 => "Unauthorized",
     402 => "PaymentRequired",
@@ -39,7 +39,6 @@ defmodule ESx.Transport.ServerError do
     494 => "RequestHeaderTooLarge",
     497 => "HTTPToHTTPS",
     499 => "ClientClosedRequest",
-
     500 => "InternalServerError",
     501 => "NotImplemented",
     502 => "BadGateway",
@@ -60,11 +59,11 @@ defmodule ESx.Transport.ServerError do
   end
 
   defdelegate wrap(opts), to: __MODULE__, as: :exception
-
 end
 
 defmodule ESx.Transport.UnknownError do
   defexception [:message, :error]
+
   @moduledoc """
   Raised
   """
@@ -73,10 +72,9 @@ defmodule ESx.Transport.UnknownError do
     err = Keyword.fetch!(opts, :error)
     msg = Keyword.fetch!(opts, :message)
 
-    msg = "`#{inspect msg}` happened: #{inspect err}"
+    msg = "`#{inspect(msg)}` happened: #{inspect(err)}"
     %__MODULE__{message: msg, error: err}
   end
 
   defdelegate wrap(opts), to: __MODULE__, as: :exception
-
 end

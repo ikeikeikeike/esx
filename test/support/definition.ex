@@ -1,5 +1,4 @@
 defmodule ESx.Test.Support.Definition do
-
   defmodule Model do
     @moduledoc false
 
@@ -13,29 +12,43 @@ defmodule ESx.Test.Support.Definition do
 
     defstruct [:id, :title]
 
-    index_name    "test_schema_index"
-    document_type "test_schema_type"
+    index_name("test_schema_index")
+    document_type("test_schema_type")
 
     mapping _all: [enabled: false] do
-      indexes :title, type: "string",
+      indexes(
+        :title,
+        type: "string",
         analyzer: "ngram_analyzer",
         search_analyzer: "ngram_analyzer"
-      indexes :content, type: "string",
+      )
+
+      indexes(
+        :content,
+        type: "string",
         analyzer: "ngram_analyzer",
         search_analyzer: "ngram_analyzer"
+      )
     end
 
     settings number_of_replicas: "5", number_of_shards: "10" do
       analysis do
-        analyzer :ngram_analyzer,
+        analyzer(
+          :ngram_analyzer,
           tokenizer: "ngram_tokenizer",
           char_filter: ["html_strip", "kuromoji_neologd_iteration_mark"],
           filter: ["lowercase", "kuromoji_neologd_stemmer", "cjk_width"]
-        tokenizer :ngram_tokenizer,
-          type: "nGram", min_gram: "2", max_gram: "3",
+        )
+
+        tokenizer(
+          :ngram_tokenizer,
+          type: "nGram",
+          min_gram: "2",
+          max_gram: "3",
           token_chars: ["letter", "digit"]
-        filter "edge_ngram",
-          type: "edgeNGram", min_gram: 1, max_gram: 15
+        )
+
+        filter("edge_ngram", type: "edgeNGram", min_gram: 1, max_gram: 15)
       end
     end
 
@@ -55,28 +68,28 @@ defmodule ESx.Test.Support.Definition do
 
     defstruct [:id, :title]
 
-    index_name    "test_no_dsl_schema_index"
-    document_type "test_no_dsl_schema_type"
+    index_name("test_no_dsl_schema_index")
+    document_type("test_no_dsl_schema_type")
 
-    mapping [
+    mapping(
       _all: [
-        enabled: false,
+        enabled: false
       ],
       properties: [
         title: [
           type: "string",
           analyzer: "ngram_analyzer",
-          search_analyzer: "ngram_analyzer",
+          search_analyzer: "ngram_analyzer"
         ],
         content: [
           type: "string",
           analyzer: "ngram_analyzer",
-          search_analyzer: "ngram_analyzer",
+          search_analyzer: "ngram_analyzer"
         ]
       ]
-    ]
+    )
 
-    settings [
+    settings(
       number_of_replicas: "5",
       number_of_shards: "10",
       analysis: [
@@ -108,11 +121,12 @@ defmodule ESx.Test.Support.Definition do
         filter: [
           edge_ngram: [
             type: "edgeNGram",
-            min_gram: 1, max_gram: 15
+            min_gram: 1,
+            max_gram: 15
           ]
         ]
       ]
-    ]
+    )
   end
 
   defmodule RepoSchema do
@@ -125,40 +139,52 @@ defmodule ESx.Test.Support.Definition do
     import Ecto.Query
 
     schema "repos" do
-      field :title, :string
+      field(:title, :string)
 
       timestamps()
     end
 
-    index_name    "test_repo_schema_index"
-    document_type "test_repo_schema_type"
+    index_name("test_repo_schema_index")
+    document_type("test_repo_schema_type")
 
     mapping do
-      indexes :title, type: "string",
+      indexes(
+        :title,
+        type: "string",
         analyzer: "ngram_analyzer",
         search_analyzer: "ngram_analyzer",
         fielddata: true
+      )
 
-      indexes :content, type: "string",
+      indexes(
+        :content,
+        type: "string",
         analyzer: "ngram_analyzer",
         search_analyzer: "ngram_analyzer"
+      )
     end
 
     settings do
       analysis do
-        analyzer :ngram_analyzer,
+        analyzer(
+          :ngram_analyzer,
           tokenizer: "ngram_tokenizer",
           char_filter: ["html_strip", "kuromoji_neologd_iteration_mark"],
           filter: ["lowercase", "kuromoji_neologd_stemmer", "cjk_width"]
-        tokenizer :ngram_tokenizer,
-          type: "nGram", min_gram: "2", max_gram: "3",
+        )
+
+        tokenizer(
+          :ngram_tokenizer,
+          type: "nGram",
+          min_gram: "2",
+          max_gram: "3",
           token_chars: ["letter", "digit"]
-        filter "edge_ngram",
-          type: "edgeNGram", min_gram: 1, max_gram: 15
+        )
+
+        filter("edge_ngram", type: "edgeNGram", min_gram: 1, max_gram: 15)
       end
     end
   end
-
 
   defmodule BulkSchema do
     @moduledoc false
@@ -170,32 +196,46 @@ defmodule ESx.Test.Support.Definition do
     import Ecto.Query
 
     schema "bulks" do
-      field :title, :string
+      field(:title, :string)
     end
 
-    index_name    "test_bulk_schema_index"
-    document_type "test_bulk_schema_type"
+    index_name("test_bulk_schema_index")
+    document_type("test_bulk_schema_type")
 
     mapping _all: [enabled: false] do
-      indexes :title, type: "string",
+      indexes(
+        :title,
+        type: "string",
         analyzer: "ngram_analyzer",
         search_analyzer: "ngram_analyzer"
-      indexes :content, type: "string",
+      )
+
+      indexes(
+        :content,
+        type: "string",
         analyzer: "ngram_analyzer",
         search_analyzer: "ngram_analyzer"
+      )
     end
 
     settings number_of_replicas: "5", number_of_shards: "10" do
       analysis do
-        analyzer :ngram_analyzer,
+        analyzer(
+          :ngram_analyzer,
           tokenizer: "ngram_tokenizer",
           char_filter: ["html_strip", "kuromoji_neologd_iteration_mark"],
           filter: ["lowercase", "kuromoji_neologd_stemmer", "cjk_width"]
-        tokenizer :ngram_tokenizer,
-          type: "nGram", min_gram: "2", max_gram: "3",
+        )
+
+        tokenizer(
+          :ngram_tokenizer,
+          type: "nGram",
+          min_gram: "2",
+          max_gram: "3",
           token_chars: ["letter", "digit"]
-        filter "edge_ngram",
-          type: "edgeNGram", min_gram: 1, max_gram: 15
+        )
+
+        filter("edge_ngram", type: "edgeNGram", min_gram: 1, max_gram: 15)
       end
     end
 
@@ -203,5 +243,4 @@ defmodule ESx.Test.Support.Definition do
       super(schema, opts)
     end
   end
-
 end

@@ -114,10 +114,10 @@ defmodule ESx.Schema do
 
       def as_indexed_json(%{} = schema, opts) do
         types = ESx.Funcs.to_mod(schema).__es_mapping__(:types)
-        Map.take schema, Keyword.keys(types)
+        Map.take(schema, Keyword.keys(types))
       end
 
-      defoverridable [as_indexed_json: 2]
+      defoverridable as_indexed_json: 2
     end
   end
 end

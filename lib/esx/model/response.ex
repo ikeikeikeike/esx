@@ -4,16 +4,27 @@ defmodule ESx.Model.Response do
   """
 
   defstruct [
-    :took, :timed_out, :shards, :total, :max_score,
-    :suggest, :aggregations, :response, :__schema__, :__model__,
-    hits: [], records: [],
+    :took,
+    :timed_out,
+    :shards,
+    :total,
+    :max_score,
+    :suggest,
+    :aggregations,
+    :response,
+    :__schema__,
+    :__model__,
+    hits: [],
+    records: []
   ]
 
   @type t :: %__MODULE__{}
 
-  use ESx.Model.Response.Ecto  # TODO: tobe abstraction
+  # TODO: tobe abstraction
+  use ESx.Model.Response.Ecto
 
   def parse(_model, _schema, {:ok, %{"error" => _} = rsp}), do: rsp
+
   def parse(model, schema, {:ok, %{} = rsp}) do
     %__MODULE__{
       __model__: model,
@@ -26,34 +37,34 @@ defmodule ESx.Model.Response do
       shards: rsp["_shards"],
       suggest: rsp["suggest"],
       aggregations: rsp["aggregations"] || rsp["facets"],
-      response: rsp,
+      response: rsp
     }
   end
 
   def results(%{__model__: model, __schema__: schema} = search) do
-    rsp = ESx.Model.Search.execute search
-    parse model, schema, rsp
+    rsp = ESx.Model.Search.execute(search)
+    parse(model, schema, rsp)
   end
 
   defimpl Enumerable, for: ESx.Model.Response do
-
     def count(%ESx.Model.Response{total: total}), do: total
 
     def member?(%ESx.Model.Response{records: records}, value)
-    when length(records) > 0 do
+        when length(records) > 0 do
       value in records
     end
+
     def member?(%ESx.Model.Response{hits: hits}, value) do
       value in hits
     end
 
     def reduce(%ESx.Model.Response{records: records}, acc, fun)
-    when length(records) > 0 do
+        when length(records) > 0 do
       Enumerable.reduce(records, acc, fun)
     end
+
     def reduce(%ESx.Model.Response{hits: hits}, acc, fun) do
       Enumerable.reduce(hits, acc, fun)
     end
   end
-
 end

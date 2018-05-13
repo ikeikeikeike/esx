@@ -19,6 +19,7 @@ defmodule ESx.Schema.Naming do
       Module.put_attribute(__MODULE__, :es_index_name, "#{unquote(name)}")
     end
   end
+
   defmacro document_type(name) do
     quote do
       Module.put_attribute(__MODULE__, :es_document_type, "#{unquote(name)}")
@@ -30,10 +31,10 @@ defmodule ESx.Schema.Naming do
       def __es_naming__(:index_name) do
         @es_index_name || Funcs.to_index_name(__MODULE__)
       end
+
       def __es_naming__(:document_type) do
         @es_document_type || Funcs.to_document_type(__MODULE__)
       end
     end
   end
-
 end

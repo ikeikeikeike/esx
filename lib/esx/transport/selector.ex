@@ -1,7 +1,6 @@
 defmodule ESx.Transport.Selector do
-
   defmodule Base do
-    @callback select(conns::List.t) :: ESx.Transport.Connection.t | {:error, term}
+    @callback select(conns :: List.t()) :: ESx.Transport.Connection.t() | {:error, term}
   end
 
   defmodule Random do
@@ -9,7 +8,7 @@ defmodule ESx.Transport.Selector do
     @behaviour Base
 
     def select(conns) do
-      Enum.random conns
+      Enum.random(conns)
     end
   end
 
@@ -17,23 +16,22 @@ defmodule ESx.Transport.Selector do
     @moduledoc "RoundRobin Selector"
     @behaviour Base
 
-    use ESx.Transport.Statex, [current: 0]
+    use ESx.Transport.Statex, current: 0
 
     def select(conns) do
-      s    = state()
+      s = state()
+
       next =
-        if s.current >= (length(conns) - 1) do
+        if s.current >= length(conns) - 1 do
           0
         else
           1 + s.current
         end
 
-      conn = Enum.at conns, next
-      set_state! :current, next
+      conn = Enum.at(conns, next)
+      set_state!(:current, next)
 
       conn
     end
-
   end
-
 end

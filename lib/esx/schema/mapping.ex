@@ -11,29 +11,28 @@ defmodule ESx.Schema.Mapping do
     end
   end
 
-  defmacro mapping(setting, [do: block]) do
+  defmacro mapping(setting, do: block) do
     es_mapping(__MODULE__, setting, block)
   end
 
-  defmacro mapping([do: block]) do
+  defmacro mapping(do: block) do
     es_mapping(__MODULE__, [], block)
   end
 
   # Setting dynamically
   defmacro mapping(keywords) when is_list(keywords) do
-    {mappings, setting} = Keyword.pop keywords, :properties
+    {mappings, setting} = Keyword.pop(keywords, :properties)
 
     quote do
-      Module.eval_quoted __ENV__, [
-        Mapping.__es_mappings__(unquote(mappings), unquote(setting)),
-      ]
+      Module.eval_quoted(__ENV__, [
+        Mapping.__es_mappings__(unquote(mappings), unquote(setting))
+      ])
     end
   end
 
   @doc false
   def es_mapping(_mod, setting, block) do
     quote do
-
       try do
         import Mapping
         unquote(block)
@@ -41,11 +40,11 @@ defmodule ESx.Schema.Mapping do
         :ok
       end
 
-      mappings = @es_mappings |> Enum.reverse
+      mappings = @es_mappings |> Enum.reverse()
 
-      Module.eval_quoted __ENV__, [
-        Mapping.__es_mappings__(mappings, unquote(setting)),
-      ]
+      Module.eval_quoted(__ENV__, [
+        Mapping.__es_mappings__(mappings, unquote(setting))
+      ])
     end
   end
 
@@ -69,6 +68,7 @@ defmodule ESx.Schema.Mapping do
           def __es_mapping__(:type, unquote(name)) do
             unquote(Macro.escape(opts))
           end
+
           def __es_mapping__(:type, unquote("#{name}")) do
             unquote(Macro.escape(opts))
           end
@@ -80,9 +80,10 @@ defmodule ESx.Schema.Mapping do
     quote do
       def __es_mapping__(:to_map) do
         properties = %{properties: Funcs.to_map(unquote(types))}
-        Map.merge Funcs.to_map(unquote(setting)), properties
+        Map.merge(Funcs.to_map(unquote(setting)), properties)
       end
-      def __es_mapping__(:as_json), do: __es_mapping__ :to_map
+
+      def __es_mapping__(:as_json), do: __es_mapping__(:to_map)
       def __es_mapping__(:types), do: unquote(types)
       unquote(quoted)
       def __es_mapping__(:type, _), do: nil
@@ -90,5 +91,4 @@ defmodule ESx.Schema.Mapping do
       def __es_mapping__(:settings), do: unquote(setting)
     end
   end
-
 end
