@@ -39,27 +39,6 @@ config :esx, ESx.Model,
   repo: MyApp.Repo  # Optional, which defines Ecto for connecting database.
 ```
 
-#### Multiple configuration
-
-###### This is configuration that if you've have multiple Elasticsearch's Endpoint which's another one.
-
-First, that configuration is defined with `ESx.Model.Base` into your project. It's like Ecto's Repo.
-
-```elixir
-defmodule MyApp.ESx do
-  use ESx.Model.Base, app: :my_app
-end
-```
-
-And so that there's `MyApp.ESx` configuration for Mix.config below.
-
-```elixir
-config :my_app, MyApp.ESx,
-  scheme: "http",
-  host: "example.com",
-  port: 9200
-```
-
 #### Definition for all of configuration.
 
 ```elixir
@@ -259,17 +238,6 @@ iex(2)> ESx.Transport.Connection.conns  # Below is all of cluster connections.
 ### Indexing
 
 ```elixir
-MyApp.ESx.reindex, MyApp.Blog
-MyApp.ESx.create_index, MyApp.Blog
-MyApp.ESx.delete_index, MyApp.Blog
-MyApp.ESx.index_exists?, MyApp.Blog
-MyApp.ESx.refresh_index, MyApp.Blog
-
-```
-
-or
-
-```elixir
 ESx.Model.reindex, MyApp.Blog
 ESx.Model.create_index, MyApp.Blog
 ESx.Model.delete_index, MyApp.Blog
@@ -281,22 +249,22 @@ ESx.Model.refresh_index, MyApp.Blog
 ### ES Document
 
 ```elixir
-MyApp.ESx.import, MyApp.Blog
-MyApp.ESx.index_document, %MyApp.Blog{id: 1, title: "egg"}
-MyApp.ESx.delete_document, %MyApp.Blog{id: 1, title: "ham"}
+ESx.Model.import, MyApp.Blog
+ESx.Model.index_document, %MyApp.Blog{id: 1, title: "egg"}
+ESx.Model.delete_document, %MyApp.Blog{id: 1, title: "ham"}
 ```
 
 ### Search & Response
 
 ```elixir
-MyApp.ESx.search, MyApp.Blog, %{query: %{match: %{title: "foo"}}}
+ESx.Model.search, MyApp.Blog, %{query: %{match: %{title: "foo"}}}
 ```
 
 ```elixir
 response =
   MyApp.Blog
-  |> MyApp.ESx.search(%{query: %{match: %{title: "foo"}}})
-  |> MyApp.ESx.results
+  |> ESx.Model.search(%{query: %{match: %{title: "foo"}}})
+  |> ESx.Model.results
 
 IO.inspect Enum.map(response, fn r ->
   r["_source"]["title"]
@@ -309,8 +277,8 @@ end)
 ```elixir
 response =
   MyApp.Blog
-  |> MyApp.ESx.search(%{query: %{match: %{title: "foo"}}})
-  |> MyApp.ESx.records
+  |> ESx.Model.search(%{query: %{match: %{title: "foo"}}})
+  |> ESx.Model.records
 
 IO.inspect Enum.each(response, fn r ->
   r.title
@@ -329,8 +297,8 @@ end)
 ```elixir
 page =
   MyApp.Blog
-  |> MyApp.ESx.search(%{query: %{match: %{title: "foo"}}})
-  |> MyApp.ESx.paginate(page: 2, page_size: 5)
+  |> ESx.Model.search(%{query: %{match: %{title: "foo"}}})
+  |> ESx.Model.paginate(page: 2, page_size: 5)
 ```
 
 
