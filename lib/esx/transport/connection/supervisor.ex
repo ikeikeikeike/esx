@@ -15,6 +15,7 @@ defmodule ESx.Transport.Connection.Supervisor do
   def poolname(pid) when is_pid(pid) do
     pid
   end
+
   def poolname(name) do
     Funcs.encid([:poolboy, ESx.Transport.Connection], name)
   end
@@ -22,7 +23,8 @@ defmodule ESx.Transport.Connection.Supervisor do
   def start_child(name, args) do
     id = poolname(name)
 
-    conn_opts    = Keyword.put args, :name, name
+    conn_opts = Keyword.put(args, :name, name)
+
     poolboy_opts = [
       {:name, {:local, id}},
       {:worker_module, ESx.Transport.Connection},
@@ -43,21 +45,20 @@ defmodule ESx.Transport.Connection.Supervisor do
   end
 
   def remove_child(name) do
-    id = poolname name
+    id = poolname(name)
     Supervisor.terminate_child(__MODULE__, id)
     Supervisor.delete_child(__MODULE__, id)
   end
 
   def transaction(name, fun) do
-    :poolboy.transaction poolname(name), &fun.(&1)
+    :poolboy.transaction(poolname(name), &fun.(&1))
   end
 
   def checkout(name) do
-    :poolboy.checkout poolname(name)
+    :poolboy.checkout(poolname(name))
   end
 
   def checkin(name, pid) do
-    :poolboy.checkin poolname(name), pid
+    :poolboy.checkin(poolname(name), pid)
   end
-
 end

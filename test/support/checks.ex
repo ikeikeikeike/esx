@@ -6,5 +6,4 @@ defmodule ESx.Test.Support.Checks do
   def ok({:ok, value}, fun) when is_function(fun), do: fun.(value)
   def ok({:ok, value}, key), do: value[key]
   def ok({_ng, value}, _fun), do: {:ng, value}
-
 end

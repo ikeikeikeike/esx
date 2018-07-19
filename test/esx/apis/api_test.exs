@@ -1,4 +1,4 @@
-Code.require_file "../../../test_helper.exs", __ENV__.file
+Code.require_file("../../../test_helper.exs", __ENV__.file)
 
 defmodule ESx.APIs.APITest do
   use ExUnit.Case
@@ -12,7 +12,6 @@ defmodule ESx.APIs.APITest do
 
   test "ok apis.api.info" do
     rsp = API.info(@ts)
-
     assert ok(rsp, & &1["cluster_name"]) == "elasticsearch"
   end
 
@@ -29,5 +28,4 @@ defmodule ESx.APIs.APITest do
     rsp = Indices.delete(@ts, %{index: "test_index", type: "test_type"})
     assert ok(rsp, & &1["acknowledged"]) == true
   end
-
 end

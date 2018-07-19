@@ -22,32 +22,31 @@ defmodule ESx.Transport.Sniffer do
             get_in(info, [@protocol, "publish_address"])
             |> String.split(":")
 
-          {port, _} = Integer.parse port
+          {port, _} = Integer.parse(port)
 
-          config =
-            [
-              # id:          id,
-              # name:        info["name"],
-              # version:     info["version"],
-              host:        String.replace(host, "inet[/", ""),
-              port:        port,
-              protocol:    @protocol,
-              # roles:       info["roles"],
-              # attributes:  info["attributes"]
-            ]
+          config = [
+            # id:          id,
+            # name:        info["name"],
+            # version:     info["version"],
+            host: String.replace(host, "inet[/", ""),
+            port: port,
+            protocol: @protocol
+            # roles:       info["roles"],
+            # attributes:  info["attributes"]
+          ]
 
-          Funcs.build_url! config
+          Funcs.build_url!(config)
         end
       end)
 
-    hosts = hosts |> Enum.filter(& !!&1)
+    hosts = hosts |> Enum.filter(&(!!&1))
 
-    if Transport.State.state.randomize_hosts do
-      Enum.shuffle hosts
+    if Transport.State.state().randomize_hosts do
+      Enum.shuffle(hosts)
     else
       hosts
     end
   end
-  defp parse(any), do: {:error, any}
 
+  defp parse(any), do: {:error, any}
 end

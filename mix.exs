@@ -8,21 +8,25 @@ defmodule ESx.Mixfile do
   """
 
   def project do
-    [app: :esx,
-     version: @version,
-     elixir: ">= 1.2.0",
-     elixirc_paths: elixirc_paths(Mix.env),
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     deps: deps(),
-     package: package(),
-     aliases: aliases(),
-     description: @description,
-     name: "ESx",
-     docs: [source_ref: "master", main: "ESx",
-            canonical: "http://hexdocs.pm/esx",
-            source_url: "https://github.com/ikeikeikeike/esx" ]
-   ]
+    [
+      app: :esx,
+      version: @version,
+      elixir: ">= 1.2.0",
+      elixirc_paths: elixirc_paths(Mix.env()),
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      deps: deps(),
+      package: package(),
+      aliases: aliases(),
+      description: @description,
+      name: "ESx",
+      docs: [
+        source_ref: "master",
+        main: "ESx",
+        canonical: "http://hexdocs.pm/esx",
+        source_url: "https://github.com/ikeikeikeike/esx"
+      ]
+    ]
   end
 
   # Configuration for the OTP application
@@ -48,11 +52,9 @@ defmodule ESx.Mixfile do
       {:exjsx, ">= 3.0.0"},
       {:poolboy, ">= 1.0.0 and < 2.0.0"},
       {:ecto, ">= 1.1.0", optional: true},
-
       {:postgrex, ">= 0.0.0", only: [:dev, :test]},
-      {:credo, "~> 0.7", only: [:dev, :test]},
-
-      {:ex_doc, "~> 0.14", only: :dev},
+      {:credo, ">= 0.0.0", only: [:dev, :test]},
+      {:ex_doc, ">= 0.0.0", only: :dev},
       {:earmark, ">= 0.0.0", only: :dev},
       {:inch_ex, ">= 0.0.0", only: :docs}
     ]
@@ -62,7 +64,7 @@ defmodule ESx.Mixfile do
     [
       maintainers: ["Tatsuo Ikeda / ikeikeikeike"],
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/ikeikeikeike/esx"},
+      links: %{"GitHub" => "https://github.com/ikeikeikeike/esx"}
     ]
   end
 
@@ -70,7 +72,6 @@ defmodule ESx.Mixfile do
   defp elixirc_paths(_), do: ["lib"]
 
   defp aliases do
-    ["test": ["ecto.create --quiet", "ecto.migrate", "test"]]
+    [test: ["ecto.create --quiet", "ecto.migrate", "test"]]
   end
-
 end
