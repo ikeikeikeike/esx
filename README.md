@@ -220,7 +220,8 @@ By default will send all of defined mapping's fields to Elasticsearch.
 
 `ESx.Transport` and `MyApp.ESx` will connect to multipe elasticsearch automatically if builded cluster systems on your environment.
 ```elixir
-iex(1)> ESx.Transport.conn  # Sniffing cluster system and choose random Elasticsearch connection
+iex(1)> MyApp.ESx.transport # Load configuration to ESX.Transport this is required.
+iex(2)> ESx.Transport.conn  # Sniffing cluster system and choose random Elasticsearch connection
 
 01:10:26.694 [debug] curl -X GET 'http://127.0.0.1:9200/_nodes/http'  # Run sniffing
 
