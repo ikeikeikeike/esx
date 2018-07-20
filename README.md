@@ -32,14 +32,6 @@ hexdocs: https://hexdocs.pm/esx
 
 ## Configuration
 
-```elixir
-config :esx, ESx.Model,
-  url: "http://example.com:9200",
-  repo: MyApp.Repo  # Optional, which defines Ecto for connecting database.
-```
-
-#### Multiple configuration
-
 ###### This is configuration that if you've have multiple Elasticsearch's Endpoint which's another one.
 
 First, that configuration is defined with `ESx.Model.Base` into your project. It's like Ecto's Repo.
@@ -324,6 +316,12 @@ page =
 
 ## Low-level APIs
 
+#### Configuration
+
+```elixir
+config :esx, ESx.Model,
+  url: "http://example.com:9200"
+```
 
 There're Low-level APIs in `ESx.API` and `ESx.API.Indices`.
 
