@@ -1,6 +1,6 @@
 defmodule ESx.Model do
   @moduledoc """
-  Already defined ESx Model using ESx.Model.Base
+  Simply use ESx.Model.Base
   """
 
   use ESx.Model.Base
