@@ -30,16 +30,7 @@ end
 
 hexdocs: https://hexdocs.pm/esx
 
-
 ## Configuration
-
-```elixir
-config :esx, ESx.Model,
-  url: "http://example.com:9200",
-  repo: MyApp.Repo  # Optional, which defines Ecto for connecting database.
-```
-
-#### Multiple configuration
 
 ###### This is configuration that if you've have multiple Elasticsearch's Endpoint which's another one.
 
@@ -63,7 +54,7 @@ config :my_app, MyApp.ESx,
 #### Definition for all of configuration.
 
 ```elixir
-config :esx, ESx.Model,
+config :my_app, MyApp.ESx,
   repo: MyApp.Repo,                        # Optional, which defines Ecto for connecting database.
   protocol: "http",                        # or: scheme: "http"
   user: "yourname", password: "yourpass",  # or: userinfo: "yourname:yourpass"
@@ -205,7 +196,7 @@ defmodule MyApp.Blog do
 end
 ```
 
-When Ecto's Schema and ESx's mapping have defferent fields or for customization more, defining function `as_indexed_json` will make it in order to send relational data to Elasticsearch, too. Commonly it called via `ESx.Model.index_document`, `ESx.Model.update_document`.
+When Ecto's Schema and ESx's mapping have defferent fields or for customization more, defining function `as_indexed_json` will make it in order to send relational data to Elasticsearch, too. Commonly it called via `MyApp.ESx.index_document`, `MyApp.ESx.update_document`.
 
 ```elixir
 defmodule MyApp.Blog do
@@ -227,9 +218,10 @@ By default will send all of defined mapping's fields to Elasticsearch.
 
 ## Transport
 
-`ESx.Transport` and `ESx.Model` will connect to multipe elasticsearch automatically if builded cluster systems on your environment.
+`ESx.Transport` and `MyApp.ESx` will connect to multipe elasticsearch automatically if builded cluster systems on your environment.
 ```elixir
-iex(1)> ESx.Transport.conn  # Sniffing cluster system and choose random Elasticsearch connection
+iex(1)> MyApp.ESx.transport # Load configuration to ESX.Transport this is required.
+iex(2)> ESx.Transport.conn  # Sniffing cluster system and choose random Elasticsearch connection
 
 01:10:26.694 [debug] curl -X GET 'http://127.0.0.1:9200/_nodes/http'  # Run sniffing
 
@@ -264,17 +256,6 @@ MyApp.ESx.create_index, MyApp.Blog
 MyApp.ESx.delete_index, MyApp.Blog
 MyApp.ESx.index_exists?, MyApp.Blog
 MyApp.ESx.refresh_index, MyApp.Blog
-
-```
-
-or
-
-```elixir
-ESx.Model.reindex, MyApp.Blog
-ESx.Model.create_index, MyApp.Blog
-ESx.Model.delete_index, MyApp.Blog
-ESx.Model.index_exists?, MyApp.Blog
-ESx.Model.refresh_index, MyApp.Blog
 
 ```
 
@@ -320,7 +301,7 @@ end)
 
 ###### API Docs
 
-- https://hexdocs.pm/esx/ESx.Model.html
+- https://hexdocs.pm/esx/MyApp.ESx.html
 
 ##### Pagination
 
@@ -336,11 +317,17 @@ page =
 
 ## Low-level APIs
 
+#### Configuration
+
+```elixir
+config :esx, ESx.Model,
+  url: "http://example.com:9200"
+```
 
 There're Low-level APIs in `ESx.API` and `ESx.API.Indices`.
 
 ```elixir
-ts = ESx.Transport.transport trace: true  # or: ts = ESx.Model.transport
+ts = ESx.Transport.transport trace: true  # or: ts = MyApp.ESx.transport
 
 ESx.API.search ts, %{index: "your_app", body: %{query: %{}}}
 

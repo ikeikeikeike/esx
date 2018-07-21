@@ -10,11 +10,10 @@ defmodule ESx.Transport.Config do
     quote do
       alias ESx.Funcs
 
-      cfg = Application.get_env(:esx, ESx.Model)
-      cfg = Funcs.build_url!(cfg) ++ [trace: cfg[:trace]]
-
-      @defconfig cfg
-      def defconfig, do: @defconfig
+      def defconfig do
+        cfg = Application.get_env(:esx, ESx.Model)
+        Funcs.build_url!(cfg) ++ [trace: cfg[:trace]]
+      end
     end
   end
 end
