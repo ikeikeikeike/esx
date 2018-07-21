@@ -12,7 +12,7 @@ defmodule ESx.Model.Config do
     cfg =
       case Application.get_env(app, mod) do
         nil ->
-          Application.get_env(app, ESx.Model)
+          Application.get_env(app, ESx.Model, [url: "http://127.0.0.1:9200"])
 
         cfg ->
           cfg
