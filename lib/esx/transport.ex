@@ -62,10 +62,9 @@ defmodule ESx.Transport do
   end
 
   def transport(args) do
-    {url, args} = Keyword.pop(args, :url)
+    {_, arg} = Keyword.pop(args, :url)
 
-    Connection.start_conn(Funcs.build_url!(url: url) ++ args)
-
+    Connection.start_conn(Funcs.build_url!(args) ++ arg)
     struct(__MODULE__, args)
   end
 

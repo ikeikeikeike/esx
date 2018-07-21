@@ -25,9 +25,12 @@ defmodule ESx.Model.Config do
               "Please see here https://github.com/ikeikeikeike/esx#configuration"
     end
 
-    extract_repo(app, cfg[:repo]) ++
-      [url: cfg[:url], trace: cfg[:trace] || false] ++
-        [app: app, mod: mod]
+    {repo,  cfg} = Keyword.pop(cfg, :repo)
+    {trace, cfg} = Keyword.pop(cfg, :trace)
+
+    extract_repo(app, repo) ++
+      [app: app, mod: mod, trace: trace || false] ++
+        cfg
   end
 
   def extract_repo(app, nil), do: possibly_load(app)

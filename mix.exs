@@ -1,7 +1,7 @@
 defmodule ESx.Mixfile do
   use Mix.Project
 
-  @version "0.7.2"
+  @version "0.7.3"
 
   @description """
   A client for the Elasticsearch with Ecto, written in Elixir

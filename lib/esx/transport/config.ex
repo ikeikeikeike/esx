@@ -11,8 +11,10 @@ defmodule ESx.Transport.Config do
       alias ESx.Funcs
 
       def defconfig do
-        cfg = Application.get_env(:esx, ESx.Model, [url: "http://127.0.0.1:9200"])
-        Funcs.build_url!(cfg) ++ [trace: cfg[:trace]]
+        config = Application.get_env(:esx, ESx.Model, [url: "http://127.0.0.1:9200"])
+
+        {_, cfg} = Keyword.pop(config, :url)
+        ESx.Funcs.build_url!(config) ++ cfg
       end
     end
   end

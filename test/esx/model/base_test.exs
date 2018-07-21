@@ -32,16 +32,6 @@ defmodule ESx.Model.BaseTest do
            }
   end
 
-  test "ok model.base.config" do
-    assert Model.config() == [
-             url: "http://127.0.0.1:9200",
-             repo: ESx.Test.Support.Repo,
-             app: :esx,
-             mod: Model,
-             trace: true
-           ]
-  end
-
   test "ok model.base.transport" do
     Model.transport()
 
