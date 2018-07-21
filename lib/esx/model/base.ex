@@ -49,7 +49,8 @@ defmodule ESx.Model.Base do
       end
 
       def config do
-        @config
+        {url, config} = Keyword.pop(@config, :url)
+        Funcs.build_url!(url: url) ++ config
       end
 
       def transport do
