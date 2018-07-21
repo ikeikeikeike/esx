@@ -47,6 +47,10 @@ defmodule ESx.Funcs do
     |> List.last()
   end
 
+  def build_url!([{url, _}| t]) when url != :url do
+    build_url! t
+  end
+
   def build_url!(url: url) when is_binary(url) do
     case URI.parse(url) do
       %URI{scheme: nil} -> raise ArgumentError, "Missing scheme in #{url}"
@@ -55,15 +59,18 @@ defmodule ESx.Funcs do
     end
   end
 
-  def build_url!(url: _), do: raise(ArgumentError, "Missing url value")
-
-  def build_url!({:system, env}) when is_binary(env) do
+  def build_url!(url: {:system, env}) when is_binary(env) do
     build_url!(url: System.get_env(env))
   end
 
+  def build_url!(url: _), do: raise(ArgumentError, "Missing url value")
+  def build_url!([]), do: raise(ArgumentError, "Missing url value")
+
   def build_url!(cfg) when is_list(cfg) do
-    u = struct(URI, cfg)
-    u = if cfg[:protocol], do: Map.put(u, :scheme, cfg[:protocol]), else: u
+    u = URI.parse(Keyword.get(cfg, :url, ""))
+    u = if cfg[:scheme], do: Map.put(u, :scheme, cfg[:scheme]), else: u
+    u = if cfg[:host], do: Map.put(u, :host, cfg[:host]), else: u
+    u = if cfg[:port], do: Map.put(u, :port, cfg[:port]), else: u
     u = if cfg[:user], do: Map.put(u, :userinfo, "#{cfg[:user]}:#{cfg[:password]}"), else: u
 
     build_url!(url: URI.to_string(u))
