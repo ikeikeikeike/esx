@@ -5,7 +5,7 @@ defmodule ESx.Transport.Sniffer do
   # alias ESx.Transport.Config
 
   @protocol "http"
-  @timeout 1
+  # @timeout 1
 
   def urls(%{} = ts) do
     Transport.perform_request(ts, "GET", "_nodes/http", %{}, nil)
