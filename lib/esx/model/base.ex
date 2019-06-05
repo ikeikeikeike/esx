@@ -229,7 +229,7 @@ defmodule ESx.Model.Base do
 
         results =
           stream(schema, Keyword.merge(opts, chunk_size: chunk_size))
-          |> Stream.chunk(chunk_size, chunk_size, [])
+          |> Stream.chunk_every(chunk_size, chunk_size, [])
           |> Stream.map(fn chunk ->
             body = Enum.map(chunk, &transform(&1, opts))
 

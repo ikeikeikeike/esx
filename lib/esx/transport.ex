@@ -117,7 +117,8 @@ defmodule ESx.Transport do
 
   def resurrect_deads do
     Connection.conns()
-    |> Enum.filter_map(& &1.dead, &Connection.resurrect!/1)
+    |> Enum.filter(& &1.dead)
+    |> Enum.map(&Connection.resurrect!/1)
   end
 
   def perform_request(%__MODULE__{} = ts) do
@@ -258,7 +259,7 @@ defmodule ESx.Transport do
       {:ok, pretitfied} ->
         traceout("curl -X #{method} '#{url}' -d '#{pretitfied}'\n")
 
-      {:error, message} ->
+      {:error, _message} ->
         traceout("curl -X #{method} '#{url}' -d '#### couldn't prettify body ####'\n")
     end
   end
