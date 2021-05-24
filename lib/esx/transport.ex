@@ -155,7 +155,7 @@ defmodule ESx.Transport do
     tries = tries + 1
 
     headers = [{"Content-Type", "application/json"}, {"Connection", "keep-alive"}]
-    options = [hackney: [pool: cn.pidname]]
+    options = [hackney: [pool: cn.pidname], ssl: [verify: :verify_none]]
 
     url =
       cn.url
