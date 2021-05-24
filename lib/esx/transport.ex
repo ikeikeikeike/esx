@@ -43,7 +43,7 @@ defmodule ESx.Transport do
   alias ESx.Funcs
   alias ESx.Transport.{State, Sniffer, Connection, ServerError, UnknownError}
 
-  defstruct method: "GET", path: "", params: %{}, body: nil, trace: false
+  defstruct method: "GET", path: "", params: %{}, body: nil, trace: false, user: nil, password: nil
 
   @type t :: %__MODULE__{}
 
@@ -155,7 +155,7 @@ defmodule ESx.Transport do
     tries = tries + 1
 
     headers = [{"Content-Type", "application/json"}, {"Connection", "keep-alive"}]
-    options = [hackney: [pool: cn.pidname], ssl: [verify: :verify_none]]
+    options = [hackney: [pool: cn.pidname, basic_auth: {ts.user, ts.password}], ssl: [verify: :verify_none]]
 
     url =
       cn.url

@@ -30,7 +30,7 @@ defmodule ESx.Transport.Sniffer do
             # version:     info["version"],
             host: String.replace(host, "inet[/", ""),
             port: port,
-            protocol: @protocol
+            protocol: "https"
             # roles:       info["roles"],
             # attributes:  info["attributes"]
           ]
