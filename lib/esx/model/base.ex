@@ -292,6 +292,8 @@ defmodule ESx.Model.Base do
       defdelegate records(search), to: ESx.Model.Response, as: :records
 
       defdelegate results(search), to: ESx.Model.Response, as: :results
+
+      defoverridable config: 0
     end
   end
 end
