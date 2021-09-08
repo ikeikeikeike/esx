@@ -243,7 +243,7 @@ defmodule ESx.Transport do
       signal, reason ->
         Logger.error("Close connection: Unhandled error: #{inspect signal}, #{inspect reason}")
 
-        {:error, error}
+        {:error, "Generic error"}
     after
       Connection.checkin(cn)
     end
