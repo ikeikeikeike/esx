@@ -155,7 +155,7 @@ defmodule ESx.Transport do
     tries = tries + 1
 
     headers = [{"Content-Type", "application/json"}, {"Connection", "keep-alive"}]
-    options = [hackney: [pool: cn.pidname, basic_auth: {ts.user, ts.password}], ssl: [verify: :verify_none]]
+    options = [hackney: [pool: cn.pidname, basic_auth: {ts.user, ts.password}], ssl: [verify: :verify_none], timeout: 15_000]
 
     url =
       cn.url
@@ -238,6 +238,10 @@ defmodule ESx.Transport do
       :exit, errors ->
         error = elem(errors, 0)
         Logger.error("Close connection: #{inspect(errors)}")
+
+        {:error, error}
+      signal, reason ->
+        Logger.error("Close connection: Unhandled error: #{inspect signal}, #{inspect reason}")
 
         {:error, error}
     after
