@@ -23,6 +23,22 @@ defmodule ESx.Model.Response do
   # TODO: tobe abstraction
   use ESx.Model.Response.Ecto
 
+  def parse(model, schema, {:error, %HTTPoison.Error{reason: :timeout}}) do
+    %__MODULE__{
+      __model__: model,
+      __schema__: schema,
+      hits: [],
+      total: nil,
+      max_score: nil,
+      took: 0,
+      timed_out: true,
+      shards: %{},
+      suggest: nil,
+      aggregations: nil,
+      response: %{}
+    }
+  end
+
   def parse(_model, _schema, {:ok, %{"error" => _} = rsp}), do: rsp
 
   def parse(model, schema, {:ok, %{} = rsp}) do
