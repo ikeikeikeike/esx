@@ -74,11 +74,12 @@ defmodule ESx.Funcs do
   def build_url!([]), do: raise(ArgumentError, "Missing url value")
 
   def build_url!(cfg) do
-    case (Enum.into cfg, %{}) do
+    case Enum.into(cfg, %{}) do
       %{url: url} ->
-        build_url! url: url
+        build_url!(url: url)
+
       map ->
-        build_url! map
+        build_url!(map)
     end
   end
 

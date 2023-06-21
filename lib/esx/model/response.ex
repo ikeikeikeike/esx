@@ -82,5 +82,9 @@ defmodule ESx.Model.Response do
     def reduce(%ESx.Model.Response{hits: hits}, acc, fun) do
       Enumerable.reduce(hits, acc, fun)
     end
+
+    def slice(%ESx.Model.Response{hits: hits}) do
+      Enumerable.slice(hits)
+    end
   end
 end

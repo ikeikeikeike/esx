@@ -12,7 +12,7 @@ defmodule ESx.Model.Config do
     cfg =
       case Application.get_env(app, mod) do
         nil ->
-          Application.get_env(app, ESx.Model, [url: "http://127.0.0.1:9200"])
+          Application.get_env(app, ESx.Model, url: "http://127.0.0.1:9200")
 
         cfg ->
           cfg
@@ -25,12 +25,12 @@ defmodule ESx.Model.Config do
               "Please see here https://github.com/ikeikeikeike/esx#configuration"
     end
 
-    {repo,  cfg} = Keyword.pop(cfg, :repo)
+    {repo, cfg} = Keyword.pop(cfg, :repo)
     {trace, cfg} = Keyword.pop(cfg, :trace)
 
     extract_repo(app, repo) ++
       [app: app, mod: mod, trace: trace || false] ++
-        cfg
+      cfg
   end
 
   def extract_repo(app, nil), do: possibly_load(app)

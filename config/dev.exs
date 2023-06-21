@@ -1,4 +1,4 @@
-use Mix.Config
+import Config
 
 config :esx, ESx.Model,
   protocol: "http",

@@ -9,7 +9,7 @@ defmodule ESx.Transport.Connection.Supervisor do
   end
 
   def init(_args) do
-    supervise([], strategy: :one_for_one, name: __MODULE__)
+    Supervisor.start_link(__MODULE__, [], strategy: :one_for_one, name: __MODULE__)
   end
 
   def poolname(pid) when is_pid(pid) do

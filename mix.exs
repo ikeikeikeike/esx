@@ -20,6 +20,19 @@ defmodule ESx.Mixfile do
       aliases: aliases(),
       description: @description,
       name: "ESx",
+      xref: [
+        exclude: [
+          Ecto.Query,
+          Ecto.Query.Builder,
+          Ecto.Query.Builder.Filter,
+          Ecto.Query.Builder.From,
+          Ecto.Query.Builder.LimitOffset,
+          Ecto.Query.Builder.OrderBy,
+          JSX,
+          Poison,
+          :poolboy
+        ]
+      ],
       docs: [
         source_ref: "master",
         main: "ESx",

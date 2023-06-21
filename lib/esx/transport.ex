@@ -43,7 +43,13 @@ defmodule ESx.Transport do
   alias ESx.Funcs
   alias ESx.Transport.{State, Sniffer, Connection, ServerError, UnknownError}
 
-  defstruct method: "GET", path: "", params: %{}, body: nil, trace: false, user: nil, password: nil
+  defstruct method: "GET",
+            path: "",
+            params: %{},
+            body: nil,
+            trace: false,
+            user: nil,
+            password: nil
 
   @type t :: %__MODULE__{}
 
@@ -117,7 +123,7 @@ defmodule ESx.Transport do
 
   def resurrect_deads do
     Connection.conns()
-    |> Enum.filter_map(& &1.dead, &Connection.resurrect!/1)
+    |> Enum.filter(&Connection.resurrect!/1)
   end
 
   def perform_request(%__MODULE__{} = ts) do
@@ -155,7 +161,12 @@ defmodule ESx.Transport do
     tries = tries + 1
 
     headers = [{"Content-Type", "application/json"}, {"Connection", "keep-alive"}]
-    options = [hackney: [pool: cn.pidname, basic_auth: {ts.user, ts.password}], ssl: [verify: :verify_none], timeout: 15_000]
+
+    options = [
+      hackney: [pool: cn.pidname, basic_auth: {ts.user, ts.password}],
+      ssl: [verify: :verify_none],
+      timeout: 15_000
+    ]
 
     url =
       cn.url
@@ -240,8 +251,9 @@ defmodule ESx.Transport do
         Logger.error("Close connection: #{inspect(errors)}")
 
         {:error, error}
+
       signal, reason ->
-        Logger.error("Close connection: Unhandled error: #{inspect signal}, #{inspect reason}")
+        Logger.error("Close connection: Unhandled error: #{inspect(signal)}, #{inspect(reason)}")
 
         {:error, "Generic error"}
     after
@@ -262,7 +274,7 @@ defmodule ESx.Transport do
       {:ok, pretitfied} ->
         traceout("curl -X #{method} '#{url}' -d '#{pretitfied}'\n")
 
-      {:error, message} ->
+      {:error, _message} ->
         traceout("curl -X #{method} '#{url}' -d '#### couldn't prettify body ####'\n")
     end
   end
